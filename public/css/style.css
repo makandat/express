@@ -1,0 +1,88 @@
+h1 {
+  text-align: center;
+  color: mediumvioletred;
+  padding: 4px;
+  margin-top: 20px;
+  font-size: 3em;
+}
+
+h2 {
+  margin-top: 30px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-bottom:6px;
+  color: orangered;
+  border-left: solid 20px crimson;
+}
+
+h3 {
+  margin-top:30px;
+  color: darkorange;
+}
+
+h4 {
+  margin-top: 10px;
+  color: indigo;
+}
+
+a:link, a:visited {
+  color: dodgerblue;
+  text-decoration: none;
+  font-family: "Meiryo UI","Meiryo";
+}
+
+body {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.blk {
+  padding: 6px;
+}
+
+table, th, td {
+  border: solid thin gray;
+  border-collapse: collapse;
+}
+
+td, th {
+  padding: 4px;
+}
+
+th {
+  background-color: linen;
+}
+
+.menu {
+  border: dotted thin gray;
+  padding: 3px;
+  padding-left: 8px;
+  background-color: #d9f7fc;
+}
+
+.menubar {
+  border: dotted thin gray;
+  padding: 3px;
+  padding-left: 8px;
+  text-align:center;
+  background-color: #f0f0e0;
+}
+
+.quote {
+  margin-left: 7%;
+  padding: 6px;
+}
+
+
+.src {
+  font-size: small;
+  color: navy;
+  padding: 5px;
+  border: dotted thin gray;
+}
+
+.message {
+  text-align:center;
+  font-size:14pt;
+  color:magenta;
+}

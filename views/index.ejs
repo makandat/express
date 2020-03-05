@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/css/style.css' />
+    <script src="/js/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <div class="menu">
+      <a href="/modify_album">アルバムの作成・修正</a>&nbsp;/&nbsp;
+      <a href="/modify_picture">画像の追加・修正</a>&nbsp;/&nbsp;
+      アルバムグループの選択　<select id="groupname">
+        <option>---------------</option>
+        <option value="ALL">すべて</option>
+        <option value="NONAME">名前なし</option>
+        <%- albumgroups %>
+      </select>&nbsp;/&nbsp;
+      <a href="/first"><img src="/img/first.svg" /> 最初</a>&nbsp;
+      <a href="/prev"><img src="/img/prev.svg" />前へ</a>&nbsp;/&nbsp;
+      <a href="/next">次へ <img src="/img/next.svg" /></a>&nbsp;
+      <a href="/last">最後 <img src="/img/last.svg" /></a>&nbsp;/&nbsp;
+      <a href="/pictures?view=normal">画像フォルダ一覧</a>&nbsp;/&nbsp;
+      <a href="/modify_folders">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
+      <a href="/bindata">サムネール画像一覧</a>
+    </div>
+    <p>&nbsp;</p>
+    <%# アルバム一覧の表を作成する。%>
+    <table style="width:90%;margin-left:auto;margin-right:auto;">
+      <tr><th>番号</th><th>名称</th><th>収録数</th><th>情報</th><th>イメージ</th><th>グループ名</th><th>日付</th></tr>
+    <% for (let album of albums) { %>
+      <tr>
+        <% for (let i = 0; i < album.length; i++) { %>
+          <td><%= album[i] %></td>
+        <% } %>
+      </tr>
+    <% } %>
+  </table>
+    <p>&nbsp;</p>
+    <p style="text-align:center;"><a href="#">TOP</a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </body>
+</html>
