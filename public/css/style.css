@@ -45,12 +45,14 @@ table, th, td {
   border-collapse: collapse;
 }
 
-td, th {
-  padding: 4px;
+td {
+  padding: 2px;
+  font-size: small;
 }
 
 th {
   background-color: linen;
+  padding: 4px;
 }
 
 .menu {

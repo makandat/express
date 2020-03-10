@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel='stylesheet' href='/css/style.css' />
+        <script src="/js/jquery.min.js"></script>    
+    </head>
+
+    <body>
+    <h1><%= title %></h1>
+    <div class="menu">
+      <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
+      <a href="/"> 表示リセット</a>&nbsp;/&nbsp;
+      <a href="/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
+      <a href="/thumbs"> サムネール一覧表示</a>&nbsp;/&nbsp;
+      <a href="/details"> 詳細一覧表示</a>&nbsp;/&nbsp;
+      <a href="/first"><img src="/img/first.svg" /> 先頭</a>&nbsp;
+      <a href="/prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;/&nbsp;
+      <a href="/next">次へ <img src="/img/next.svg" /></a>&nbsp;
+      <a href="/last">最後 <img src="/img/last.svg" /></a>&nbsp;/&nbsp;
+      <span>id を指定 </span><input type="text" size="5" id="jumpId" /><input type="button" id="btnJump" value="SET" />
+      &nbsp;/&nbsp;<a href="/help.html">ヘルプ</a>
+    </div>
+
+    <p class="message"><%= message %></p>
+
+    <table>
+        <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス</th><th>作者</th><th>情報</th><th>好き</th><th>イメージ</th><th>Pictures ID</th><th>日付</th></tr>
+        <% for (let row of results) { %>
+            <tr>
+                <% for (let i = 0; i < row.length; i++) { %>
+                    <td><%= row[i] %></td>
+                <% } %>
+            </tr>
+        <% } %>
+    </table>
+    <p>&nbsp;</p>
+    <p style="text-align:center;"><a href="#top">TOP</a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    </body>
+</html>
