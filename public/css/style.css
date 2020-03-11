@@ -86,5 +86,26 @@ th {
 .message {
   text-align:center;
   font-size:14pt;
-  color:magenta;
+  color:indigo;
+}
+
+.form_row {
+  margin-top: 4px;
+}
+
+input[type="text"] {
+  border-radius: 4px;
+  padding: 4px;
+}
+
+input[type="submit"] {
+  border-radius: 6px;
+  height: 32px;
+  background-color: aquamarine;
+}
+
+input[type="button"] {
+  border-radius: 6px;
+  height: 32px;
+  background-color: linen;
 }

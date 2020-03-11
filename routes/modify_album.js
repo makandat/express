@@ -1,10 +1,77 @@
 /* modify_album.js */
 var express = require('express');
+var mysql = require('./MySQL.js');
 var router = express.Router();
 
-/* GET users listing. */
+/* フォームデータをテーブルに挿入する。*/
+function insertData(req, res) {
+  let name = req.body.album;
+  let info = req.body.info;
+  let bindata = req.body.bindata;
+  let groupname = req.body.groupname;
+  let message = "データの挿入に成功しました。";
+  let sql = `INSERT INTO Album VALUES(NULL, '${name}', 'picture', '${info}', ${bindata}, '${groupname}', CURRENT_DATE())`;
+  mysql.execute(sql, function() {
+    res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": "", "album": name, "info": info, "bindata": bindata, "groupname": groupname});
+  });
+}
+
+/* フォームデータでテーブルを更新する。*/
+function updateData(req, res) {
+  let id = req.body.id;
+  let name = req.body.album;
+  let info = req.body.info;
+  let bindata = req.body.bindata;
+  let groupname = req.body.groupname;
+  let message = `データの更新に成功しました。id = ${id}`;
+  let sql = `UPDATE Album SET name='${name}', info='${info}', bindata=${bindata}, groupname='${groupname}', \`date\`=CURRENT_DATE() WHERE id=${id}`;
+  mysql.execute(sql, function() {
+    res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": id, "album": name, "info": info, "bindata": bindata, "groupname": groupname});
+  });
+}
+
+/* データ確認 */
+function confirmData(req, res) {
+  let id = req.params.id;
+  if (id == undefined) {
+    res.render("modify_album", {"title": "アルバムの作成・修正", "message": "エラー： id が空欄です。", "id": "", "album": "", "info": "", "bindata": 0, "groupname": ""});
+  }
+  else {
+    let sql = `SELECT * FROM Album WHERE id=${id}`;
+    mysql.query(sql, function(row) {
+      if (row != null) {
+        res.render("modify_album", {"title": "アルバムの作成・修正", "message": "データを取得しました。", "id": row.id, "album": encodeURI(row.name), "info": encodeURI(row.info), "bindata": row.bindata, "groupname": encodeURI(row.groupname)});
+      }
+    });
+  }
+}
+
+
+
+
+/* ハンドラ */
+/* フォームを表示する。 */
 router.get('/', function(req, res, next) {
-  res.send('modify_albums');
+  res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": "", "album": "", "info": "", "bindata":0, "groupname": ""});
+});
+
+/* フォームデータを受け取る。*/
+router.post("/", function(req, res, next) {
+  let id = req.body.id;
+  if (id == "") {
+    // 挿入
+    insertData(req, res);
+  }
+  else {
+    // 更新
+    updateData(req, res);
+  }  
+});
+
+/* データ確認 */
+router.get('/confirm/:id', function(req, res, next) {
+  let id = req.params.id;
+  confirmData(req, res);
 });
 
 module.exports = router;

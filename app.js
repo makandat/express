@@ -2,13 +2,16 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var multer = require('multer');
 var session = require('express-session');
+var favicon = require('serve-favicon');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var modify_albumRouter = require('./routes/modify_album');
 var modify_pictureRouter = require('./routes/modify_picture');
-var modify_foldersRouter = require('./routes/modify_folders');
+var modify_folderRouter = require('./routes/modify_folder');
 var picturesRouter = require('./routes/pictures');
 var pictalbumRouter = require('./routes/pictalbum');
 var bindataRouter = require('./routes/bindata');
@@ -23,6 +26,9 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(multer);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: 'makandat',
@@ -35,10 +41,11 @@ app.use(session({
   }
 }));
 
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use('/', indexRouter);
 app.use('/modify_album', modify_albumRouter);
 app.use('/modify_picture', modify_pictureRouter);
-app.use('/modify_folders', modify_foldersRouter);
+app.use('/modify_folders', modify_folderRouter);
 app.use('/pictures', picturesRouter);
 app.use('/pictalbum', pictalbumRouter);
 app.use('/bindata', bindataRouter);
