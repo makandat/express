@@ -8,7 +8,7 @@ const LIMIT = 200;  // 1ページの表示数
 const SELECT0 = "SELECT id, title, creator, path, mark, info, fav, count, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT FROM Pictures";
 
 /* Pictures テーブルの内容を表示する。*/
-function showPictures(row) {
+function showPictures(row, fields) {
   if (row == null) {
     page.render('pictalbum', { "title": '画像アルバム for express4 (Pictures)', "results": results, "message": "" });
   }
@@ -18,7 +18,7 @@ function showPictures(row) {
 }
 
 /* Pictures テーブルの画像一覧を表示する。*/
-function showPictureAlbumThumbs(row) {
+function showPictureAlbumThumbs(row, fields) {
   if (row == null) {
   
   }

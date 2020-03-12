@@ -5,9 +5,15 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/css/style.css' />
     <script src="/js/jquery.min.js"></script>
+    <style>
+      .version {
+        font-size: 20pt;
+        color:darkmagenta;
+      }
+    </style>
   </head>
   <body>
-    <h1><%= title %></h1>
+    <h1><%= title %><br /><span class="version">Version <%= version %></span></h1>
     <div class="menu">
       <a href="/modify_album">アルバムの作成・修正</a>&nbsp;/&nbsp;
       <a href="/modify_picture">画像の追加・修正</a>&nbsp;/&nbsp;
@@ -30,6 +36,7 @@
       <a href="/modify_folders">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
       <a href="/bindata">サムネール画像一覧</a>
     </div>
+    <br />
     <p class="message"><%= message %></p>
     <%# アルバム一覧の表を作成する。%>
     <table style="width:90%;margin-left:auto;margin-right:auto;">

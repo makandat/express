@@ -38,10 +38,8 @@ function confirmData(req, res) {
   }
   else {
     let sql = `SELECT * FROM Album WHERE id=${id}`;
-    mysql.query(sql, function(row) {
-      if (row != null) {
-        res.render("modify_album", {"title": "アルバムの作成・修正", "message": "データを取得しました。", "id": row.id, "album": encodeURI(row.name), "info": encodeURI(row.info), "bindata": row.bindata, "groupname": encodeURI(row.groupname)});
-      }
+    mysql.getRow(sql, function(row, fields) {
+      res.render("modify_album", {"title": "アルバムの作成・修正", "message": "データを取得しました。", "id": row.id, "album": row.name, "info": row.info, "bindata": row.bindata, "groupname": row.groupname});
     });
   }
 }

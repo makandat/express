@@ -11,7 +11,7 @@ const SELECT0 = "SELECT id, title, original, datatype, info, size FROM BINDATA W
 const SELECT1 = "SELECT id, title, data FROM BINDATA WHERE datatype='.jpg' OR datatype='.png'";
 
 /* BINDATA テーブルの内容一覧を表示する。*/
-function showBINDATAList(row) {
+function showBINDATAList(row, fields) {
   if (row == null) {
     page.render('bindata', { "title": '画像アルバム for express4 (BINDATA)', "results": results, "message": "データの挿入や更新はコマンドで行う。詳細はヘルプを参照。" });
   }
@@ -21,7 +21,7 @@ function showBINDATAList(row) {
 }
 
 /* BINDATA テーブルの画像一覧を表示する。*/
-function showBINDATAThumbs(row) {
+function showBINDATAThumbs(row, fields) {
   if (row == null) {
 
   }

@@ -1,5 +1,6 @@
 /* index.js */
 "use strict";
+const VERSION = "0.50";   // バージョン番号
 var express = require('express');
 var router = express.Router();
 var mysql = require('./MySQL.js');
@@ -14,7 +15,7 @@ const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM PictureAlbum GROUP B
 /* アルバムグループ一覧を得る。*/
 function getAlbumGroups(row) {
   if (row == null) {
-    page.render('index', { "title": '画像アルバム for express4', "albums": albums, "albumgroups": albumgroups, "message": "" });
+    page.render('index', { "title": '画像アルバム for express4', "version": VERSION, "albums": albums, "albumgroups": albumgroups, "message": "" });
   }
   else {
     if (row.grpname == null) {

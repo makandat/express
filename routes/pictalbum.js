@@ -10,7 +10,7 @@ const LIMIT = 200;  // 1ページの表示数
 const SELECT0 = "SELECT id, album, title, `path`, creator, info, fav, picturesid, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT FROM PictureAlbum";
 
 /* PictureAlbum テーブルの内容を表示する。*/
-function showPictureAlbumList(row) {
+function showPictureAlbumList(row, fields) {
   if (row == null) {
     page.render('pictalbum', { "title": '画像アルバム for express4 (PictureAlbum)', "results": results, "message": "" });
   }
@@ -20,7 +20,7 @@ function showPictureAlbumList(row) {
 }
 
 /* BINDATA テーブルの画像一覧を表示する。*/
-function showPictureAlbumThumbs(row) {
+function showPictureAlbumThumbs(row, fields) {
   if (row == null) {
   
   }

@@ -1,3 +1,4 @@
+/* MySQL.js v1.10 */
 "use strict";
 var mysql = require("mysql");
 var fs = require("fs");
@@ -23,7 +24,7 @@ exports.query = (sql, callback, conf = null) => {
     }
     else {
        for (let i = 0; i < results.length; i++) {
-         callback(results[i]);
+         callback(results[i], fields);
        }
        callback(null);
        conn.end();
@@ -64,6 +65,23 @@ exports.getValue = (sql, callback, conf = null) => {
          let key = fields[0].name;
          let value = row[key];
          callback(value);
+         conn.end();
+      }
+  });
+}
+
+/* １つの行を返すクエリ関数。クエリ結果が複数行の場合は先頭行を返す。*/
+exports.getRow = (sql, callback, conf = null) => {
+  if (conf == null) {
+    conf = getConf();
+  }
+  let conn = mysql.createConnection(conf);
+  conn.query(sql, (error, results, fields)=>{
+      if (error) {
+        throw error;
+      }
+      else {
+         callback(results[0], fields);
          conn.end();
       }
   });
