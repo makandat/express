@@ -5,11 +5,77 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/css/style.css' />
     <script src="/js/jquery.min.js"></script>
+    <script>
+      (() => {
+        $("#confirm").click(() => {
+          let id = $('#id').val();
+          if (id == '') {
+            alert("正しく id を指定してください。")
+          }
+          else {
+            location.href = `/modify_picture/confirm/${id}`;
+          }
+        });
+
+        $("#clear").click(() => {
+          $("input[type='text']").val("");
+        });
+      });
+    </script>
   </head>
 
   <body>
     <h1><%= title %></h1>
-
+    <div class="menu">
+      <a href="/">アルバム一覧</a>&nbsp;/&nbsp;<a href="javascript:window.close()">閉じる</a>
+    </div>
+    <br />
+    <p class="message"><%= message %></p>
+    <br />
+    <form method="POST" action="/modify_picture">
+      <div class="form_row">
+        番号 (id)<br />
+        <input type="text" name="id" id="id" size="10" value="<%= id %>">
+      </div>
+      <div class="form_row">
+        アルバム番号<br />
+        <input type="text" name="album" id="album" size="20" value="<%= album %>" >
+      </div>
+      <div class="form_row">
+        タイトル<br />
+        <input type="text" name="name" id="name" size="100" value="<%= name %>" >
+      </div>
+      <div class="form_row">
+        作者<br />
+        <input type="text" name="creator" id="creator" size="50" value="<%= creator %>" >
+      </div>
+      <div class="form_row">
+        パス<br />
+        <input type="text" name="path" id="path" size="120" value="<%= path %>" >
+      </div>
+      <div class="form_row">
+        情報<br />
+        <input type="text" name="info" id="info" size="120" value="<%= info %>" >
+      </div>
+      <div class="form_row">
+        好き<br />
+        <input type="text" name="fav" id="fav" size="4" value="<%= fav%>" >
+      </div>
+      <div class="form_row">
+        イメージリンク<br />
+        <input type="text" name="bindata" id="bindata" size="10" value="<%= bindata %>">
+      </div>
+      <div class="form_row">
+        Pictures ID<br />
+        <input type="text" name="picturesid" id="picturesid" size="10" value="<%= picturesid %>" >
+      </div>
+      <br />
+      <div class="form_row">
+        <input type="submit" name="submit" id="submit" value=" 追加・修正 " />&nbsp;
+        <input type="button" name="confirm" id="confirm" value=" データ確認 " />&nbsp;
+        <input type="button" name="clear" id="clear" value=" クリア " />&nbsp;
+      </div>
+    </form>
     <p>&nbsp;</p>
     <p style="text-align:center;"><a href="#top">TOP</a></p>
     <p>&nbsp;</p>

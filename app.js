@@ -46,7 +46,7 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use('/', indexRouter);
 app.use('/modify_album', modify_albumRouter);
 app.use('/modify_picture', modify_pictureRouter);
-app.use('/modify_folders', modify_folderRouter);
+app.use('/modify_folder', modify_folderRouter);
 app.use('/pictures', picturesRouter);
 app.use('/pictalbum', pictalbumRouter);
 app.use('/bindata', bindataRouter);

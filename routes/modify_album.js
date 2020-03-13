@@ -6,9 +6,9 @@ var router = express.Router();
 /* フォームデータをテーブルに挿入する。*/
 function insertData(req, res) {
   let name = req.body.album;
-  let info = req.body.info;
+  let info = req.body.info.replace(/'/g, "''");
   let bindata = req.body.bindata;
-  let groupname = req.body.groupname;
+  let groupname = req.body.groupname.replace(/'/g, "''");
   let message = "データの挿入に成功しました。";
   let sql = `INSERT INTO Album VALUES(NULL, '${name}', 'picture', '${info}', ${bindata}, '${groupname}', CURRENT_DATE())`;
   mysql.execute(sql, function() {
@@ -20,9 +20,9 @@ function insertData(req, res) {
 function updateData(req, res) {
   let id = req.body.id;
   let name = req.body.album;
-  let info = req.body.info;
+  let info = req.body.info.replace(/'/g, "''");
   let bindata = req.body.bindata;
-  let groupname = req.body.groupname;
+  let groupname = req.body.groupname.replace(/'/g, "''");
   let message = `データの更新に成功しました。id = ${id}`;
   let sql = `UPDATE Album SET name='${name}', info='${info}', bindata=${bindata}, groupname='${groupname}', \`date\`=CURRENT_DATE() WHERE id=${id}`;
   mysql.execute(sql, function() {

@@ -15,9 +15,10 @@
   <body>
     <h1><%= title %><br /><span class="version">Version <%= version %></span></h1>
     <div class="menu">
-      <a href="/modify_album">アルバムの作成・修正</a>&nbsp;/&nbsp;
-      <a href="/modify_picture">画像の追加・修正</a>&nbsp;/&nbsp;
-      <a href="/">表示リセット</a>&nbsp;/&nbsp;
+      <a href="/modify_album" target="_blank">アルバムの作成・修正</a>&nbsp;/&nbsp;
+      <a href="/modify_picture" target="_blank">画像の追加・修正</a>&nbsp;/&nbsp;
+      <a href="/modify_folder" target="_blank">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
+      <a href="/"><img src="/img/home.png" /> 表示リセット</a>&nbsp;/&nbsp;
       <a href="/reverse">逆順で表示</a>&nbsp;/&nbsp;
       アルバムグループの選択　<select id="groupname">
         <option>---------------</option>
@@ -33,7 +34,6 @@
       <a href="/last">最後 <img src="/img/last.svg" /></a>&nbsp;/&nbsp;
       <span>id を指定 </span><input type="text" size="5" id="jumpId" />&nbsp;<input type="button" id="btnJump" value="SET" />&nbsp;/&nbsp;
       <a href="/pictures?view=normal">画像フォルダ一覧</a>&nbsp;/&nbsp;
-      <a href="/modify_folders">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
       <a href="/bindata">サムネール画像一覧</a>
     </div>
     <br />
