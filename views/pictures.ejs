@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Pictures テーブルの表示  pictures.ejs-->
 <html>
   <head>
     <meta charset="utf-8" />
@@ -8,11 +9,13 @@
   </head>
 
   <body>
+    <!-- HTML 本体 -->
     <h1><%= title %></h1>
     <div class="menu">
+      <!-- メニュー -->
       <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
       <a href="/"> 表示リセット</a>&nbsp;/&nbsp;
-      <a href="/modify">追加・修正</a>&nbsp;/&nbsp;
+      <a href="/modify_folder">追加・修正</a>&nbsp;/&nbsp;
       <a href="/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
       <a href="/thumbs"> サムネール一覧表示</a>&nbsp;/&nbsp;
       <a href="/details"> 詳細一覧表示</a>&nbsp;/&nbsp;
@@ -26,15 +29,21 @@
       <a href="/creators">作者一覧</a>&nbsp;/&nbsp;
       <a href="/find">ワード検索</a>&nbsp;/&nbsp;
     </div>
-
+    <br />
+    <!-- メッセージ -->
     <p class="message"><%= message %></p>
 
+    <!-- 画像フォルダ一覧 -->
     <table>
-      <tr><th>id</th><th>タイトル</th><th>作者</th><th>パス</th><th>マーク</th><th>情報</th><th>好き</th><th>参照回数</th><th>イメージ</th><th>Pictures ID</th><th>日付</th></tr>
+      <tr><th>id</th><th>タイトル</th><th>作者</th><th>パス</th><th>マーク</th><th>情報</th><th>好き</th><th>参照回数</th><th>イメージ</th><th>日付</th></tr>
       <% for (let row of results) { %>
         <tr>
         <% for (let i = 0; i < row.length; i++) { %>
-          <td><%= row[i] %></td>
+          <% if (i == 0 || i == 1) { %>
+            <td><%- row[i] %></td>
+          <%  } else { %>
+            <td><%= row[i] %></td>
+          <% } %>
         <% } %>
         </tr>
       <% } %>

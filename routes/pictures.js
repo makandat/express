@@ -10,23 +10,16 @@ const SELECT0 = "SELECT id, title, creator, path, mark, info, fav, count, bindat
 /* Pictures テーブルの内容を表示する。*/
 function showPictures(row, fields) {
   if (row == null) {
-    page.render('pictalbum', { "title": '画像アルバム for express4 (Pictures)', "results": results, "message": "" });
+    page.render('pictures', { "title": '画像アルバム for express4 (Pictures)', "results": results, "message": "" });
   }
   else {
-    results.push([row.id, row.title, row.creator, row.path, row.mark, row.info, row.fav, row.count, row.bindata, row.DT]);
+    let modifylink = `<a href="/modify_folder/confirm/${row.id}" target="_blank">${row.id}</a>`;
+    let showlink = `<a href="/showFolderImages/${row.id}">${row.title}</a>`;
+    results.push([modifylink, showlink, row.creator, row.path, row.mark, row.info, row.fav, row.count, row.bindata, row.DT]);
   }    
 }
 
-/* Pictures テーブルの画像一覧を表示する。*/
-function showPictureAlbumThumbs(row, fields) {
-  if (row == null) {
-  
-  }
-  else {
-      
-  }  
-}
-  
+
 /* セッションの値を初期化する。*/
 function initSessionValues(req, force=false) {
   if (req.session.pdescend == undefined) {
@@ -82,6 +75,7 @@ router.get('/', function(req, res, next) {
   mysql.query(sql, showPictures);
 });
 
+/* 先頭の id を指定して表示 */
 router.get('/:id', function(req, res, next) {
   initSessionValues(req, true);
   page = res;
@@ -90,6 +84,11 @@ router.get('/:id', function(req, res, next) {
   let sql = makeSelect(req);
   results = [];
   mysql.query(sql, showPictures);
+});
+
+/* フォルダ内の画像一覧を表示する。*/
+router.get('/showFolderImages', function(req, res, next) {
+
 });
 
 module.exports = router;

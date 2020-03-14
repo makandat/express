@@ -9,13 +9,13 @@ function insertData(req, res) {
   let album = req.body.album;
   let name = req.body.name;
   let creator = req.body.creator.replace(/'/g, "''");
-  let path = req.body.path.replace(/'/g, "''");
+  let path = req.body.path.replace(/'/g, "''").replace(/\\/, '/');
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
   let bindata = req.body.bindata;
   let picturesid = req.body.picturesid;
   let message = "データの挿入に成功しました。";
-  let sql = `INSERT INTO PictureAlbum(album, title, creator, path, info, fav, bindata, picturesid, date) VALUES(${album}, '${name}', '${creator}', '${path}', '${info}', 0, ${bindata} ', 0, CURRENT_DATE())`;
+  let sql = `INSERT INTO PictureAlbum(album, title, creator, path, info, fav, bindata, picturesid, date) VALUES(${album}, '${name}', '${creator}', '${path}', '${info}', 0, ${bindata}, 0, CURRENT_DATE())`;
   mysql.execute(sql, function() {
     res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "album": album, "name": name, "creator": creator, "path": path, 
     "info": info, "fav": fav, "bindata": bindata, "picturesid": picturesid});
@@ -28,7 +28,7 @@ function updateData(req, res) {
   let album = req.body.album;
   let name = req.body.name.replace(/'/g, "''");
   let creator = req.body.creator.replace(/'/g, "''");
-  let path = req.body.path.replace(/'/g, "''");
+  let path = req.body.path.replace(/'/g, "''").replace(/\\/, "/");
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
   let bindata = req.body.bindata;

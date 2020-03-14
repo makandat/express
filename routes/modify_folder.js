@@ -9,7 +9,7 @@ function insertData(req, res) {
   let name = req.body.name;
   let creator = req.body.creator.replace(/'/g, "''");
   let mark = req.body.mark;
-  let path = req.body.path.replace(/'/g, "''");
+  let path = req.body.path.replace(/'/g, "''").replace(/\\/, '/');
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
   let bindata = req.body.bindata;
@@ -48,8 +48,8 @@ function confirmData(req, res) {
   else {
     let sql = `SELECT * FROM Pictures WHERE id=${id}`;
     mysql.getRow(sql, function(row, fields) {
-      res.render("modify_folder", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.id, "name": row.title, "path": row.path,
-       "mark": row.mark, "info": row.info, "fav": row.fav, "bindata": row.bindata});
+      res.render("modify_folder", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.ID, "name": row.TITLE, "creator": row.CREATOR, 
+      "path": row.PATH, "mark": row.MARK, "info": row.INFO, "fav": row.FAV, "bindata": row.BINDATA});
     });
   }
 }
@@ -75,7 +75,6 @@ router.post("/", function(req, res, next) {
 
 /* データ確認 */
 router.get('/confirm/:id', function(req, res, next) {
-  let id = req.params.id;
   confirmData(req, res);
 });
 

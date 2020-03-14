@@ -1,6 +1,6 @@
 /* index.js */
 "use strict";
-const VERSION = "0.50";   // バージョン番号
+const VERSION = "0.51";   // バージョン番号
 var express = require('express');
 var router = express.Router();
 var mysql = require('./MySQL.js');
