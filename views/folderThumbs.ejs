@@ -12,15 +12,17 @@
     <body>
         <h1><%= title %></h1>
         <div class="menu">
-            <a href="/" target="_blank">アルバム一覧</a>&nbsp;/&nbsp;
-            <a href="/pictures" target="_blank">画像フォルダ一覧</a>
-            <a href="/folderImages" target="_blank">画像一覧として表示</a>
+            <a href="/" target="_blank"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
+            <a href="/pictures" target="_blank">画像フォルダ一覧</a>&nbsp;/&nbsp;
+            <a href="/pictures/folderImages/<%= id %>" target="_blank">画像一覧として表示</a>
         </div>
         <br />
         <p class="message"><%= message %></p>
         <br />
         <% for (let i = 0; i < results.length; i++) { %>
-            <img src="<%- /getImage/?path=results[i] %>" style="width:20%;margin-bottom:6px;" />
+            <% let url = `<a href="/pictures/navigate/?path=${results[i]}">` + `<img src="/sendImage/?path=${results[i]}" style="width:18%;margin-bottom:20px;">` + "</a>"; %>
+            <%- url %>
+
         <% } %>
 
         <p>&nbsp;</p>

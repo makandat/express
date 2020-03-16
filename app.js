@@ -48,6 +48,8 @@ app.use('/modify_album', modify_albumRouter);
 app.use('/modify_picture', modify_pictureRouter);
 app.use('/modify_folder', modify_folderRouter);
 app.use('/pictures', picturesRouter);
+app.use('/pictures/folderImages', picturesRouter);
+app.use('/pictures/folderThumbs', picturesRouter);
 app.use('/pictalbum', pictalbumRouter);
 app.use('/bindata', bindataRouter);
 

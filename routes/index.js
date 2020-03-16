@@ -150,4 +150,19 @@ router.get('/jump/:id', function(req, res, next) {
   res.render('index', { "title": '画像アルバム for express4 (last)', "albums": albums, "albumgroups": albumgroups });
 });
 
+
+/*  他のページから参照されるハンドラ */
+/* 指定された画像ファイルをレスポンスとして返す。パラメータ path */
+router.get("/sendImage", function(req, res, next) {
+  res.sendFile(req.query.path);
+});
+
+/* BINDATA テーブルから画像を取り出してレスポンスとして返す。パラメータ BINDATA の id */
+router.get("/extractImage", function(req, res, next) {
+  var id = req.query.id;
+  mysql.getValue("SELECT data FROM BINDATA WHERE id=" + id, (data) => {
+    res.send(data);
+  });
+});
+
 module.exports = router;
