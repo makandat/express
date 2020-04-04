@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/css/style.css' />
+    <script src="/js/jquery.min.js"></script>
+    <style>
+      .version {
+        font-size: 20pt;
+        color:darkmagenta;
+      }
+    </style>
+    <script>
+      $(() => {
+        /* アルバムグループの選択 */
+        $("#groupname").change(() => {
+          let v = $("#groupname").val();
+          if (v.startsWith("----")) {
+            return;
+          }
+          else {
+            location.href = "/groupname?name=" + v;
+          }
+        });
+      })
+    </script>
+  </head>
+  <body>
+    <h1><%= title %><br /><span class="version">Version <%= version %></span></h1>
+    <div class="menu">
+      <a href="/"><img src="/img/home.png" /> 表示リセット</a>&nbsp;/&nbsp;
+      <a href="/modify_album" target="_blank" title="Album テーブルへの追加・更新">アルバムの作成・修正</a>&nbsp;/&nbsp;
+      <a href="/modify_picture" target="_blank" title="PictureAlbum テーブルへの追加・更新">画像の追加・修正</a>&nbsp;/&nbsp;
+      <a href="/modify_folder" target="_blank" title="Pictures テーブルへの追加・更新">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
+      <a href="/reverse">逆順で表示</a>&nbsp;/&nbsp;
+      アルバムグループの選択　<select id="groupname">
+        <option>---------------</option>
+        <option value="ALL">すべて</option>
+        <option value="NONAME">名前なし</option>
+        <% for (let gname of albumgroups) { %>
+          <option><%= gname %></option>
+        <% } %>
+      </select>&nbsp;/&nbsp;
+      <a href="/pictures" title="Pictures テーブルの内容一覧" target="_blank">画像フォルダ一覧</a>&nbsp;/&nbsp;
+      <a href="/bindata" title="BINDATA テーブルの内容一覧" target="_blank">サムネール画像一覧</a>&nbsp;/&nbsp;
+      <a href="/tool.html" target="_blank">ツール</a>&nbsp;/&nbsp;
+      <a href="/help.html" target="_blank">ヘルプ</a>
+    </div>
+    <br />
+    <p class="message"><%= message %></p>
+    <%# アルバム一覧の表を作成する。%>
+    <table style="width:90%;margin-left:auto;margin-right:auto;">
+      <tr><th>番号</th><th>名称</th><th>収録数</th><th>情報</th><th>イメージ</th><th>グループ名</th><th>日付</th></tr>
+    <% for (let album of albums) { %>
+      <tr>
+        <% for (let i = 0; i < album.length; i++) { %>
+          <% if (i == 1 || i == 4) { %>
+            <td><%- album[i] %></td>          
+          <% } else { %>
+            <td><%= album[i] %></td>
+          <% } %>
+        <% } %>
+      </tr>
+    <% } %>
+  </table>
+  <p>&nbsp;</p>
+  <p style="text-align:center;"><a href="#">TOP</a></p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <!-- PictureAlbum テーブル サムネール一覧表示 -->
+    <head>
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+    </head>
+
+    <body>
+        <h1><%= title %></h1>
+        <!-- メニュー -->
+        <div class="menu">
+        <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
+        <a href="/modify_picture" target="_blank"> 画像の追加・更新</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/pictlist"> 画像一覧表示</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/details"> 詳細一覧表示</a>&nbsp;/&nbsp;
+        <a href="/help.html" target="_blank">ヘルプ</a>
+        </div>
+        <!-- メッセージ -->
+        <p class="message"><%= message %></p>
+        <!-- 画像一覧表示 -->
+        <div>
+            <% for (let row of results) { %>
+                <% let srclink = "/getimage?path=" + row[3]; %>
+                <% if (row[8] == 0 || row[8] == "") { %>
+                    <img src="<%- srclink %>" alt="<%= row[3] %>" style="width:18%;margin-bottom:12px;" />
+                <% } else { %>
+                    <a href="/showfolder/navinit/?path=<%= row[3] %>"><img src="<%- srclink %>" alt="<%= row[3] %>" style="width:18%;margin-bottom:12px;" /></a>
+                <% } %>
+            <% } %>
+        </div>
+        <!-- フッター -->
+        <p>&nbsp;</p>
+        <p style="text-align:center;"><a href="#top">TOP</a></p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    </body>
+</html>

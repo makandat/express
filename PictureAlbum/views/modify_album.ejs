@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/css/style.css' />
+    <script src="/js/jquery.min.js"></script>
+    <script>
+      $(()=>{
+        $("#clear").click(() => {
+          $("input[type='text']").val("");
+          $("#mark").val("画像");
+        });
+        $('#confirm').click(() => {
+          let id = $('#id').val();
+          if (id == '') {
+            alert("正しく id を指定してください。")
+          }
+          else {
+            location.href = `/modify_album/confirm/${id}`;
+          }
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <h1><%= title %></h1>
+    <div class="menu">
+      <a href="javascript:window.close()">閉じる</a>&nbsp;/&nbsp;
+      <a href="/help.html">ヘルプ</a>
+    </div>
+    <p class="message"><%= message %></p>
+
+    <form method="POST" action="/modify_album">
+      <div class="form_row">アルバム番号(id) (注意) 自動採番のため挿入時は空欄とする。<br />
+        <input type="text" name="id" id="id" size="5" value=<%= id %> >
+      </div>
+      <div class="form_row">アルバム名<br />
+        <input type="text" name="album" size="40" value="<%= album %>" > 
+      </div>
+      <div class="form_row">種別<br />
+        <input type="text" name="mark" id="mark" size="10" value="画像" disabled > 
+      </div>
+      <div class="form_row">情報<br />
+        <input type="text" name="info" size="100" value="<%= info %>" > 
+      </div>
+      <div class="form_row">イメージリンク<br />
+        <input type="text" name="bindata" size="5" value=<%= bindata %> > 
+      </div>
+      <div class="form_row">グループ名<br />
+        <input type="text" name="groupname" size="40" value="<%= groupname %>" > 
+      </div>
+      <br />
+      <div class="form_row">
+        <input type="submit" id="submit" value=" 送信 " />&nbsp;
+        <input type="button" id="confirm" value=" データ確認 " />&nbsp;
+        <input type="button" id="clear" value=" クリア " />&nbsp;
+      </div>
+    </form>
+    <p>&nbsp;</p>
+    <p style="text-align:center;"><a href="#top">TOP</a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </body>
+</html>

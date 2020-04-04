@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/css/style.css' />
+    <script src="/js/jquery.min.js"></script>
+    <style>
+        form {
+            margin-left:auto;
+            margin-right:auto;
+            border: solid thin gray;
+            background-color: whitesmoke;
+            padding: 10px;
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body>
+<h1><%= title %></h1>
+<br />
+<form id="loginForm" method="POST" id="form1" action="/users/">
+    <div class="form_row"><label>User ID</label> <input type="text" name="userid" id="userid" size="50" /></div>
+    <div class="form_row"><label>Password</label> <input type="password" name="password" id="password" size="50" /></div>
+    <div class="form_row"></div>
+    <div class="form_row"><input type="submit" id="btnLogin" value=" Login " style="margin-left:100px;width:12%;" /></div>
+</form>
+<br />
+<p class="message"><%= message %></p>
+</body>
+</html>

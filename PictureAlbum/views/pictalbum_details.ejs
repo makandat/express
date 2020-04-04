@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <!-- PictureAlbum テーブル 項目詳細一覧表示 -->
+    <head>
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel='stylesheet' href='/css/style.css' />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#btnJump").click(() => {
+                    let n = $('#jumpId').val();
+                    if (parseInt(n) == NaN) {
+                        alert("id の値が不正です。");
+                    }
+                    else {
+                        location.href = "/pictalbum/jump/" + n;
+                    }
+                });
+            });
+        </script> 
+    </head>
+
+    <body>
+    <h1><%= title %></h1>
+        <!-- メニュー -->
+        <div class="menu">
+        <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
+        <a href="/modify_picture" target="_blank"> 画像の追加・更新</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/pictlist"> 画像一覧表示</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/thumbs"> サムネール一覧表示</a>&nbsp;/&nbsp;
+        <a href="/help.html" target="_blank">ヘルプ</a>
+        ">ヘルプ</a>
+        </div>
+        <!-- メッセージ -->
+        <p class="message"><%= message %></p>
+        <!-- 項目一覧表示 -->
+        <table>
+            <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス</th><th>作者</th><th>情報</th><th>好き</th><th>イメージ</th><th>Pictures ID</th><th>日付</th></tr>
+            <% for (let row of results) { %>
+                <tr>
+                    <% for (let i = 0; i < row.length; i++) { %>
+                        <td><%- row[i] %></td>
+                    <% } %>
+                </tr>
+            <% } %>
+        </table>
+        <!-- フッター -->
+        <p>&nbsp;</p>
+        <p style="text-align:center;"><a href="#top">TOP</a></p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    </body>
+</html>
