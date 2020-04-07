@@ -2,6 +2,7 @@
 'use strict';
 var express = require('express');
 var router = express.Router();
+var path_module = require('path');
 
 var mysql = require('./MySQL.js');
 
@@ -72,7 +73,8 @@ function showPictList(req, res, albumName) {
       res.render('pictalbum_pictlist', { "title": '画像アルバム for express4 (PictureAlbum)', "results": results, "message": "アルバム=" + albumName });
     }
     else {
-      results.push([row.id, row.album, row.title, row.path, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT]);
+      let dir = path_module.dirname(row.path);
+      results.push([row.id, row.album, row.title, row.path, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT, dir]);
     } 
   });
 }

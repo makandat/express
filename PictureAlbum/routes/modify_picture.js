@@ -54,7 +54,10 @@ async function insertData(req, res) {
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
     return
   }
-  path = path.replace(/'/g, "''").replace(/\\/, '/').trim();
+  if (os.platform() == "win32") {
+    path = path.replace(/\\/g, '/');
+  }
+  path = path.replace(/'/g, "''").trim();
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
   let bindata = req.body.bindata;
@@ -79,12 +82,14 @@ async function insertData(req, res) {
 }
 
 /* フォームデータでテーブルを更新する。*/
-function updateData(req, res) {
+async function updateData(req, res) {
   let message;
   let id = req.body.id;
   let album = req.body.album;
   let name = req.body.name.replace(/'/g, "''").trim();
   let creator = req.body.creator.replace(/'/g, "''").trim();
+  let path = req.body.path;
+  let b = await fileExists(path);
   try {
     if (b == false) {
       message = `データの更新に失敗しました。パスはファイルでなければなりません。`;
@@ -97,10 +102,10 @@ function updateData(req, res) {
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
     return
   }
-  let path = req.body.path.replace(/'/g, "''").trim();
-  if (os.platform == "win32") {
-    path = path.replace(/\\/, "/");
+  if (os.platform() == "win32") {
+    path = path.replace(/\\/g, "/");
   }
+  path = path.replace(/'/g, "''").trim();
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
   let bindata = req.body.bindata;

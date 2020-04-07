@@ -12,10 +12,9 @@ const TITLE = "画像フォルダの追加・修正";
 /* 次の sn を得る。*/
 function getSN() {
     return new Promise((resolve) => {
-        let sql = "SELECT max(sn) FROM Pictures";
-        mysql.getValue(sql, (n)=>{
-            n++;
-            resolve(n);
+        let sql = "SELECT (max(sn)+1) AS maxsn FROM Pictures";
+        mysql.getValue(sql, (maxsn)=>{
+            resolve(maxsn);
         })
     });
 }
@@ -30,6 +29,16 @@ function getMaxID() {
     });
 }
 
+/* path がすでに登録済みかチェックする。*/
+function checkPath(path) {
+    return new Promise((resolve) => {
+        let sql = `SELECT count(path) FROM Pictures WHERE path = '${path}'`;
+        mysql.getValue(sql, (n) => {
+            resolve(n);
+        });
+    });
+}
+
 /* データを挿入/更新する。*/
 async function addmodify(req, res, modify=false) {
     let id = req.body.id;
@@ -38,10 +47,15 @@ async function addmodify(req, res, modify=false) {
     let creator = req.body.creator;
     let path = req.body.path;
     let prom_stat = await fs.promises.stat(path);
-    path = path.replace(/'/g, "''").trim();
-    if (os.platform == "win32") {
+    if (os.platform() == "win32") {
         path = path.replace(/\\/g, '/');
     }
+    let countpath = await checkPath(path);
+    if (countpath > 0 && id == "") {
+        res.render('showInfo', {'title':'エラー', 'message': path + "はすでに登録されています。", 'icon':'cancel.png'});
+        return;
+    }
+    path = path.replace(/'/g, "''").trim();
     let mark = req.body.mark;
     let info = req.body.info;
     info = info.replace(/'/g, "''");
@@ -116,4 +130,5 @@ router.get("/confirm/:id", function(req, res, next) {
     }
 });
 
+/* エクスポート */
 module.exports = router;

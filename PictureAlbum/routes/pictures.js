@@ -4,11 +4,9 @@ var express = require('express');
 var session = require('express-session');
 var mysql = require('./MySQL.js');
 
-const VERSION = "0.75";
+const VERSION = "0.81";
 const LIMIT = 200;
-const ERROR = 2;
-const WARN = 1;
-const INFO = 0;
+
 var router = express.Router();
 const SELECT = "SELECT id, title, creator, path, mark, info, fav, count, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT FROM";
 
@@ -313,18 +311,18 @@ function showInfo(res, title, message, icon="info.jpg") {
 
 /* デフォルトの表示 */
 router.get('/', function(req, res, next) {
-  session.status = "";  // normal
-  session.order = "1";  // id desc
+  req.session.status = "";  // normal
+  req.session.order = "1";  // id desc
   mysql.getValue("SELECT max(sn) FROM Pictures", (n)=>{
-    session.sn = n;
-    session.mark = "ALL";
+    req.session.sn = n;
+    req.session.mark = "ALL";
     showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル) ' + VERSION});
   });
 });
 
 /* /favorites: お気に入りが 0 以外の項目をリスト表示 */
 router.get('/favorites', function(req, res, next) {
-  session.status = "favorites";
+  req.session.status = "favorites";
   showResults(res, {'fav':true, 'title':'お気に入り一覧'})
 });
 
@@ -346,32 +344,32 @@ router.get('/creators', function(req, res, next) {
 
 /* /orderby/:order  指定した順序のリスト表示 */
 router.get('/orderby/:order', function(req, res, next) {
-  session.status = "";  // normal
-  session.order = req.params.order;
-  switch (session.order) {
+  req.session.status = "";  // normal
+  req.session.order = req.params.order;
+  switch (req.session.order) {
     case "1":
-      session.sn = 1000000;
+      req.session.sn = 1000000;
       break;
     case "2":
-      session.sn = 0;
+      req.session.sn = 0;
       break;
     case "3":
-      session.sn = 1000000;
+      req.session.sn = 1000000;
       break;
     case "4":
-      session.sn = 0;
+      req.session.sn = 0;
       break;
     default:
       break;
   }
-  showResults(res, {'order':req.params.order, 'mark':session.mark})
+  showResults(res, {'order':req.params.order, 'mark':req.session.mark})
 });
 
 /* /jump/:id 指定した id を先頭としてリスト表示 */
 router.get('/jump/:id', function(req, res, next) {
-  let tableName = getTableNameSync(session.mark);
+  let tableName = getTableNameSync(req.session.mark);
   let pid = req.params.id;
-  session.status = "";  // normal
+  req.session.status = "";  // normal
   let sql = `SELECT count(id) FROM ${tableName} WHERE id=${pid}`;
   console.log(sql);
   mysql.getValue(sql, (n)=>{
@@ -381,8 +379,8 @@ router.get('/jump/:id', function(req, res, next) {
     else {
       sql = `SELECT sn FROM ${tableName} WHERE id=${pid}`;
       mysql.getValue(sql, (n)=>{
-        session.sn = n;
-        showResults(res, {'mark':session.mark, 'sn':n, 'order':session.order});  
+        req.session.sn = n;
+        showResults(res, {'mark':req.session.mark, 'sn':n, 'order':req.session.order});  
       });
     }
   });
@@ -390,120 +388,125 @@ router.get('/jump/:id', function(req, res, next) {
 
 /* /find/:word 指定したワードでフィルタリング表示 */
 router.get('/find/:word', function(req, res, next) {
-  session.mark = "ALL";
-  session.order = "2";
-  session.status = "find";
+  req.session.mark = "ALL";
+  req.session.order = "2";
+  req.session.status = "find";
   showResults(res, {'word':req.params.word, 'mark':''})
 });
 
 /* /mark/:m  指定したマークでフィルタリング表示 */
 router.get('/mark/:m', function(req, res, next) {
-  session.status = "";
-  session.mark = req.params.m;
-  showResults(res, {'mark':req.params.m});
+  req.session.status = "";
+  req.session.mark = req.params.m;
+  req.session.order = "1";
+  let tableName = getTableNameSync(req.params.m);
+  mysql.getValue("SELECT max(sn) FROM " + tableName, (n) => {
+    req.session.sn = n;
+    showResults(res, {'mark':req.params.m, 'sn':n, 'order':'1'});
+  });
 });
 
 /* /first: 先頭のリストページ */
 router.get('/first', function(req, res, next) {
-  if (session.status == "") {
-    switch (session.order) {
+  if (req.session.status == "") {
+    switch (req.session.order) {
       case "1":
-        session.sn = 1000000;
+        req.session.sn = 1000000;
         break;
       case "2":
-        session.sn = 1;
+        req.session.sn = 1;
         break;
       case "3":
-        session.sn = 1000000;
+        req.session.sn = 1000000;
         break;
       case "4":
-        session.sn = 1;
+        req.session.sn = 1;
         break;
       default:
         break;
     }
-    showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
   }
 });
 
 /* /prev: 前のリストページ */
 router.get('/prev', function(req, res, next) {
-  if (session.status == "") {
-    switch (session.order) {
+  if (req.session.status == "") {
+    switch (req.session.order) {
       case "1":
-        session.sn += LIMIT;
+        req.session.sn += LIMIT;
         break;
       case "2":
-        session.sn -= LIMIT;
+        req.session.sn -= LIMIT;
         break;
       case "3":
-        session.sn += LIMIT;
+        req.session.sn += LIMIT;
         break;
       case "4":
-        session.sn -= LIMIT;
+        req.session.sn -= LIMIT;
         break;
       default:
         break;
     }
-    showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
   }
 });
 
 /* /next: 次のリストページ */
 router.get('/next', function(req, res, next) {
-  if (session.status == "") {
-    switch (session.order) {
+  if (req.session.status == "") {
+    switch (req.session.order) {
       case "1":
-        session.sn -= LIMIT;
+        req.session.sn -= LIMIT;
         break;
       case "2":
-        session.sn += LIMIT;
+        req.session.sn += LIMIT;
         break;
       case "3":
-        session.sn -= LIMIT;
+        req.session.sn -= LIMIT;
         break;
       case "4":
-        session.sn += LIMIT;
+        req.session.sn += LIMIT;
         break;
       default:
         break;
     }
-    showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
   }
 });
 
 /* /last: 最後のリストページ */
 router.get('/last', function(req, res, next) {
   let sql = "";
-  let tableName = getTableNameSync(session.mark);
-  if (session.status == "") {
-    switch (session.order) {
+  let tableName = getTableNameSync(req.session.mark);
+  if (req.session.status == "") {
+    switch (req.session.order) {
       case "1":
         sql = `SELECT min(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
-          session.sn = n + LIMIT;
-          showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+          req.session.sn = n + LIMIT;
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
         });
         break;
       case "2":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
           session.sn = n - LIMIT;
-          showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
         });
         break;
       case "3":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
-          session.sn = n - LIMIT;
-          showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+          req.session.sn = n - LIMIT;
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
         });
         break;
       case "4":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
-          session.sn = n - LIMIT;
-          showResults(res, {'mark':session.mark, 'sn':session.sn, 'order':session.order});
+          req.session.sn = n - LIMIT;
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
         });
         break;
       default:

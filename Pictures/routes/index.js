@@ -393,7 +393,12 @@ router.get('/find/:word', function(req, res, next) {
 router.get('/mark/:m', function(req, res, next) {
   session.status = "";
   session.mark = req.params.m;
-  showResults(res, {'mark':req.params.m});
+  session.order = "1";
+  let tableName = getTableNameSync(req.params.m);
+  mysql.getValue("SELECT max(sn) FROM " + tableName, (n) => {
+    session.sn = n;
+    showResults(res, {'mark':req.params.m, 'sn':n, 'order':'1'});
+  });
 });
 
 /* /first: 先頭のリストページ */

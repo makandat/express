@@ -1,6 +1,6 @@
 /* index.js */
 "use strict";
-const VERSION = "0.75";   // バージョン番号
+const VERSION = "0.77";   // バージョン番号
 var express = require('express');
 var router = express.Router();
 var mysql = require('./MySQL.js');
@@ -69,7 +69,7 @@ function showResults(req, res) {
       });  
     }
     else {
-      let hid = `<a href="/pictalbum/?album=${row.id}">${row.name}</a>`;
+      let hid = `<a href="/pictalbum/?album=${row.id}" target="_blank">${row.name}</a>`;
       let abin;
       if (row.bindata == null || row.bindata == 0) {
         abin = "";

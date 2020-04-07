@@ -30,7 +30,7 @@
         <!-- 画像一覧表示 -->
         <% for (let row of results) { %>
             <% let srclink = "/getimage?path=" + row[3]; %>
-            <div class="imgitem"><img src="<%- srclink %>" alt="id: <%= srclink %>"><br />id <%= row[0] %> <%= row[3] %></div>
+            <div class="imgitem"><a href="/showfolder?path=<%- row[10] %>" target="_blank"><img src="<%- srclink %>" alt="id: <%= srclink %>"></a><br />id <%= row[0] %> <%= row[3] %></div>
         <% } %>
 
         <!-- フッター -->

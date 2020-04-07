@@ -56,7 +56,7 @@
   <body>
     <h1><%= title %></h1>
     <!-- メニュー -->
-    <div class="menu" id="menu0" style="display:<%- display_menu0 %>";height:34px;>
+    <div class="menu" id="menu0" style="padding:8px;display:<%- display_menu0 %>">
       <a href="/pictures"><img src="/img/home.jpg" /> 表示リセット</a>&nbsp;/&nbsp;
       <a href="/modify_folder" target="_blank">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
       <a href="/pictures/creators" target="_blank">作者一覧</a>&nbsp;/&nbsp;
@@ -94,7 +94,7 @@
     <p class="message"><%= message %></p>
     <br />
     <!-- 項目一覧表示 -->
-    <table>
+    <table style="width:96%;">
       <tr><th>id</th><th>タイトル</th><th>作者</th><th>パス名</th><th>分類マーク</th><th>情報</th><th>好き</th><th>参照回数</th><th>イメージ</th><th>日付</th></tr>
       <% for (let row of results) { %>
         <tr>

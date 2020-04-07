@@ -23,6 +23,7 @@
   <body>
     <h1><%= title %></h1>
     <div class="menu">
+      <a href="javascript:window.close()">閉じる</a>&nbsp;/&nbsp;
       <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
       <a href="//bindata/"> 表示リセット</a>&nbsp;/&nbsp;
       <a href="/bindata/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
@@ -31,13 +32,13 @@
       <a href="/bindata/next">次へ <img src="/img/next.svg" /></a>&nbsp;
       <a href="/bindata/last">最後 <img src="/img/last.svg" /></a>&nbsp;/&nbsp;
       <span>id を指定 </span><input type="text" size="5" id="jumpId" /><input type="button" id="btnJump" value="SET" />
-      &nbsp;/&nbsp;<a href="/tool.html">ツール</a>
-      &nbsp;/&nbsp;<a href="/help.html">ヘルプ</a>
+      &nbsp;/&nbsp;<a href="/tool.html" target="_blank">ツール</a>
+      &nbsp;/&nbsp;<a href="/help.html" target="_blank">ヘルプ</a>
     </div>
 
     <p class="message"><%= message %></p>
 
-    <table>
+    <table style="width:96%;">
       <tr><th>id</th><th>イメージ</th><th>タイトル</th><th>オリジナルファイル</th><th>ファイルタイプ</th><th>情報</th><th>サイズ</th></tr>
     <% for (let row of results) { %>
       <tr>
