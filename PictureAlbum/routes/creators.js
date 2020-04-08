@@ -27,13 +27,7 @@ function getNextId() {
 
 /* 作者追加 */
 async function insert_creator(req, res) {
-  let creator = req.body.creator;
-  let marks = req.body.marks;
-  let info = req.body.info;
-  let fav = req.body.fav;
-  let refcount = req.body.refcount;
-  let titlecount = req.body.titlecount;
-
+  let {id, creator, marks, info, fav, refcount, titlecount} = req.body;
   if (creator == "") {
     res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png'});
     return;
@@ -43,7 +37,7 @@ async function insert_creator(req, res) {
     res.render('showInfo', {'title':'エラー', 'message':'作者がすでに登録済みです。', 'icon':'cancel.png'});
     return;
   }
-  let id = await getNextId();
+  id = await getNextId();
   creator = creator.replace(/'/g, "''");
   let sql = `INSERT INTO Creators VALUES(${id}, '${creator}', '${marks}', '${info}', ${fav}, ${refcount}, ${titlecount})`;
   mysql.execute(sql, () => {
@@ -53,14 +47,7 @@ async function insert_creator(req, res) {
 
 /* 作者情報更新 */
 async function update_creator(req, res) {
-  let id = req.body.id;
-  let creator = req.body.creator.replace(/'/g, "''");
-  let marks = req.body.marks;
-  let info = req.body.info.replace(/'/g, "''");;
-  let fav = req.body.fav;
-  let refcount = req.body.refcount;
-  let titlecount = req.body.titlecount;
-  
+  let {id, creator, marks, info, fav, refcount, titlecount} = req.body;
   if (parseInt(id) == NaN) {
     res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png'});
     return;
@@ -70,6 +57,7 @@ async function update_creator(req, res) {
     return;
   }
   creator = creator.replace(/'/g, "''");
+  info = info.replace(/'/g, "''");
   let sql = `UPDATE Creators SET id='${id}', marks='${marks}', info='${info}', fav=${fav}, refcount=${refcount}, titlecount=${titlecount} WHERE creator = '${creator}'`;
   mysql.execute(sql, () => {
     res.render('modify_creator', {'message':'作者 ' + creator + " を更新しました。", 'id':id, 'creator':creator, 'marks':marks, 'info':info, 'fav':fav, 'refcount':refcount, 'titlecount':titlecount});
@@ -92,6 +80,7 @@ router.get('/', function(req, res, next) {
     }
   });
 });
+
 
 /* 作者の追加・更新 */
 router.get('/modify_creator', function(req, res) {
@@ -120,6 +109,36 @@ router.get('/confirm_creator', function(req, res) {
       res.render('modify_creator', {'message':`id ${id} が検索されました。`, 'id':id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount})
     });    
   }
+});
+
+/* 降順で表示 */
+router.get('/desc', function(req, res) {
+  let sql = "SELECT * FROM Creators ORDER BY creator DESC";
+  let results = [];
+  mysql.query(sql, (row) => {
+    if (row == null) {
+      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results});
+    }
+    else {
+      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
+      results.push([row.id, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
+    }
+  });
+});
+
+/* 昇順で表示 */
+router.get('/asc', function(req, res) {
+  let sql = "SELECT * FROM Creators ORDER BY creator ASC";
+  let results = [];
+  mysql.query(sql, (row) => {
+    if (row == null) {
+      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results});
+    }
+    else {
+      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
+      results.push([row.id, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
+    }
+  });
 });
 
 
