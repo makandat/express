@@ -9,12 +9,12 @@
 
 <body>
     <h1><%= title %></h1>
-    <div class="menu"><a href="javascript:window.close()">閉じる</a></div>
+    <div class="menu"><a href="javascript:window.close()">閉じる</a>&nbsp;/&nbsp;<a href="/creators/modify_creator" target="_blank">作者の追加・更新</a></div>
     <br />
     <p class="message"><%= message %></p>
     <br />
-    <table style="width:80%;">
-        <tr><th>番号<th>作者名</th><th>情報</th><th>お気に入り数</th><th>参照総数</th><th>作品数</th></tr>
+    <table style="width:80%;margin-left:3%;">
+        <tr><th>番号<th>作者名</th><th>マーク</th><th>情報</th><th>お気に入り数</th><th>参照総数</th><th>作品数</th></tr>
         <% for (let row of results) { %>
             <tr>
                 <% for (let i = 0; i < row.length; i++) { %>

@@ -18,6 +18,7 @@ var picturesRouter = require('./routes/pictures');
 var showfolderRouter = require('./routes/showfolder');
 var pictalbumRouter = require('./routes/pictalbum');
 var bindataRouter = require('./routes/bindata');
+var creatorsRouter = require('./routes/creators');
 
 var app = express();
 
@@ -55,6 +56,7 @@ app.use('/pictures', picturesRouter);
 app.use('/showfolder', showfolderRouter);
 app.use('/pictalbum', pictalbumRouter);
 app.use('/bindata', bindataRouter);
+app.use('/creators', creatorsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

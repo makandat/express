@@ -327,21 +327,6 @@ router.get('/favorites', function(req, res, next) {
 });
 
 
-/* 作者一覧表示 */
-router.get('/creators', function(req, res, next) {
-  let sql = "SELECT * FROM Creators ORDER BY creator";
-  let results = [];
-  mysql.query(sql, (row) => {
-    if (row == null) {
-      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results});
-    }
-    else {
-      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
-      results.push([row.id, acreator, row.info, row.fav, row.refcount, row.titlecount]);
-    }
-  });
-});
-
 /* /orderby/:order  指定した順序のリスト表示 */
 router.get('/orderby/:order', function(req, res, next) {
   req.session.status = "";  // normal
