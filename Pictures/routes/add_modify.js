@@ -70,7 +70,7 @@ async function addmodify(req, res, modify=false) {
         return
     }
     if (modify) {
-        sql = `UPDATE Pictures SET TITLE='${title}', CREATOR='${creator}', PATH='${path}', MARK='${mark}', INFO='${info}', FAV=${fav}, BINDATA=${bindata}, date='${date}' WHERE id=${id}`;
+        sql = `UPDATE Pictures SET title='${title}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata}, date='${date}' WHERE id=${id}`;
     }
     else {
         sql = `INSERT INTO Pictures VALUES(NULL, '${title}', '${creator}', '${path}', '${mark}', '${info}', ${fav}, 0, ${bindata}, '${date}', ${sn})`;
@@ -120,8 +120,8 @@ router.get("/confirm/:id", function(req, res, next) {
     try {
         mysql.getRow(sql, (row)=>{
             let ds = datetime.getDateString(row.date);
-            res.render("add_modify", {'message':'id ' + id + ' が検索されました。', 'id':id, 'title':row.TITLE, 'creator':row.CREATOR, 'path':row.PATH, 'mark':row.MARK,
-             'info':row.INFO, 'fav':row.FAV, 'bindata':row.BINDATA, 'date':ds});
+            res.render("add_modify", {'message':'id ' + id + ' が検索されました。', 'id':id, 'title':row.title, 'creator':row.creator, 'path':row.path, 'mark':row.mark,
+             'info':row.info, 'fav':row.fav, 'bindata':row.bindata, 'date':ds});
         });    
     }
     catch (err) {
