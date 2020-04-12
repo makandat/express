@@ -28,7 +28,13 @@
   <body>
     <!-- ヘッダー -->
     <h1>画像アルバム for Express4 ツール (Tool)</h1>
-    <div class="menu"><a href="javascript:window.close()">閉じる</a></div>
+    <div class="menu">
+      <a href="javascript:window.close()">閉じる</a>&nbsp;/&nbsp;
+      <a href="tool_delete.html" target="_blank">削除ツール</a>&nbsp;/&nbsp;
+      <a href="tool_tables.html" target="_blank">派生テーブルツール</a>&nbsp;/&nbsp;
+      <a href="tool_import.html" target="_blank">データインポートツール</a>&nbsp;/&nbsp;
+      <a href="tool_bindata.html" target="_blank">サムネール画像ツール</a>
+    </div>
     <br />
     <!-- 本文 -->
     <div class="block1">
@@ -73,19 +79,30 @@
           python3 update_pictures_date.py id0 [id1]
              id0 と id1:  id1 が指定されていない場合は、id0 で指定したレコードに対して、id1 が指定されている場合は、id0 から id1 の前までのレコードに対して date 列を更新する。
             </pre>
-          </div>
+        </div>
 
-          <div class="block2">
-            <h3>update_pictures_bindata.py</h3>
-              <p>update_pictures_bindata.py は id で指定したPictures テーブルの bindata 列を BINDATA テーブルに最後に登録したデータの id で更新する。</p>
-              <pre>
+        <div class="block2">
+          <h3>update_pictures_bindata.py</h3>
+            <p>update_pictures_bindata.py は id で指定したPictures テーブルの bindata 列を BINDATA テーブルに最後に登録したデータの id で更新する。</p>
+            <pre>
           使い方
             python3 update_pictures_update.py id
                id   Pictures テーブルの更新したいレコードの id
-              </pre>
-            </div>
+           </pre>
+         </div>
 
-            <br />
+        <div class="block2">
+          <h3>Ins_flist.py</h3>
+          <p>画像表示画面で画像をクリックして作るファイル一覧を PictureAlbum テーブルの指定アルバムへインポートでする。</p>
+          <pre>
+           使い方
+            python3 uIns_flist.py filename albumno
+              filename   ファイル一覧ファイル
+              albumno    アルバム番号
+          </pre>
+        </div>
+
+          <br />
     </div>
 
 

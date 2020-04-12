@@ -4,7 +4,7 @@ var express = require('express');
 var session = require('express-session');
 var mysql = require('./MySQL.js');
 
-const VERSION = "0.82";
+const VERSION = "0.85";
 const LIMIT = 200;
 
 var router = express.Router();
@@ -371,12 +371,12 @@ router.get('/jump/:id', function(req, res, next) {
   });
 });
 
-/* /find/:word 指定したワードでフィルタリング表示 */
-router.get('/find/:word', function(req, res, next) {
+/* /find?word=... 指定したワードでフィルタリング表示 */
+router.get('/find', function(req, res, next) {
   req.session.mark = "ALL";
   req.session.order = "2";
   req.session.status = "find";
-  showResults(res, {'word':req.params.word, 'mark':''})
+  showResults(res, {'title':'検索ワード：' + req.query.word, 'word':req.query.word, 'mark':''})
 });
 
 /* /mark/:m  指定したマークでフィルタリング表示 */

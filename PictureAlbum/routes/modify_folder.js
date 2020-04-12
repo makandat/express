@@ -135,8 +135,8 @@ function confirmData(req, res) {
         res.render("showInfo", {"title":"エラー", "message":"id に対するデータがありません。", "icon":"cancel.png"});
       }
       else {
-        res.render("modify_folder", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.ID, "name": row.TITLE, "creator": row.CREATOR, 
-        "path": row.PATH, "mark": row.MARK, "info": row.INFO, "fav": row.FAV, "bindata": row.BINDATA});
+        res.render("modify_folder", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.id, "name": row.title, "creator": row.creator, 
+        "path": row.path, "mark": row.mark, "info": row.info, "fav": row.fav, "bindata": row.bindata});
       }
     });
   }

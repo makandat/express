@@ -54,15 +54,28 @@ function jumpImage(res, n, dir) {
 /* デフォルトの表示 /showfolder */
 router.get('/', function(req, res, next) {
     let dir = req.query.path;
+    let reverse = req.query.reverse;
 
+    if (req.session.showfolder_desc == undefined) {
+        req.session.showfolder_desc = false;
+    }
+    else {
+        if (reverse) {
+            req.session.showfolder_desc = ! req.session.showfolder_desc;
+        }
+    }
     if (dir == undefined) {
         res.render('showfolder', {'title':'エラー', 'message':'フォルダが指定されていません。', 'dir':'', 'files':[]});
     }
     else {
         let parts = dir.split(/[\/|\\]/g);
         let title = parts[parts.length-1]
-        fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files)=>{
-            res.render('showfolder', {'title':title, 'message':'画像をクリックしてファイルリストを作成できます。', 'dir':dir, 'files':files});
+        fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files) => {
+            let files1 = files;
+            if (req.session.showfolder_desc) {
+                files1 = files.reverse();
+            }
+            res.render('showfolder', {'title':title, 'message':'画像をクリックしてファイルリストを作成できます。', 'dir':dir, 'files':files1});
         });
     }
 });

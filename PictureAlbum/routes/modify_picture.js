@@ -62,11 +62,11 @@ async function insertData(req, res) {
   let fav = req.body.fav;
   let bindata = req.body.bindata;
   let picturesid = req.body.picturesid;
-  if (parseInt(album) == NaN) {
+  if (isNaN(parseInt(album))) {
     message = `データの挿入に失敗しました。アルバム番号が不正です。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
   }
-  else if (parseInt(fav) == NaN) {
+  else if (isNaN(parseInt(fav))) {
     message = `データの挿入に失敗しました。「好き」が不正です。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
   }
@@ -110,15 +110,15 @@ async function updateData(req, res) {
   let fav = req.body.fav;
   let bindata = req.body.bindata;
   let picturesid = req.body.picturesid;
-  if (parseInt(id) == NaN) {
+  if (isNaN(parseInt(id))) {
     message = `データの更新に失敗しました。id が不正です。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
   }
-  else if (parseInt(album) == NaN) {
+  else if (isNaN(parseInt(album))) {
     message = `データの更新に失敗しました。アルバム番号が不正です。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
   }
-  else if (parseInt(fav) == NaN) {
+  else if (isNaN(parseInt(fav))) {
     message = `データの更新に失敗しました。「好き」が不正です。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
   }

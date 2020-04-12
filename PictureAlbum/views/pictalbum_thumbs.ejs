@@ -25,11 +25,7 @@
         <div>
             <% for (let row of results) { %>
                 <% let srclink = "/getimage?path=" + row[3]; %>
-                <% if (row[8] == 0 || row[8] == "") { %>
-                    <img src="<%- srclink %>" alt="<%= row[3] %>" style="width:18%;margin-bottom:12px;" />
-                <% } else { %>
-                    <a href="/showfolder/navinit/?path=<%= row[3] %>" target="_blank"><img src="<%- srclink %>" alt="<%= row[3] %>" style="width:18%;margin-bottom:12px;" /></a>
-                <% } %>
+                <a href="/showfolder/navinit/?path=<%= row[3] %>" target="_blank"><img src="<%- srclink %>" alt="<%= row[3] %>" style="width:18%;margin-bottom:12px;" /></a>
             <% } %>
         </div>
         <!-- フッター -->

@@ -12,6 +12,17 @@
                 margin-bottom:16px;
             }
         </style>
+        <script>
+            // 画像幅修正
+            function adjustWidth() {
+                $('img').each(function() {
+                    let imgwidth = $(this).prop('naturalWidth');
+                    if (imgwidth > window.innerWidth) {
+                       $(this).css('width', '95%');
+                    }
+                });
+             }            
+        </script>
     </head>
 
     <body>
@@ -23,6 +34,7 @@
         <a href="/pictalbum/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
         <a href="/pictalbum/thumbs"> サムネール一覧表示</a>&nbsp;/&nbsp;
         <a href="/pictalbum/details"> 詳細一覧表示</a>&nbsp;/&nbsp;
+        <a href="javascript:adjustWidth()"> 幅の大きい画像の幅をウィンドウに合わせる</a>&nbsp;/&nbsp;
         <a href="/help.html" target="_blank">ヘルプ</a>
         </div>
         <!-- メッセージ -->

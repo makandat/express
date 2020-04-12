@@ -124,20 +124,25 @@ router.get('/extract/:id', function(req, res, next){
   let sql = "SELECT datatype, data FROM BINDATA WHERE id = " + id;
   mysql.getRow(sql, (row) => {
     let type;
-    if (row.datatype == undefined) {
-      type = 'image/jpeg';
-    }
-    else if (row.datatype == '.jpg') {
-      type = 'image/jpeg';
-    }
-    else if (row.datatype == '.png') {
-      type = 'image/png';
+    if (row == undefined) {
+      res.send(null);
     }
     else {
-      type = "image/gif";
+      if (row.datatype == undefined) {
+        type = 'image/jpeg';
+      }
+      else if (row.datatype == '.jpg') {
+        type = 'image/jpeg';
+      }
+      else if (row.datatype == '.png') {
+        type = 'image/png';
+      }
+      else {
+        type = "image/gif";
+      }
+      res.set("Content-Type", type);
+      res.send(row.data);  
     }
-    res.set("Content-Type", type);
-    res.send(row.data);
   });
 });
 

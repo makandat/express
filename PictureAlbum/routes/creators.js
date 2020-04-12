@@ -48,7 +48,7 @@ async function insert_creator(req, res) {
 /* 作者情報更新 */
 async function update_creator(req, res) {
   let {id, creator, marks, info, fav, refcount, titlecount} = req.body;
-  if (parseInt(id) == NaN) {
+  if (isNaN(parseInt(id))) {
     res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png'});
     return;
   }
@@ -101,7 +101,7 @@ router.post('/modify_creator', function(req, res) {
 /* 作者の追加・更新 データ確認  */
 router.get('/confirm_creator', function(req, res) {
   let id = req.query.id;
-  if (parseInt(id) == NaN) {
+  if (isNaN(parseInt(id))) {
     res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png'})
   }
   else {

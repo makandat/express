@@ -10,7 +10,7 @@
             $(() => {
                 $("#btnJump").click(() => {
                     let n = $('#jumpId').val();
-                    if (parseInt(n) == NaN) {
+                    if (isNaN(parseInt(n))) {
                         alert("id の値が不正です。");
                     }
                     else {

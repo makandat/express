@@ -28,7 +28,7 @@ function getAlbumName(album) {
 }
 
 /* PictureAlbum テーブルの内容を表示する。 */
-async function showContent(req, res) {
+async function showContent(req, res, picturesid=undefined) {
   let n = await checkAlbum(req.session.album);
   if (n == 0) {
     res.render('showInfo', {'title':'エラー', 'message':'指定したアルバムには画像がありません。', 'icon':'cancel.png'});
@@ -37,7 +37,7 @@ async function showContent(req, res) {
     let albumName = await getAlbumName(req.session.album);
     switch (req.session.state) {
       case "pictlist":
-        showPictList(req, res, albumName);
+        showPictList(req, res, albumName, picturesid);
         break;
       case "thumbs":
         showThumbs(req, res, albumName);
@@ -58,15 +58,22 @@ function showDetails(req, res, albumName) {
       res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": "アルバム=" + albumName });
     }
     else {
-      let atitle = `<a href="/getimage?path=${row.path}" target="_blank">${row.title}</a>`;
-      results.push([row.id, row.album, atitle, row.path, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT]);
+      let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.title}</a>`;
+      let atitle;
+      if (row.picturesid == 0 || row.picturesid == null) {
+        atitle = row.title;
+      }
+      else {
+        atitle = `<a href="/pictalbum/pictlist?picturesid=${row.picturesid}" target="_blank">${row.title}</a>`;
+      }
+      results.push([row.id, row.album, atitle, apath, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT]);
     } 
   });
 }
 
 /* PictureAlbum テーブルの画像を一覧表示する。*/
-function showPictList(req, res, albumName) {
-  let sql = makeSelect(req, req.session.album);
+function showPictList(req, res, albumName, picturesid=undefined) {
+  let sql = makeSelect(req, req.session.album, picturesid);
   let results = [];
   mysql.query(sql, (row) =>{
     if (row == null) {
@@ -100,16 +107,27 @@ function showThumbs(req, res, albumName) {
 
   
 /* SELECT 文を作成する。*/
-function makeSelect(req, album) {
+function makeSelect(req, album, picturesid=undefined) {
   let sql = SELECT0;
   let where = "";
   let orderby = "";
+  let and = false;
 
   if (album == undefined) {
     where = "";
   }
   else {
     where = " WHERE album = " + album;
+    and = true;
+  }
+
+  if (!(picturesid == undefined || picturesid == null)) {
+    if (and) {
+      where += " AND picturesid = " + picturesid;
+    }
+    else {
+      where = " WHERE picturesid = " + picturesid;
+    }
   }
 
   if (req.session.desc) {
@@ -150,7 +168,8 @@ router.get('/reverse', function(req, res, next) {
 /* 画像一覧表示 */
 router.get('/pictlist', function(req, res, next) {
   req.session.state = "pictlist";
-  showContent(req, res);
+  let picturesid = req.query.picturesid;
+  showContent(req, res, picturesid);
 });
 
 /* サムネール一覧表示 */
