@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>データインポートツール</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <style>
+            div.app {
+                border: solid thin gray;
+                padding: 12px;
+                font-size: small;
+                margin-left: 5%;
+                margin-right: 5%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>データインポートツール</h1>
+        <div class="menu">
+            <a href="javascript:window.close()">閉じる</a>&nbsp;&nbsp;
+        </div>
+        <br />
+
+        <!-- ファイルリストから PictureAlbum テーブルへのインポート app1 -->
+        <h2>ファイルリストから PictureAlbum テーブルへのインポート</h2>
+        <p>画像一覧表示で画像をクリックすることにより作成した画像ファイル一覧を PictureAlbum テーブルにインポートする。</p>
+        <div id="app1" class="app">
+            <div class="form_row">
+                <label>ファイル一覧 (クリップボードから貼り付ける)<br /><textarea v-model="filelist" cols="150" rows="12"></textarea></label>
+            </div>
+            <div class="form_row">
+                <label>アルバム番号<br /><input type="text" v-model="album" size="6" /></label>
+            </div>
+            <div class="form_row">
+                <input type="button" id="button1" value=" インポート " v-on:click="button1_click" />&nbsp;
+                <input type="button" id="btnClear1" value=" クリア " v-on:click="btnClear1_click" />
+            </div>
+            <br />
+            <p class="message">{{ message1 }}</p>
+        </div>
+        <br />
+        
+        <!-- Vue.js スクリプト -->
+        <script>
+            'use strict';
+            const URL1 ="/tools/import_filelist";
+            var app1 = new Vue({
+                el: "#app1",
+                data: {
+                    filelist: "",
+                    album: "",
+                    message1: ""
+                },
+                methods: {
+                    button1_click: async () => {
+                        if (app1.filelist == "") {
+                            alert("ファイルリストが空です。");
+                            return;
+                        }
+                        if (app1.album == "") {
+                            alert("アルバム番号が空です。");
+                            return;
+                        }
+                        const qs = new URLSearchParams({'filelist':app1.filelist, 'album':app1.album});
+                        let reqstr = URL1 + `?${qs}`;
+                        let p = (await fetch(reqstr)).text();
+                        p.then(value=>app1.message1 = value).catch(err=>app2.message2 = "エラーを検出。");
+                    },
+                    btnClear1_click: () => {
+                        app1.filelist = "";
+                        app1.message1 = "";
+                    }
+                }
+            });
+        </script>
+
+        <!-- フッター -->
+        <p>&nbsp;</p>
+        <p style="text-align:center;"><a href="#">TOP</a></p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>    
+    </body>
+</html>        

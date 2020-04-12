@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>派生テーブルツール</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <style>
+            div.app {
+                border: solid thin gray;
+                padding: 12px;
+                font-size: small;
+                margin-left: 5%;
+                margin-right: 5%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>派生テーブルツール</h1>
+        <div class="menu">
+            <a href="javascript:window.close()">閉じる</a>&nbsp;&nbsp;
+          </div>
+          <br />
+
+          <!-- フォーム -->
+          <h2>Pictures テーブルの指定した id のレコードを派生テーブルに追加</h2>
+          <!-- app1 -->
+          <div id="app1" class="app">
+            <div class="form_row">
+                id<br /><input type="text" v-model="id1" size="6" />
+            </div>
+            <br />
+            <div class="form_row">
+                挿入先の派生テーブル
+                <ul style="list-style-type: none;border:solid thin gray; padding:8px;">
+                    <li><label><input type="radio" v-model="stored" value="InsertPictManga" /> PicturesManga</label></li>
+                    <li><label><input type="radio" v-model="stored" value="InsertPictHcg" /> PicturesHcg</label></li>
+                    <li><label><input type="radio" v-model="stored" value="InsertPictDoujin" /> PicturesDoujin</label></li>
+                    <li><label><input type="radio" v-model="stored" value="InsertPictPixiv" /> PicturesPixiv</label></li>
+                </ul>
+            </div>
+            <div class="form_row">
+                <input type="button" id="button1" value=" 実行 " v-on:click="button1_click" />
+            </div>
+            <p class="message" id="message1"></p>
+          </div>
+
+          <!-- app2 -->
+          <h2>テーブルの行番号 (sn) 付け直し</h2>
+          <div id="app2" class="app">
+            <div class="form_row">
+                <ul style="list-style-type: none;border:solid thin gray; padding:8px;">
+                    <li><label><input type="radio" v-model="table" value="PicturesSN" /> Pictures</label></li>
+                    <li><label><input type="radio" v-model="table" value="PictureAlbumSN" /> PictureAlbum</label></li>
+                    <li><label><input type="radio" v-model="table" value="BINDATASN" /> BINDATA</label></li>
+                    <li><label><input type="radio" v-model="table" value="MangaSN" /> PicturesManga</label></li>
+                    <li><label><input type="radio" v-model="table" value="HcgSN" /> PicturesHcg</label></li>
+                    <li><label><input type="radio" v-model="table" value="DoujinSN" /> PicturesDoujin</label></li>
+                    <li><label><input type="radio" v-model="table" value="PixivSN" /> PicturesPixiv</label></li>
+                    <li><label><input type="radio" v-model="table" value="TimeSN" /> PicturesTime</label></li>
+                </ul>
+            </div>
+            <div class="form_row">
+                <input type="button" id="button2" value=" 実行 " v-on:click="button2_click" />
+            </div>
+            <p class="message" id="message1">行数の多いテーブルは時間がかかることがあります。</p>
+          </div>
+
+          <!-- スクリプト -->
+          <script>
+            const URL1 = "/tools/insertDerivedTable";
+            var app1 = new Vue({
+                el: "#app1",
+                data: {
+                    id1: "",
+                    stored: "InsertPictManga"    
+                },
+                methods: {
+                    button1_click: () => {
+                        $.getJSON(URL1, {'id':app1.id1, 'stored':app1.stored}, (msg) => {
+                            alert(msg.message);
+                        });
+                    }
+                }
+            });
+
+            const URL2 = "/tools/renumberSN";
+            var app2 = new Vue({
+                el: "#app2",
+                data: {
+                    table: "PicturesSN",
+                },
+                methods: {
+                    button2_click: () => {
+                        $.getJSON(URL2, {'table':app2.table}, (msg) => {
+                            alert(msg.message);
+                        });
+                    }
+                }
+            });
+          </script>
+
+          <!-- フッター -->
+        <p>&nbsp;</p>
+        <p style="text-align:center;"><a href="#">TOP</a></p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>    
+    </body>
+</html>
