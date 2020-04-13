@@ -4,7 +4,7 @@ var express = require('express');
 var session = require('express-session');
 var mysql = require('./MySQL.js');
 
-const VERSION = "0.85";
+const VERSION = "0.86";
 const LIMIT = 200;
 
 var router = express.Router();

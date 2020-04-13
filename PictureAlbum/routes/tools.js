@@ -183,5 +183,97 @@ router.get('/ins_bindata3', (req, res) => {
 
 
 
+/* テーブルの表示・最新１００件 */
+router.get('/view100', (req, res) => {
+    let tableName = req.query.table;
+    let sql = "";
+    let content = "";
+
+    if (tableName == "Pictures" || tableName == "PicturesManga" || tableName == "PicturesHcg" || tableName == "PicturesDoujin" || tableName == "PicturesPixiv" || tableName == "PicturesTime") {
+        sql = "SELECT id, title, creator, path, mark, info, fav, count, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT, sn FROM " + tableName + " ORDER BY id DESC LIMIT 100";
+        mysql.query(sql, (row) => {
+            if (content == "") {
+                content = "<table>\n";
+                content += "<tr><th>id</th><th>title</th><th>creator</th><th>path</th><th>mark</th><th>info</th><th>fav</th><th>count</th><th>bindata</th><th>date</th><th>sn</th></tr>";    
+            }
+            if (row == null) {
+                content += "</table>\n";
+                res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
+            }
+            else {
+                content += `<tr><td>${row.id}</td><td>${row.title}</td><td>${row.creator}</td><td>${row.path}</td><td>${row.mark}</td><td>${row.info}</td><td>${row.fav}</td><td>${row.count}</td><td>${row.bindata}</td><td>${row.DT}</td><td>${row.sn}</td></tr>\n`;
+            }
+        });
+    }
+    else if (tableName == "Creators") {
+        sql = "SELECT id, creator, marks, info, fav, refcount, titlecount FROM Creators ORDER BY id DESC LIMIT 100";
+        mysql.query(sql, (row) => {
+            if (content == "") {
+                content = "<table>\n";
+                content += "<tr><th>id</th><th>creator</th><th>marks</th><th>info</th><th>fav</th><th>refcount</th><th>titlecount</th></tr>";    
+            }
+            if (row == null) {
+                content += "</table>\n";
+                res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
+            }
+            else {
+                content += `<tr><td>${row.id}</td><td>${row.creator}</td><td>${row.marks}</td><td>${row.info}</td><td>${row.fav}</td><td>${row.refcount}</td><td>${row.titlecount}</td></tr>\n`;
+            }
+        });
+    }
+    else if (tableName == "Album") {
+        sql = "SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT FROM Album ORDER BY id DESC LIMIT 100";
+        mysql.query(sql, (row) => {
+            if (content == "") {
+                content = "<table>\n";
+                content += "<tr><th>id</th><th>name</th><th>mark</th><th>info</th><th>bindata</th><th>groupname</th><th>date</th></tr>";    
+            }
+            if (row == null) {
+                content += "</table>\n";
+                res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
+            }
+            else {
+                content += `<tr><td>${row.id}</td><td>${row.name}</td><td>${row.mark}</td><td>${row.info}</td><td>${row.bindata}</td><td>${row.groupname}</td><td>${row.DT}</td></tr>\n`;
+            }
+        });
+    }
+    else if (tableName == "PictureAlbum") {
+        sql = "SELECT id, album, title, path, creator, info, fav, bindata, picturesid, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT, sn FROM PictureAlbum ORDER BY id DESC LIMIT 100";
+        mysql.query(sql, (row) => {
+            if (content == "") {
+                content = "<table>\n";
+                content += "<tr><th>id</th><th>album</th><th>title</th><th>path</th><th>creator</th><th>info</th><th>fav</th><th>bindata</th><th>picturesid</th><th>date</th><th>sn</th></tr>";    
+            }
+            if (row == null) {
+                content += "</table>\n";
+                res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
+            }
+            else {
+                content += `<tr><td>${row.id}</td><td>${row.album}</td><td>${row.title}</td><td>${row.path}</td><td>${row.creator}</td><td>${row.info}</td><td>${row.fav}</td><td>${row.bindata}</td><td>${row.picturesid}</td><td>${row.DT}</td><td>${row.sn}</td></tr>\n`;
+            }
+        });
+    }
+    else if (tableName == "BINDATA") {
+        sql = "SELECT id, title, original, datatype, info, size, sn FROM BINDATA ORDER BY id DESC LIMIT 100";
+        mysql.query(sql, (row) => {
+            if (content == "") {
+                content = "<table>\n";
+                content += "<tr><th>id</th><th>title</th><th>original</th><th>datatype</th><th>info</th><th>size</th><th>sn</th></tr>";    
+            }
+            if (row == null) {
+                content += "</table>\n";
+                res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
+            }
+            else {
+                content += `<tr><td>${row.id}</td><td>${row.original}</td><td>${row.datatype}</td><td>${row.info}</td><td>${row.size}</td><td>${row.sn}</td></tr>\n`;
+            }
+        });
+    }
+    else {
+        res.json({'content':'<span style="color:red">エラー</span>', 'message':'エラー /view100?=' + tableName});
+    }
+});
+
+
 /* エクスポート */
 module.exports = router;
