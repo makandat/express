@@ -93,8 +93,9 @@ router.get('/renumberSN', (req,res) =>{
     let table = req.query.table;
     let sql = `CALL ${table}()`;
     mysql.execute(sql, () => {
-        res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
+        //res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
     });
+    res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
 });
 
 /* Pictures と派生テーブルからのデータ削除 */
@@ -265,7 +266,7 @@ router.get('/view100', (req, res) => {
                 res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
             }
             else {
-                content += `<tr><td>${row.id}</td><td>${row.original}</td><td>${row.datatype}</td><td>${row.info}</td><td>${row.size}</td><td>${row.sn}</td></tr>\n`;
+                content += `<tr><td>${row.id}</td><td>${row.title}</td><td>${row.original}</td><td>${row.datatype}</td><td>${row.info}</td><td>${row.size}</td><td>${row.sn}</td></tr>\n`;
             }
         });
     }
