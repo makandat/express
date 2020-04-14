@@ -57,21 +57,17 @@ function getBINDATAId(id) {
 
 /* データ削除 */
 async function deleteData(id, derived_table, bindata) {
-    let message = "'message':'id=' + id + ' を削除しました。"
     if (derived_table) {
         let tableName = await getDerivedTable(id);
         await deleteRow(tableName, id);
-        message += `関連テーブルは ${tableName} です。`;
     }
     if (bindata) {
         let bid = await getBINDATAId(id);
         if (!(bid == null || bid == 0)) {
             await deleteRow('BINDATA', bid);
-            message += `BINDATA テーブルの id は ${bid} です。`;
         }
     }
     await deleteRow('Pictures', id);
-    return message;
 }
 
 /* デフォルトはエラーにする。*/
@@ -101,8 +97,8 @@ router.get('/renumberSN', (req,res) =>{
 /* Pictures と派生テーブルからのデータ削除 */
 router.get('/deletePictures', (req, res) => {
     let {id, derived_table, bindata} = req.query;
-    let message = deleteData(id, derived_table, bindata);
-    res.json({'err':'0', 'message':message});
+    deleteData(id, derived_table, bindata);
+    res.json({'err':'0', 'message':"id = " + id + " のデータを削除しました。"});
 });
 
 /* アルバムを削除 */

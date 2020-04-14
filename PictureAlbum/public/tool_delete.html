@@ -69,7 +69,7 @@
                             alert("エラー： id が空欄です。")
                         }
                         else {
-                            $.getJSON(URL1, {"id":app1.id1, "derived_table":app1.derived_table, 'bindata':bindata}, (msg) => {
+                            $.getJSON(URL1, {"id":app1.id1, "derived_table":app1.derived_table, 'bindata':app1.bindata}, (msg) => {
                                 alert(msg.message);
                             });    
                         }

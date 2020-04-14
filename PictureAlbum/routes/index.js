@@ -1,6 +1,6 @@
 /* index.js */
 "use strict";
-const VERSION = "0.86";   // バージョン番号
+const VERSION = "0.87";   // バージョン番号
 var express = require('express');
 var router = express.Router();
 var mysql = require('./MySQL.js');
@@ -61,7 +61,7 @@ function showResults(req, res) {
       let sql = "SELECT DISTINCT groupname AS grpname FROM Album";
       mysql.query(sql, (row) =>{
         if (row == null) {
-          res.render('index', {'title':'画像アルバム for Express4', 'version':VERSION, 'message':'', 'albums':albums, 'albumgroups':albumgroups});
+          res.render('index', {'title':'画像アルバム for Express4', 'version':VERSION, 'message':'アルバムグループ：' + req.session.groupname, 'albums':albums, 'albumgroups':albumgroups});
         }
         else {
           albumgroups.push(row.grpname);
