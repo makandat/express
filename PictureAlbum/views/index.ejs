@@ -41,11 +41,13 @@
         <% for (let gname of albumgroups) { %>
           <option><%= gname %></option>
         <% } %>
-      </select>&nbsp;/&nbsp;
+      </select>&nbsp;///&nbsp;
+      <a href="/pictalbum/details/?pictalbum=ALL" title="PictureAlbum テーブルの内容一覧" target="_blank">アルバム画像一覧</a>&nbsp;/&nbsp;
       <a href="/pictures" title="Pictures テーブルの内容一覧" target="_blank">画像フォルダ一覧</a>&nbsp;/&nbsp;
       <a href="/bindata" title="BINDATA テーブルの内容一覧" target="_blank">サムネール画像一覧</a>&nbsp;/&nbsp;
       <a href="/tool.html" target="_blank">ツール</a>&nbsp;/&nbsp;
-      <a href="/help.html" target="_blank">ヘルプ</a>
+      <a href="/help.html" target="_blank">ヘルプ</a>&nbsp;/&nbsp;
+      <a href="/users/logout">ログアウト</a>
     </div>
     <br />
     <p class="message"><%= message %></p>

@@ -8,8 +8,8 @@ var multer = require('multer');
 var session = require('express-session');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var myclient = require('./routes/MySQL.js');
 
+/* ルータ定義 */
 var indexRouter = require('./routes/index');
 var modify_albumRouter = require('./routes/modify_album');
 var modify_pictureRouter = require('./routes/modify_picture');
@@ -19,6 +19,8 @@ var showfolderRouter = require('./routes/showfolder');
 var pictalbumRouter = require('./routes/pictalbum');
 var bindataRouter = require('./routes/bindata');
 var creatorsRouter = require('./routes/creators');
+var toolsRouter = require('./routes/tools');
+var usersRouter = require('./routes/users');
 
 var app = express();
 
@@ -57,6 +59,8 @@ app.use('/showfolder', showfolderRouter);
 app.use('/pictalbum', pictalbumRouter);
 app.use('/bindata', bindataRouter);
 app.use('/creators', creatorsRouter);
+app.use('/tools', toolsRouter);
+app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

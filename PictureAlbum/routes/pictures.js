@@ -4,7 +4,7 @@ var express = require('express');
 var session = require('express-session');
 var mysql = require('./MySQL.js');
 
-const VERSION = "0.87";
+const VERSION = "1.00";
 const LIMIT = 200;
 
 var router = express.Router();
@@ -304,8 +304,15 @@ function favincrease(res, id) {
 };
 
 /* 情報を表示する。*/
-function showInfo(res, title, message, icon="info.jpg") {
-  res.render('showInfo', {'title':title, 'message':message, 'icon':icon});
+function showInfo(res, title, message, icon="info.jpg", link="", url="") {
+  let jump;
+  if (link == "") {
+    jump = '<a href="history.back()">もどる</a>';
+  }
+  else {
+    jump = `<a href="${url}">${link}</a>`;
+  }
+  res.render('showInfo', {'title':title, 'message':message, 'icon':icon, 'link':jump});
 }
 
 

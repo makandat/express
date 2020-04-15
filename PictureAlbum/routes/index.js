@@ -1,6 +1,6 @@
 /* index.js */
 "use strict";
-const VERSION = "0.87";   // バージョン番号
+const VERSION = "1.00";   // バージョン番号
 var express = require('express');
 var router = express.Router();
 var mysql = require('./MySQL.js');
@@ -85,9 +85,14 @@ function showResults(req, res) {
 /*  リクエストハンドラ */
 /* GET home page.  表示リセット */
 router.get('/', function(req, res, next) {
-  req.session.desc = false;
-  req.session.groupname = "ALL";
-  showResults(req, res);
+  if (req.session.user == undefined) {
+    res.redirect('/users');
+  }
+  else {
+    req.session.desc = false;
+    req.session.groupname = "ALL";
+    showResults(req, res);  
+  }
 });
 
 /* 逆順で表示 */

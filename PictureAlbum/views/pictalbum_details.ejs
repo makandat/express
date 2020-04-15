@@ -29,15 +29,19 @@
         <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
         <a href="/modify_picture" target="_blank"> 画像の追加・更新</a>&nbsp;/&nbsp;
         <a href="/pictalbum/reverse"> 逆順で表示</a>&nbsp;/&nbsp;
-        <a href="/pictalbum/pictlist"> 画像一覧表示</a>&nbsp;/&nbsp;
-        <a href="/pictalbum/thumbs"> サムネール一覧表示</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/first"><img src="/img/first.svg" /> 先頭</a>&nbsp;
+        <a href="/pictalbum/prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;/&nbsp;
+        <a href="/pictalbum/next"><img src="/img/next.svg" /> 次へ</a>&nbsp;
+        <a href="/pictalbum/last"><img src="/img/last.svg" /> 最後</a>&nbsp;/&nbsp;
+        <a href="/pictures" target="_blank"> 画像フォルダ一覧表示</a>&nbsp;/&nbsp;
+        <a href="/bindata" target="_blank"> サムネール一覧表示</a>&nbsp;/&nbsp;
         <a href="/help.html" target="_blank">ヘルプ</a>
         </div>
         <!-- メッセージ -->
         <p class="message"><%= message %></p>
         <!-- 項目一覧表示 -->
         <table style="width:95%;">
-            <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス</th><th>作者</th><th>情報</th><th>好き</th><th>イメージ</th><th>Pictures ID</th><th>日付</th></tr>
+            <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>画像ファイルのパス</th><th>作者</th><th>情報</th><th>好き</th><th>イメージ</th><th>Pictures ID</th><th>日付</th></tr>
             <% for (let row of results) { %>
                 <tr>
                     <% for (let i = 0; i < row.length; i++) { %>

@@ -29,12 +29,17 @@ function getAlbumName(album) {
 
 /* PictureAlbum テーブルの内容を表示する。 */
 async function showContent(req, res, picturesid=undefined) {
-  let n = await checkAlbum(req.session.album);
+  let album = req.session.album;
+  if (picturesid == undefined && (album == undefined || album == null || album == "" || album == "0")) {
+    showDetailAll(req, res);
+    return;
+  }
+  let n = await checkAlbum(album);
   if (n == 0) {
     res.render('showInfo', {'title':'エラー', 'message':'指定したアルバムには画像がありません。', 'icon':'cancel.png'});
   }
   else {
-    let albumName = await getAlbumName(req.session.album);
+    let albumName = await getAlbumName(album);
     switch (req.session.state) {
       case "pictlist":
         showPictList(req, res, albumName, picturesid);
@@ -49,16 +54,52 @@ async function showContent(req, res, picturesid=undefined) {
   }
 }
 
-/* PictureAlbum テーブルの内容を詳細表示する。*/
-function showDetails(req, res, albumName) {
+/* アルバムを指定して PictureAlbum テーブルの内容を詳細表示する。*/
+function showDetails(req, res, albumName="") {
   let sql = makeSelect(req, req.session.album);
   let results = [];
   mysql.query(sql, (row) =>{
     if (row == null) {
-      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": "アルバム=" + albumName });
+      let message = "アルバム=" + albumName;
+      if (albumName == "") {
+        message = "";
+      }
+      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": message });
     }
     else {
-      let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.title}</a>`;
+      let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.path}</a>`;
+      let atitle;
+      if (row.picturesid == 0 || row.picturesid == null) {
+        atitle = row.title;
+      }
+      else {
+        atitle = `<a href="/pictalbum/pictlist?picturesid=${row.picturesid}" target="_blank">${row.title}</a>`;
+      }
+      results.push([row.id, row.album, atitle, apath, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT]);
+    } 
+  });
+}
+
+/* アルバムを指定せず PictureAlbum テーブルの内容を詳細表示する。*/
+function showDetailAll(req, res) {
+  let results = [];
+  let sql = "SELECT * FROM PictureAlbum";
+  if (req.session.desc) {
+    if (req.session.sn == 0) {
+      req.session.sn = 1000000;
+    }
+    sql += " WHERE sn <= " + req.session.sn + " ORDER BY id DESC LIMIT " + LIMIT;
+  }
+  else {
+    sql += " WHERE sn >= " + req.session.sn + " ORDER BY id ASC LIMIT " + LIMIT;
+  }
+  mysql.query(sql, (row) =>{
+    if (row == null) {
+      let message = "sn =" + req.session.sn;
+      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": message });
+    }
+    else {
+      let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.path}</a>`;
       let atitle;
       if (row.picturesid == 0 || row.picturesid == null) {
         atitle = row.title;
@@ -154,8 +195,7 @@ router.get('/', function(req, res, next) {
   if (req.session.state == undefined) {
     req.session.state = "details";
   }
-  let album = req.query.album;
-  req.session.album = album;
+  req.session.album = req.query.album;
   showContent(req, res);
 });
 
@@ -181,6 +221,11 @@ router.get('/thumbs', function(req, res, next) {
 /* 詳細一覧表示 */
 router.get('/details', function(req, res, next) {
   req.session.state = "details";
+  if (req.query.pictalbum == "ALL") {
+    req.session.album = "";
+  }
+  req.session.sn = 0;
+  req.session.desc = false;
   showContent(req, res);
 });
 
