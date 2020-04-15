@@ -39,6 +39,7 @@
                     <li><label><input type="radio" v-model="stored" value="InsertPictHcg" /> PicturesHcg</label></li>
                     <li><label><input type="radio" v-model="stored" value="InsertPictDoujin" /> PicturesDoujin</label></li>
                     <li><label><input type="radio" v-model="stored" value="InsertPictPixiv" /> PicturesPixiv</label></li>
+                    <!-- <li><label><input type="radio" v-model="stored" value="InsertPictTime" /> PicturesTime</label></li> -->
                 </ul>
             </div>
             <div class="form_row">
@@ -65,11 +66,32 @@
             <div class="form_row">
                 <input type="button" id="button2" value=" 実行 " v-on:click="button2_click" />
             </div>
-            <p class="message" id="message1">行数の多いテーブルは時間がかかることがあります。</p>
+            <p class="message" id="message2">行数の多いテーブルは時間がかかることがあります。</p>
+          </div>
+          <br />
+
+          <!-- app3 -->
+          <h2>派生テーブル再構築</h2>
+          <div class="app" id="app3">
+            <div class="form_row">
+                再構築する派生テーブル
+                <ul style="list-style-type: none;border:solid thin gray; padding:8px;">
+                    <li><label><input type="radio" v-model="rebuild" value="Manga" /> PicturesManga</label></li>
+                    <li><label><input type="radio" v-model="rebuild" value="Hcg" /> PicturesHcg</label></li>
+                    <li><label><input type="radio" v-model="rebuild" value="Doujin" /> PicturesDoujin</label></li>
+                    <li><label><input type="radio" v-model="rebuild" value="Pixiv" /> PicturesPixiv</label></li>
+                    <li><label><input type="radio" v-model="rebuild" value="Time" /> PicturesTime</label></li>
+                </ul>
+            </div>
+            <div class="form_row">
+                <input type="button" id="button1" value=" 実行 " v-on:click="button3_click" />
+            </div>
+            <p class="message" id="message3"></p>
           </div>
 
           <!-- スクリプト -->
           <script>
+            /* app1 */
             const URL1 = "/tools/insertDerivedTable";
             var app1 = new Vue({
                 el: "#app1",
@@ -86,6 +108,7 @@
                 }
             });
 
+            /* app2 */
             const URL2 = "/tools/renumberSN";
             var app2 = new Vue({
                 el: "#app2",
@@ -96,6 +119,22 @@
                     button2_click: () => {
                         $.getJSON(URL2, {'table':app2.table}, (msg) => {
                             alert(msg.message);
+                        });
+                    }
+                }
+            });
+
+            /* app3 */
+            const URL3 = "/tools/rebuild";
+            var app3 = new Vue({
+                el: "#app3",
+                data: {
+                    rebuild: "Manga"
+                },
+                methods: {
+                    button3_click: () => {
+                        $.get(URL3, {'rebuild':app3.rebuild}, (msg) => {
+                            alert(msg);
                         });
                     }
                 }

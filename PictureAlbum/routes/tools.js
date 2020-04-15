@@ -94,6 +94,59 @@ router.get('/renumberSN', (req,res) =>{
     res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
 });
 
+
+/* 派生テーブルの再構築 TRUNCATE */
+function rebuildTruncate(table) {
+    return new Promise((resolve) => {
+        let tableName = "Pictures" + table;
+        mysql.execute("TRUNCATE TABLE " + tableName, () => {
+            resolve("OK");
+        });
+    });
+}
+
+/* 派生テーブルの再構築 INSERT */
+function rebuildInsert(table) {
+    return new Promise((resolve) => {
+        let tableName = "Pictures" + table;
+        let mark = table.toUpperCase();
+        let sql;
+        if (table == "Time") {
+            sql = `INSERT INTO ${tableName} SELECT * FROM Pictures ORDER BY id`;
+        }
+        else {
+            sql = `INSERT INTO ${tableName} SELECT * FROM Pictures WHERE mark='${mark}' ORDER BY id`;
+        }
+        mysql.execute(sql, () => {
+            resolve("OK");
+        });
+    });
+}
+
+/* 派生テーブルの再構築 Renumber SN */
+function rebuildRenumSN(table) {
+    return new Promise((resolve) => {
+        let ProcName = table + "SN()";
+        mysql.execute("CALL " + ProcName, () => {
+            resolve("OK");
+        });
+    });
+}
+
+/* 派生テーブルの再構築 ヘルパ関数 */
+async function rebuildTable(table) {
+    await rebuildTruncate(table);
+    await rebuildInsert(table);
+    await rebuildRenumSN(table);
+}
+
+/* 派生テーブルの再構築 */
+router.get('/rebuild', (req, res) => {
+    let table = req.query.rebuild;
+    rebuildTable(table);
+    res.send("再構築終了。Pictures" + table);
+});
+
 /* Pictures と派生テーブルからのデータ削除 */
 router.get('/deletePictures', (req, res) => {
     let {id, derived_table, bindata} = req.query;
