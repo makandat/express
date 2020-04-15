@@ -1,6 +1,6 @@
 /* index.js */
 "use strict";
-const VERSION = "1.01";   // バージョン番号
+const VERSION = "1.02";   // バージョン番号
 var express = require('express');
 var router = express.Router();
 var mysql = require('./MySQL.js');
@@ -26,7 +26,7 @@ function makeSelect(req) {
       where = "";
     }
     else if (req.session.groupname == "NONAME") {
-      where = ` WHERE groupname = ''`;
+      where = ` WHERE groupname = '' OR groupname IS NULL`;
     }
     else {
       where = ` WHERE groupname = '${req.session.groupname}'`;
@@ -39,7 +39,7 @@ function makeSelect(req) {
       where = "";
     }
     else if (req.session.groupname == "NONAME") {
-      where = ` WHERE groupname = ''`;
+      where = ` WHERE groupname = '' OR groupname IS NULL`;
     }
     else {
       where = ` WHERE groupname = '${req.session.groupname}'`;
@@ -64,7 +64,9 @@ function showResults(req, res) {
           res.render('index', {'title':'画像アルバム for Express4', 'version':VERSION, 'message':'アルバムグループ：' + req.session.groupname, 'albums':albums, 'albumgroups':albumgroups});
         }
         else {
-          albumgroups.push(row.grpname);
+          if (row.grpname != null) {
+            albumgroups.push(row.grpname);
+          }
         }
       });  
     }
