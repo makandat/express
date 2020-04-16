@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>作者情報の変更</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/jquery.min.js"></script>
+    <style>
+        form {
+            margin-left: 10%;
+            margin-right: 10%;
+            padding:12px;
+            border:solid thin darkblue;
+        }
+    </style>
+    <script>
+        $(() => {
+            $("#btnConfirm").click(() => {
+                location.href = "/creators/confirm_creator?id=" + $("#id").val();
+            });
+
+            $("#btnClear").click(() => {
+                $("input[type='text']").val("");
+            });
+        });
+    </script>
+  </head>
+
+  <body>
+    <h1>作者情報の変更</h1>
+    <div class="menu"><a href="window.close()">閉じる</a></div>
+    <br />
+    <p class="message"><%= message %></p>
+    <form id="form1" method="POST" action="/creators/modify_creator">
+      <div class="form_row">
+        id (変更可能。昇順番号でユニークなこと。データ確認で使用)<br /><input type="text" name="id" id="id" size="6" value="<%= id %>" />
+      </div>
+      <div class="form_row">
+        作者 (主キー)<br /><input type="text" name="creator" id="creator" size="60" value="<%= creator %>" />
+      </div>
+      <div class="form_row">
+        マーク<br /><input type="text" name="marks" id="marks" size="30" value="<%= marks %>" />
+      </div>
+      <div class="form_row">
+        情報<br /><input type="text" name="info" id="info" size="120" value="<%= info %>" />
+      </div>
+      <div class="form_row">
+        お気に入り<br /><input type="text" name="fav" id="fav" size="6" value="<%= fav %>" />
+      </div>
+      <div class="form_row">
+        参照回数<br /><input type="text" name="refcount" id="refcount" size="6" value="<%= refcount %>" />
+      </div>
+      <div class="form_row">
+        作品数<br /><input type="text" name="titlecount" id="titlecount" size="6" value="<%= titlecount %>" />
+      </div>
+      <div class="form_row">
+      </div>
+      <div class="form_row">
+        <input type="submit" name="btnSubmit" id="btnSubmit" value=" 送信 " />&nbsp;
+        <input type="button" name="btnConfirm" id="btnConfirm" value=" データ確認 " />&nbsp;
+        <input type="button" name="btnClear" id="btnClear" value=" クリア " />&nbsp;
+      </div>
+    </form>
+  </body>
+</html>
