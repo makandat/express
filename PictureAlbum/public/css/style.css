@@ -98,6 +98,11 @@ input[type="text"] {
   padding: 4px;
 }
 
+input[type="password"] {
+  border-radius: 4px;
+  padding: 4px;
+}
+
 input[type="submit"] {
   border-radius: 6px;
   height: 32px;
@@ -113,7 +118,7 @@ input[type="button"] {
 }
 
 input[type="button"]:hover {
-  background-color: linen;
+  background-color: lemonchiffon;
 }
 
 select {
