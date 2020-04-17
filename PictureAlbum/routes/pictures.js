@@ -4,7 +4,7 @@ var express = require('express');
 var session = require('express-session');
 var mysql = require('./MySQL.js');
 
-const VERSION = "1.03";
+const VERSION = "1.05";
 const LIMIT = 200;
 
 var router = express.Router();
@@ -299,12 +299,12 @@ async function showResults(res, p = {}) {
 /* お気に入り数を増やす。*/
 function favincrease(res, id) {
   mysql.execute("CALL increaseFav(" + id +")", ()=>{
-    showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。","info.jpg");
+    showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。","info.png");
   });
 };
 
 /* 情報を表示する。*/
-function showInfo(res, title, message, icon="info.jpg", link="", url="") {
+function showInfo(res, title, message, icon="info.png", link="") {
   let jump;
   if (link == "") {
     jump = '<a href="history.back()">もどる</a>';

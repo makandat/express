@@ -58,7 +58,7 @@ router.post('/login', (req, res) => {
 /* ログアウト */
 router.get('/logout', (req, res) => {
     req.session.user = undefined;
-    res.render('showInfo', {title:"ログアウト", message:'ログアウトしました。', icon:"info.jpg", link:'<a href="/users">ログイン</a>'});
+    res.render('showInfo', {title:"ログアウト", message:'ログアウトしました。', icon:"info.png", link:'<a href="/users">ログイン</a>'});
 });
 
 

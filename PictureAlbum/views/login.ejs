@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <title>LOGIN</title>
     <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.13.0/js/md5.js"></script>
     <style>
         form {
             margin-left:auto;
@@ -18,12 +20,37 @@
             padding: 4px;          
         }
     </style>
+    <script>
+        $(() => {
+            /* ログインボタン */
+            $('#btnLogin').click(() =>{
+                let password = md5($("#password").val());
+                $('#password').val(password);
+                console.log(password);
+                $('#form1').submit();
+            });
+
+            /* ユーザ管理者ボタン */
+            $('#btnAdmin').click(() => {
+                let userid = $("#userid").val();
+                console.log(userid);
+                let password = md5($("#password").val());
+                console.log(password);
+                location.href = `/users/admin?userid=${userid}&password=${password}`;    
+            });
+
+            /* クリア */
+            $("#btnClear").click(() => {
+                $("input[type='password']").val('');
+            });
+        });
+    </script>
 </head>
 
 <body>
   <h1>ログイン</h1>
   <br />
-  <form method="POST" action="/users/login">
+  <form id="form1" method="POST" action="/users/login">
     <div class="form-row" style="margin-left:10%;">
         ユーザ ID<br /><input type="text" name="userid" id="userid" size="50" value="<%= userid %>" />
     </div>
@@ -31,7 +58,9 @@
         パスワード<br /><input type="password" name="password" id="password" size="50" value="<%= password %>" />
     </div>
     <div class="form-row" style="margin-left:15%;">
-        <br /><input type="submit" name="btnLogin" id="btnLogin" value=" ログイン " />
+        <br /><input type="button" name="btnLogin" id="btnLogin" value=" ログイン " />&nbsp;
+        <input type="button" name="btnAdmin" id="btnAdmin" value=" ユーザ管理 (管理者のみ) " />&nbsp;
+        <input type="button" name="btnClear" id="btnClear" value=" パスワードクリア " />
     </div>
     <p class="message"><%= message %></p>
   </form>
