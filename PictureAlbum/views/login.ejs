@@ -13,11 +13,18 @@
             border:solid thin gray;
             background-color:whitesmoke;
             padding:12px;
-            width:40%;
+            width:50%;
+            border-radius: 6px 6px;
+            box-shadow: 3px 3px 6px;
         }
         input[type="password"] {
             border-radius: 4px;
             padding: 4px;          
+        }
+        button {
+            border-radius: 5px;
+            background-color: lime;
+            height: 34px;
         }
     </style>
     <script>
@@ -48,7 +55,7 @@
 </head>
 
 <body>
-  <h1>ログイン</h1>
+  <h1><img src="/img/photo.png" /> 画像アルバム ログイン</h1>
   <br />
   <form id="form1" method="POST" action="/users/login">
     <div class="form-row" style="margin-left:10%;">
@@ -57,8 +64,8 @@
     <div class="form-row" style="margin-left:10%;">
         パスワード<br /><input type="password" name="password" id="password" size="50" value="<%= password %>" />
     </div>
-    <div class="form-row" style="margin-left:15%;">
-        <br /><input type="button" name="btnLogin" id="btnLogin" value=" ログイン " />&nbsp;
+    <div class="form-row" style="margin-left:10%;">
+        <br /><button type="button" name="btnLogin" id="btnLogin"><b>ログイン</b></button>&nbsp;
         <input type="button" name="btnAdmin" id="btnAdmin" value=" ユーザ管理 (管理者のみ) " />&nbsp;
         <input type="button" name="btnClear" id="btnClear" value=" パスワードクリア " />
     </div>

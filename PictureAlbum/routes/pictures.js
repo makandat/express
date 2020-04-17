@@ -299,15 +299,15 @@ async function showResults(res, p = {}) {
 /* お気に入り数を増やす。*/
 function favincrease(res, id) {
   mysql.execute("CALL increaseFav(" + id +")", ()=>{
-    showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。","info.png");
+    showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。", "info.png", null);
   });
 };
 
 /* 情報を表示する。*/
-function showInfo(res, title, message, icon="info.png", link="") {
+function showInfo(res, title, message, icon="info.png", link=null) {
   let jump;
-  if (link == "") {
-    jump = '<a href="history.back()">もどる</a>';
+  if (link == null || link == "") {
+    jump = '<a href="javascript:history.back()">もどる</a>';
   }
   else {
     jump = `<a href="${url}">${link}</a>`;
@@ -366,7 +366,7 @@ router.get('/jump/:id', function(req, res, next) {
   console.log(sql);
   mysql.getValue(sql, (n)=>{
     if (n == 0) {
-      showInfo(res, 'エラー', '指定した id は存在しないため不正です。', 'cancel.png');
+      showInfo(res, 'エラー', '指定した id は存在しないため不正です。', 'cancel.png', null);
     }
     else {
       sql = `SELECT sn FROM ${tableName} WHERE id=${pid}`;

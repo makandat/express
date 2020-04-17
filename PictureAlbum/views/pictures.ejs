@@ -57,10 +57,11 @@
     <h1><%= title %></h1>
     <!-- メニュー -->
     <div class="menu" id="menu0" style="padding:8px;display:<%- display_menu0 %>">
-      <a href="/pictures"><img src="/img/home.jpg" /> 表示リセット</a>&nbsp;/&nbsp;
-      <a href="/modify_folder" target="_blank">画像フォルダの追加・修正</a>&nbsp;/&nbsp;
-      <a href="/creators" target="_blank">作者一覧</a>&nbsp;/&nbsp;
-      <a href="/pictures/favorites" target="_blank">お気に入り一覧</a>&nbsp;/&nbsp;
+      <a href="window.close()"><img src="/img/close2.png" /> 閉じる</a>&nbsp;/&nbsp;
+      <a href="/pictures"><img src="/img/home.png" /> 表示リセット</a>&nbsp;/&nbsp;
+      <a href="/modify_folder" target="_blank"><img src="/img/form.png" /> 画像フォルダの追加・修正</a>&nbsp;/&nbsp;
+      <a href="/creators" target="_blank"><img src="/img/photo2.png" /> 作者一覧</a>&nbsp;/&nbsp;
+      <a href="/pictures/favorites" target="_blank"><img src="/img/heart2.png" /> お気に入り一覧</a>&nbsp;/&nbsp;
       表示順 <select id="orderby">
         <option value="0">----------</option>
         <option value="1">id の降順 (デフォルト)</option>
@@ -75,7 +76,7 @@
       <a href="/pictures/last">最後 <img src="/img/last.svg" /></a>&nbsp;&nbsp;
       id 指定&nbsp;<input type="text" id="jump" size="10" /><input type="button" id="btnJump" value="移動" />
       &nbsp;/&nbsp;
-      ワードフィルタ <input type="text" id="word" size="30" /><input type="button" id="btnFind" value="検索" />&nbsp;/&nbsp;
+      <img src="/img/find2.png" /> ワードフィルタ <input type="text" id="word" size="30" /><input type="button" id="btnFind" value="検索" />&nbsp;/&nbsp;
       マークフィルタ <select id="mark">
         <option>----------</option>
         <option value="ALL">すべて</option>
@@ -83,11 +84,11 @@
           <option><%= m %></option>
         <% } %>
       </select>&nbsp;/&nbsp;
-      <a href="/tool.html" target="_blank">ツール</a>&nbsp;/&nbsp;
-      <a href="/help.html" target="_blank">ヘルプ</a>
+      <a href="/tool.html" target="_blank"><img src="/img/tool2.png" /> ツール</a>&nbsp;/&nbsp;
+      <a href="/help.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>
     </div>
     <div class="menu" id="menu1" style="display:<%- display_menu1 %>">
-      <a href="javascript:window.close();">閉じる</a>
+      <a href="javascript:window.close();"><img src="/img/close2.png" />  閉じる</a>
     </div>
     <br />
     <!-- メッセージ -->
