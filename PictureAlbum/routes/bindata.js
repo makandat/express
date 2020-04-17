@@ -118,6 +118,21 @@ router.get('/jump/:id', function(req, res, next) {
   })
 });
 
+/* 情報の修正 */
+router.get('/modify_bindata', function(req, res, next) {
+
+});
+
+/* 情報の修正 POST */
+router.post('/modify_bindata', function(req, res, next) {
+
+});
+
+/* データ確認 */
+router.get('/confirm/:id') {
+
+}
+
 /* BINDATA テーブルから画像データを得る。 */
 router.get('/extract/:id', function(req, res, next){
   let id = req.params.id;

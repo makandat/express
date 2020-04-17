@@ -34,8 +34,9 @@
   <body>
     <h1><%= title %></h1>
     <div class="menu">
-      <a href="/">アルバム一覧</a>&nbsp;/&nbsp;<a href="javascript:window.close();">閉じる</a>&nbsp;/&nbsp;
-      <a href="/help.html" target="_blank">ヘルプ</a>
+      <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
+      <a href="javascript:window.close();"><img src="/img/close2.png" /> 閉じる</a>&nbsp;/&nbsp;
+      <a href="/help.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>
     </div>
     <br />
     <p class="message"><%= message %></p>
@@ -47,27 +48,27 @@
       </div>
       <div class="form_row">
         タイトル<br />
-        <input type="text" name="name" id="name" size="100" value="<%= name %>">
+        <input type="text" name="name" id="name" size="100" value="<%= name %>" />
       </div>
       <div class="form_row">
         作者<br />
-        <input type="text" name="creator" id="creator" size="50" value="<%= creator %>">
+        <input type="text" name="creator" id="creator" size="50" value="<%= creator %>" />
       </div>
       <div class="form_row">
         場所<br />
-        <input type="text" name="path" id="path" size="120" value="<%= path %>">
+        <input type="text" name="path" id="path" size="120" value="<%= path %>" autofocus />
       </div>
       <div class="form_row">
         分類<br />
-        <input type="text" name="mark" id="mark" size="30" value="<%= mark %>">
+        <input type="text" name="mark" id="mark" size="30" value="<%= mark %>" />
       </div>
       <div class="form_row">
         情報<br />
-        <input type="text" name="info" id="info" size="120" value="<%= info %>">
+        <input type="text" name="info" id="info" size="120" value="<%= info %>" />
       </div>
       <div class="form_row">
         お気に入り<br />
-        <input type="text" name="fav" id="fav" size="2" value="<%= fav %>">
+        <input type="text" name="fav" id="fav" size="2" value="<%= fav %>" />
       </div>
       <div class="form_row">
         画像リンク<br />

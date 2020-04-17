@@ -27,14 +27,14 @@
   <body>
     <h1><%= title %></h1>
     <div class="menu">
-      <a href="javascript:window.close()">閉じる</a>&nbsp;/&nbsp;
-      <a href="/help.html">ヘルプ</a>
+      <a href="javascript:window.close()"><img src="/img/close2.png" /> 閉じる</a>&nbsp;/&nbsp;
+      <a href="/help.html"><img src="/img/question2.png" /> ヘルプ</a>
     </div>
     <p class="message"><%= message %></p>
 
     <form method="POST" action="/modify_album">
       <div class="form_row">アルバム番号(id) (注意) 自動採番のため挿入時は空欄とする。<br />
-        <input type="text" name="id" id="id" size="5" value=<%= id %> >
+        <input type="text" name="id" id="id" size="5" value="<%= id %>" autofocus />
       </div>
       <div class="form_row">アルバム名<br />
         <input type="text" name="album" size="40" value="<%= album %>" > 

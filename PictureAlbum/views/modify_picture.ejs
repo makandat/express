@@ -38,8 +38,9 @@
     <h1><%= title %></h1>
     <!-- メニュー -->
     <div class="menu">
-      <a href="/">アルバム一覧</a>&nbsp;/&nbsp;<a href="javascript:window.close()">閉じる</a>&nbsp;/&nbsp;
-      <a href="/help.html" target="_blank">ヘルプ</a>
+      <a href="/"><img src="/img/home.png" /> アルバム一覧</a>&nbsp;/&nbsp;
+      <a href="javascript:window.close()"><img src="/img/close2.png" /> 閉じる</a>&nbsp;/&nbsp;
+      <a href="/help.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>
     </div>
     <br />
     <!-- メッセージ -->
@@ -49,39 +50,39 @@
     <form method="POST" action="/modify_picture">
       <div class="form_row">
         番号 (id)<br />
-        <input type="text" name="id" id="id" size="10" value="<%= id %>">
+        <input type="text" name="id" id="id" size="10" value="<%= id %>" />
       </div>
       <div class="form_row">
         アルバム番号<br />
-        <input type="text" name="album" id="album" size="20" value="<%= album %>" >
+        <input type="text" name="album" id="album" size="20" value="<%= album %>" />
       </div>
       <div class="form_row">
         タイトル<br />
-        <input type="text" name="name" id="name" size="100" value="<%= name %>" >
+        <input type="text" name="name" id="name" size="100" value="<%= name %>" />
       </div>
       <div class="form_row">
         作者<br />
-        <input type="text" name="creator" id="creator" size="50" value="<%= creator %>" >
+        <input type="text" name="creator" id="creator" size="50" value="<%= creator %>" />
       </div>
       <div class="form_row">
         画像ファイルのパス名<br />
-        <input type="text" name="path" id="path" size="120" value="<%= path %>" >
+        <input type="text" name="path" id="path" size="120" value="<%= path %>" autofocus />
       </div>
       <div class="form_row">
         情報<br />
-        <input type="text" name="info" id="info" size="120" value="<%= info %>" >
+        <input type="text" name="info" id="info" size="120" value="<%= info %>" />
       </div>
       <div class="form_row">
         好き<br />
-        <input type="text" name="fav" id="fav" size="4" value="<%= fav%>" >
+        <input type="text" name="fav" id="fav" size="4" value="<%= fav%>" />
       </div>
       <div class="form_row">
         イメージリンク<br />
-        <input type="text" name="bindata" id="bindata" size="10" value="<%= bindata %>">
+        <input type="text" name="bindata" id="bindata" size="10" value="<%= bindata %>" />
       </div>
       <div class="form_row">
         Pictures ID<br />
-        <input type="text" name="picturesid" id="picturesid" size="10" value="<%= picturesid %>" >
+        <input type="text" name="picturesid" id="picturesid" size="10" value="<%= picturesid %>" />
       </div>
       <br />
       <div class="form_row">
