@@ -21,37 +21,45 @@
         });
       });
     </script>
+    <style>
+      form {
+        margin-left:5%;
+        font-size:small;
+        padding:16px;
+        border:solid thin darkblue;
+      }
+    </style>
   </head>
 
   <body>
     <h1>サムネール画像情報の修正</h1>
     <div class="menu">
       <a href="javascript:window.close()"><img src="/img/close2.png" /> 閉じる</a>&nbsp;/&nbsp;
-      <a href="/help.html"><img src="/img/question2.png" /> ヘルプ</a>
+      <a href="/help.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>
     </div>
     <p class="message"><%= message %></p>
 
     <form method="POST" action="/bindata/modify_bindata">
         <div class="form_row">id<br />
-            <input type="text" name="id" size="6" value="<%= id %>" > 
+            <input type="text" name="id" id="id" size="6" value="<%= id %>" > 
         </div>
         <div class="form_row">タイトル<br />
-            <input type="text" name="title" size="50" value="<%= title %>" > 
+            <input type="text" name="title" id="title" size="50" value="<%= title %>" > 
         </div>
         <div class="form_row">オリジナル画像のパス<br />
-            <input type="text" name="original" size="150" value="<%= original %>" > 
+            <input type="text" name="original" id="original" size="150" value="<%= original %>" > 
         </div>
         <div class="form_row">データ種別 (ファイルの拡張子)<br />
-            <input type="text" name="datatype" size="20" value="<%= datatype %>" > 
+            <input type="text" name="datatype" id="datatype" size="20" value="<%= datatype %>" > 
         </div>
         <div class="form_row">データ (インポートツールにて修正)<br />
-            <input type="text" name="data" size="20" value="" style="background-color:bisque;" disabled /> 
+            <input type="text" name="data" id="data" size="20" value="" style="background-color:bisque;" disabled /> 
         </div>
         <div class="form_row">情報<br />
-            <input type="text" name="info" size="150" value="<%= info %>" /> 
+            <input type="text" name="info" id="info" size="150" value="<%= info %>" /> 
         </div>
         <div class="form_row">画像サイズ (直接修正不可)<br />
-            <input type="text" name="size" size="20" value="<%= size %>" style="background-color:bisque;" disabled /> 
+            <input type="text" name="size" id="size" size="20" value="<%= size %>" style="background-color:bisque;" /> 
         </div>
         <div class="form_row"><br />
             <input type="submit" name="btnSubmit" id="btnSubmit" value=" 更新 " />&nbsp;

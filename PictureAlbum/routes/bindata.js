@@ -120,18 +120,34 @@ router.get('/jump/:id', function(req, res, next) {
 
 /* 情報の修正 */
 router.get('/modify_bindata', function(req, res, next) {
-
+  res.render('modify_bindata', {'message':'', 'id':'', 'title':'', 'original':'', 'datatype':'', 'data':'', 'info':'', 'size':''});
 });
 
 /* 情報の修正 POST */
 router.post('/modify_bindata', function(req, res, next) {
-
+  let {id, title, original, datatype, data, info, size} = req.body;
+  if (id == "" || isNaN(parseInt(id))) {
+    res.render('showInfo', {'title':'エラー', 'message':'id が空欄であるか数ではありません。', 'icon':'cancel.png', 'link':null});
+    return;
+  }
+  title = title.replace(/'/g, "''").trim();
+  original = original.replace(/'/g, "''").trim();
+  let sql = `UPDATE BINDATA SET title='${title}', original='${original}', datatype='${datatype}', info='${info}' WHERE id=${id}`;
+  mysql.execute(sql, () => {
+    res.render('modify_bindata', {'message':'id = ' + id + ' が更新されました。', 'id':id, 'title':title, 'original':original, 'datatype':datatype, 'data':'(更新されません)', 'info':info, 'size':size});
+  });
 });
 
 /* データ確認 */
-router.get('/confirm/:id') {
+router.get('/confirm/:id', function(req, res, next) {
+  let id = req.params.id;
+  let sql = "SELECT id, title, original, datatype, info, size FROM BINDATA WHERE id=" + id;
+  mysql.getRow(sql, (row) => {
+    res.render('modify_bindata', {'message':'id = ' + id + ' のデータを取得しました。', 'id':id, 'title':row.title, 'original':row.original, 'datatype':row.datatype, 'data':'(変更できません)', 'info':row.info, 'size':row.size});
+  });
+});
 
-}
+
 
 /* BINDATA テーブルから画像データを得る。 */
 router.get('/extract/:id', function(req, res, next){
