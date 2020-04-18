@@ -21,6 +21,7 @@ var bindataRouter = require('./routes/bindata');
 var creatorsRouter = require('./routes/creators');
 var toolsRouter = require('./routes/tools');
 var usersRouter = require('./routes/users');
+var videoRouter = require('./routes/video');
 
 var app = express();
 
@@ -61,6 +62,7 @@ app.use('/bindata', bindataRouter);
 app.use('/creators', creatorsRouter);
 app.use('/tools', toolsRouter);
 app.use('/users', usersRouter);
+app.use('/video', videoRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -3,30 +3,32 @@ var express = require('express');
 var mysql = require('./MySQL.js');
 var router = express.Router();
 
-/* フォームデータをテーブルに挿入する。*/
+/* フォームデータをAlbumテーブルに挿入する。*/
 function insertData(req, res) {
   let name = req.body.album;
   let info = req.body.info.replace(/'/g, "''");
   let bindata = req.body.bindata;
+  let mark = req.body.mark;
   let groupname = req.body.groupname.replace(/'/g, "''");
   let message = "データの挿入に成功しました。";
-  let sql = `INSERT INTO Album VALUES(NULL, '${name}', 'picture', '${info}', ${bindata}, '${groupname}', CURRENT_DATE())`;
+  let sql = `INSERT INTO Album VALUES(NULL, '${name}', '${mark}', '${info}', ${bindata}, '${groupname}', CURRENT_DATE())`;
   mysql.execute(sql, function() {
-    res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": "", "album": name, "info": info, "bindata": bindata, "groupname": groupname});
+    res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": "", "album": name, "mark":mark, "info": info, "bindata": bindata, "groupname": groupname});
   });
 }
 
-/* フォームデータでテーブルを更新する。*/
+/* フォームデータでAlbumテーブルを更新する。*/
 function updateData(req, res) {
   let id = req.body.id;
   let name = req.body.album;
+  let mark = req.body.mark;
   let info = req.body.info.replace(/'/g, "''");
   let bindata = req.body.bindata;
   let groupname = req.body.groupname.replace(/'/g, "''");
   let message = `データの更新に成功しました。id = ${id}`;
-  let sql = `UPDATE Album SET name='${name}', info='${info}', bindata=${bindata}, groupname='${groupname}', \`date\`=CURRENT_DATE() WHERE id=${id}`;
+  let sql = `UPDATE Album SET name='${name}', info='${info}', mark='${mark}', bindata=${bindata}, groupname='${groupname}', \`date\`=CURRENT_DATE() WHERE id=${id}`;
   mysql.execute(sql, function() {
-    res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": id, "album": name, "info": info, "bindata": bindata, "groupname": groupname});
+    res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": id, "album": name, "mark":mark, "info": info, "bindata": bindata, "groupname": groupname});
   });
 }
 
@@ -50,7 +52,11 @@ function confirmData(req, res) {
 /* ハンドラ */
 /* フォームを表示する。 */
 router.get('/', function(req, res, next) {
-  res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": "", "album": "", "info": "", "bindata":0, "groupname": ""});
+  let mark = "picture";
+  if (req.query.mark != undefined) {
+    mark = req.query.mark;
+  }
+  res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": "", "album": "", "mark":mark, "info": "", "bindata":0, "groupname": ""});
 });
 
 /* フォームデータを受け取る。*/

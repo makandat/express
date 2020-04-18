@@ -1,17 +1,20 @@
 /* index.js */
 "use strict";
-const VERSION = "1.05";   // バージョン番号
 var express = require('express');
+var fs = require('fs');
 var router = express.Router();
 var mysql = require('./MySQL.js');
 var dt = require('./DateTime.js');
 
-var albums = [];  // Albums クエリー結果
-var albumgroups = [];  // Albums.name 一覧結果
-var page = null;   // HTTP応答ページ
 const LIMIT = 200;  // 1ページの表示数
-const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM PictureAlbum GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album";
+const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM PictureAlbum GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album WHERE mark='picture'";
 
+/* package.json からバージョン番号を得る。*/
+function getVersion() {
+  let pstr = fs.readFileSync("package.json", "utf-8");
+  let p = JSON.parse(pstr);
+  return p.version;
+}
 
 /* SELECT 文を作成する。*/
 function makeSelect(req) {
@@ -26,10 +29,10 @@ function makeSelect(req) {
       where = "";
     }
     else if (req.session.groupname == "NONAME") {
-      where = ` WHERE groupname = '' OR groupname IS NULL`;
+      where = ` WHERE mark='picture' AND (groupname = '' OR groupname IS NULL)`;
     }
     else {
-      where = ` WHERE groupname = '${req.session.groupname}'`;
+      where = ` WHERE mark='picture' AND groupname = '${req.session.groupname}'`;
     }
   }
   else {
@@ -39,10 +42,10 @@ function makeSelect(req) {
       where = "";
     }
     else if (req.session.groupname == "NONAME") {
-      where = ` WHERE groupname = '' OR groupname IS NULL`;
+      where = ` WHERE mark = 'picture' AND (groupname = '' OR groupname IS NULL)`;
     }
     else {
-      where = ` WHERE groupname = '${req.session.groupname}'`;
+      where = ` WHERE mark = 'picture' AND groupname = '${req.session.groupname}'`;
     }
   }
 
@@ -58,10 +61,15 @@ function showResults(req, res) {
   mysql.query(sql, (row) => {
     if (row == null) {
       let albumgroups = [];
-      let sql = "SELECT DISTINCT groupname AS grpname FROM Album";
+      let mark = 'picture';
+      if (req.query.mark != undefined) {
+        mark = req.query.mark;
+      }
+      let sql = `SELECT DISTINCT groupname AS grpname FROM Album WHERE mark = '${mark}'`;
+
       mysql.query(sql, (row) =>{
         if (row == null) {
-          res.render('index', {'title':'画像アルバム for Express4', 'version':VERSION, 'message':'アルバムグループ：' + req.session.groupname, 'albums':albums, 'albumgroups':albumgroups});
+          res.render('index', {'title':'画像アルバム for Express4', 'version':getVersion(), 'message':'アルバムグループ：' + req.session.groupname, 'albums':albums, 'albumgroups':albumgroups});
         }
         else {
           if (row.grpname != null) {

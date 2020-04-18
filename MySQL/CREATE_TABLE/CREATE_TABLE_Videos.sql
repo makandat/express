@@ -1,0 +1,22 @@
+CREATE TABLE `videos` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`album` INT(8) NULL DEFAULT 0,
+	`title` VARCHAR(100) NOT NULL,
+	`path` VARCHAR(400) NOT NULL,
+	`creator` VARCHAR(50) NULL DEFAULT NULL,
+	`series` VARCHAR(50) NULL DEFAULT NULL,
+	`mark` VARCHAR(16) NULL DEFAULT NULL,
+	`info` VARCHAR(100) NULL DEFAULT NULL,
+	`fav` INT(8) NULL DEFAULT 0,
+	`count` INT(8) NULL DEFAULT 0,
+	`bindata` INT(11) NULL DEFAULT 0,
+	`sn` INT(11) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `path` (`path`),
+	INDEX `title` (`title`),
+	INDEX `info` (`info`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;

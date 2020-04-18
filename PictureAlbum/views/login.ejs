@@ -26,6 +26,9 @@
             background-color: lime;
             height: 34px;
         }
+        #userid {
+            ime-mode: inactive;
+        }
     </style>
     <script>
         $(() => {
@@ -48,7 +51,8 @@
 
             /* クリア */
             $("#btnClear").click(() => {
-                $("input[type='password']").val('');
+                $('#password').val('');
+                $('#password').focus();
             });
         });
     </script>

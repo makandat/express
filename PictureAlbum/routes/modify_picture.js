@@ -4,7 +4,7 @@ var mysql = require('./MySQL.js');
 var fs = require('fs');
 var os = require('os');
 var router = express.Router();
-const PAGE_TITLE = "画像(PictureAlbum)の作成・修正";
+const PAGE_TITLE = "画像の追加・修正 (PictureAlbum)";
 
 /* id の最大値を得る。*/
 function getMaxId() {
@@ -33,26 +33,36 @@ function fileExists(path) {
 async function insertData(req, res) {
   let message;
   let album = req.body.album;
-  if (album == "0") {
+  if (album == "" || parseInt(album) <= 0) {
     message = `データの挿入に失敗しました。アルバム番号は 1 以上です (album=0)。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
     return;
   }
   let name = req.body.name.replace(/'/g, "''").trim();
+  if (name == "") {
+    message = `データの挿入に失敗しました。タイトルは空欄ではいけません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let creator = req.body.creator.replace(/'/g, "''").trim();
+  if (creator == "") {
+    message = `データの挿入に失敗しました。作者は空欄ではいけません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let path = req.body.path;
   let b = await fileExists(path);
   try {
     if (b == false) {
       message = `データの挿入に失敗しました。パスはファイルでなければなりません。`;
-      res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+      res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
       return;
     }  
   }
   catch (e) {
     message = `データの挿入に失敗しました。パスが存在しません。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
-    return
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
   }
   if (os.platform() == "win32") {
     path = path.replace(/\\/g, '/');
@@ -60,15 +70,30 @@ async function insertData(req, res) {
   path = path.replace(/'/g, "''").trim();
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
+  if (fav == "") {
+    message = `データの挿入に失敗しました。「好き」は非負の整数でなければなりません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let bindata = req.body.bindata;
+  if (bindata == "") {
+    message = `データの挿入に失敗しました。「イメージリンク」は非負の整数でなければなりません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let picturesid = req.body.picturesid;
+  if (picturesid == "") {
+    message = `データの挿入に失敗しました。「Pictures ID」は非負の整数でなければなりません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   if (isNaN(parseInt(album))) {
     message = `データの挿入に失敗しました。アルバム番号が不正です。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
   }
   else if (isNaN(parseInt(fav))) {
     message = `データの挿入に失敗しました。「好き」が不正です。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
   }
   else {
     let id = await getMaxId();
@@ -86,20 +111,35 @@ async function updateData(req, res) {
   let message;
   let id = req.body.id;
   let album = req.body.album;
+  if (album == "" || parseInt(album) <= 0) {
+    message = `データの更新に失敗しました。アルバム番号は 1 以上です。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let name = req.body.name.replace(/'/g, "''").trim();
+  if (name == "") {
+    message = `データの更新に失敗しました。タイトルは空欄ではいけません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let creator = req.body.creator.replace(/'/g, "''").trim();
+  if (name == "") {
+    message = `データの更新に失敗しました。作者は空欄ではいけません。`;
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let path = req.body.path;
   let b = await fileExists(path);
   try {
     if (b == false) {
       message = `データの更新に失敗しました。パスはファイルでなければなりません。`;
-      res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+      res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
       return;
     }  
   }
   catch (e) {
     message = `データの更新に失敗しました。パスが存在しません。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
     return
   }
   if (os.platform() == "win32") {
@@ -112,15 +152,15 @@ async function updateData(req, res) {
   let picturesid = req.body.picturesid;
   if (isNaN(parseInt(id))) {
     message = `データの更新に失敗しました。id が不正です。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
   }
   else if (isNaN(parseInt(album))) {
     message = `データの更新に失敗しました。アルバム番号が不正です。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
   }
   else if (isNaN(parseInt(fav))) {
     message = `データの更新に失敗しました。「好き」が不正です。`;
-    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
   }
   else {
     message = `データの更新に成功しました。id = ${id}`;

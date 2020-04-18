@@ -29,6 +29,8 @@
         font-size:small;
         padding:16px;
         border:solid thin darkred;
+        margin-left:5%;
+        margin-right:5%;
       }
     </style>
   </head>
@@ -50,11 +52,11 @@
     <form method="POST" action="/modify_picture">
       <div class="form_row">
         番号 (id)<br />
-        <input type="text" name="id" id="id" size="10" value="<%= id %>" />
+        <input type="number" name="id" id="id" size="10" value="<%= id %>" />
       </div>
       <div class="form_row">
         アルバム番号<br />
-        <input type="text" name="album" id="album" size="20" value="<%= album %>" />
+        <input type="number" name="album" id="album" size="20" value="<%= album %>" />
       </div>
       <div class="form_row">
         タイトル<br />

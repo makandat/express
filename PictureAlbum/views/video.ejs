@@ -29,11 +29,10 @@
   <body>
     <h1><%= title %><br /><span class="version">Version <%= version %></span></h1>
     <div class="menu">
-      <a href="/"><img src="/img/refresh2.png" /> 表示リセット</a>&nbsp;/&nbsp;
-      <a href="/modify_album" target="_blank" title="Album テーブルへの追加・更新"><img src="/img/form.png" /> アルバムの作成・修正</a>&nbsp;/&nbsp;
-      <a href="/modify_picture" target="_blank" title="PictureAlbum テーブルへの追加・更新"><img src="/img/form.png" /> 画像の追加・修正</a>&nbsp;/&nbsp;
-      <a href="/modify_folder" target="_blank" title="Pictures テーブルへの追加・更新"><img src="/img/form.png" /> 画像フォルダの追加・修正</a>&nbsp;/&nbsp;
-      <a href="/reverse"><img src="/img/reverse2.png" /> 逆順で表示</a>&nbsp;/&nbsp;
+      <a href="/video"><img src="/img/refresh2.png" /> 表示リセット</a>&nbsp;/&nbsp;
+      <a href="/modify_album?mark=video" target="_blank" title="Album テーブルへの追加・更新"><img src="/img/form.png" /> アルバムの作成・修正</a>&nbsp;/&nbsp;
+      <a href="/video/modify_video" target="_blank" title="Videos テーブルへの追加・更新"><img src="/img/form.png" /> ビデオの追加・修正</a>&nbsp;/&nbsp;
+      <a href="/video/reverse"><img src="/img/reverse2.png" /> 逆順で表示</a>&nbsp;/&nbsp;
       アルバムグループの選択　<select id="groupname">
         <option>---------------</option>
         <option value="ALL">すべて</option>
@@ -42,10 +41,7 @@
           <option><%= gname %></option>
         <% } %>
       </select>&nbsp;///&nbsp;
-      <a href="/pictalbum/details/?pictalbum=ALL" title="PictureAlbum テーブルの内容一覧" target="_blank"><img src="/img/photo2.png" /> アルバム画像一覧</a>&nbsp;/&nbsp;
-      <a href="/pictures" title="Pictures テーブルの内容一覧" target="_blank"><img src="/img/folder.png" /> 画像フォルダ一覧</a>&nbsp;/&nbsp;
-      <a href="/bindata" title="BINDATA テーブルの内容一覧" target="_blank"><img src="/img/thumbs2.png" /> サムネール画像一覧</a>&nbsp;/&nbsp;
-      <a href="/video" target="_blank"><img src="/img/video2.png" /> ビデオアルバムへ</a>&nbsp;/&nbsp;
+      <a href="/" target="_blank"><img src="/img/photo2.png" /> 画像アルバムへ</a>&nbsp;/&nbsp;
       <a href="/tool.html" target="_blank"><img src="/img/tool2.png" /> ツール</a>&nbsp;/&nbsp;
       <a href="/help.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>&nbsp;/&nbsp;
       <a href="/users/logout"><img src="/img/close2.png" /> ログアウト</a>
@@ -67,9 +63,11 @@
       </tr>
     <% } %>
   </table>
-  <p>&nbsp;</p>
-  <p style="text-align:center;"><a href="#">TOP</a></p>
-  <p>&nbsp;</p>
-  <p>&nbsp;</p>
-  </body>
-</html>
+    <!-- フッター -->
+    <p>&nbsp;</p>
+    <p style="text-align:center;"><a href="#">TOP</a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    </body>
+  </html>
+  

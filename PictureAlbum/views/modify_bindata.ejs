@@ -41,16 +41,16 @@
 
     <form method="POST" action="/bindata/modify_bindata">
         <div class="form_row">id<br />
-            <input type="text" name="id" id="id" size="6" value="<%= id %>" > 
+            <input type="number" name="id" id="id" size="6" value="<%= id %>" /> 
         </div>
         <div class="form_row">タイトル<br />
-            <input type="text" name="title" id="title" size="50" value="<%= title %>" > 
+            <input type="text" name="title" id="title" size="50" value="<%= title %>" /> 
         </div>
         <div class="form_row">オリジナル画像のパス<br />
-            <input type="text" name="original" id="original" size="150" value="<%= original %>" > 
+            <input type="text" name="original" id="original" size="150" value="<%= original %>" /> 
         </div>
         <div class="form_row">データ種別 (ファイルの拡張子)<br />
-            <input type="text" name="datatype" id="datatype" size="20" value="<%= datatype %>" > 
+            <input type="text" name="datatype" id="datatype" size="20" value="<%= datatype %>" style="ime-mode: inactive;" /> 
         </div>
         <div class="form_row">データ (インポートツールにて修正)<br />
             <input type="text" name="data" id="data" size="20" value="" style="background-color:bisque;" disabled /> 
