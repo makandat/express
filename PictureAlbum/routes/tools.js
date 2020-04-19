@@ -72,7 +72,7 @@ async function deleteData(id, derived_table, bindata) {
 
 /* デフォルトはエラーにする。*/
 router.get("/", (req, res) => {
-    res.render('showInfo', {'title':'エラー', 'message':'/tools は画面表示用ではありません。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'/tools は画面表示用ではありません。', 'icon':'cancel.png', 'link':null});
 });
 
 /* Pictures テーブルの指定した id のレコードを派生テーブルに追加 */
@@ -239,7 +239,7 @@ router.get('/view100', (req, res) => {
     let sql = "";
     let content = "";
 
-    if (tableName == "Pictures" || tableName == "PicturesManga" || tableName == "PicturesHcg" || tableName == "PicturesDoujin" || tableName == "PicturesPixiv" || tableName == "PicturesTime") {
+    if (tableName == "Pictures" || tableName == "PicturesManga" || tableName == "PicturesHcg" || tableName == "PicturesDoujin" || tableName == "PicturesPixiv" || tableName == "PicturesTime" || tableName == "PicturesPhoto") {
         sql = "SELECT id, title, creator, path, mark, info, fav, count, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT, sn FROM " + tableName + " ORDER BY id DESC LIMIT 100";
         mysql.query(sql, (row) => {
             if (content == "") {
@@ -316,6 +316,22 @@ router.get('/view100', (req, res) => {
             }
             else {
                 content += `<tr><td>${row.id}</td><td>${row.title}</td><td>${row.original}</td><td>${row.datatype}</td><td>${row.info}</td><td>${row.size}</td><td>${row.sn}</td></tr>\n`;
+            }
+        });
+    }
+    else if (tableName == "Videos") {
+        sql = "SELECT id, album, title, path, creator, series, mark, info, fav, count, bindata, sn FROM Videos ORDER BY id DESC LIMIT 100";
+        mysql.query(sql, (row) => {
+            if (content == "") {
+                content = "<table>\n";
+                content += "<tr><th>id</th><th>album</th><th>title</th><th>path</th><th>creator</th><th>series</th><th>mark</th><th>info</th><th>fav</th><th>count</th><th>bindata</th><th>sn</th></tr>";
+            }
+            if (row == null) {
+                content += "</table>\n";
+                res.json({'message':tableName + " を降順で１００件表示しました。", 'content':content});
+            }
+            else {
+                content += `<tr><td>${row.id}</td><td>${row.album}</td><td>${row.title}</td><td>${row.path}</td><td>${row.creator}</td><td>${row.series}</td><td>${row.mark}</td><td>${row.info}</td><td>${row.fav}</td><td>${row.count}</td><td>${row.bindata}</td><td>${row.sn}</td></tr>\n`;
             }
         });
     }

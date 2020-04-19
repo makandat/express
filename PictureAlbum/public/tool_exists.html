@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>画像アルバム for Express4 TOOL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <style>
+        div.app {
+            border: solid thin gray;
+            padding: 12px;
+            font-size: small;
+            margin-left: 5%;
+            margin-right: 5%;
+        }
+    </style>
+  </head>
+
+  <body>
+    <!-- ヘッダー -->
+    <h1>画像アルバム for Express4 ツール (Tool)</h1>
+    <div class="menu">
+      <a href="javascript:window.close()">閉じる</a>
+    <br />
+    <!-- フォーム -->
+    <h2>ファイル・ディレクトリ存在チェック</h2>
+    <div class="app" id="app1">
+        <div class="form_row">
+            対象テーブル<br />
+            <ul style="list-style-type:none;padding:10px;border:solid thin gray;width:75%;">
+                <li><input type="radio" v-model="table" value="pictures" /> Pictures</li>
+                <li><input type="radio" v-model="table" value="videos" /> Videos</li>
+            </ul>
+        </div>
+        <div class="form_row">
+            範囲<br />
+            <ul style="list-style-type:none;padding:10px;border:solid thin gray;width:75%;">
+                <li><label><input type="checkbox" name="rangeAll" id="rangeAll" v-model="rangeAll" v-on:change="rangeAll_change" /> すべて</label></li>
+                <li><label>開始 id <input type="number" name="startId" id="startId" v-model="startId" size="8" v-bind:disabled="disastart" /></label></li>
+                <li><label>終了 id <input type="number" name="endId" id="endId" v-model="endId" size="8"  v-bind:disabled="disaend" /></label></li>
+            </ul>
+        </div>
+        <div class="form_row">
+            <input type="button" id="btnOK" value=" 実行する " v-on:click="btnOK_click" />
+        </div>
+    </div>
+
+    <!-- コード -->
+    <script>
+        var app1 = new Vue({
+            el: "#app1",
+            data: {
+                table: 'pictures',
+                rangeAll: true,
+                startId: 1,
+                endId: 10000,
+                disastart: true,
+                disaend: true
+            },
+            methods: {
+                btnOK_click: () => {
+                    if (confirm("テーブル行数が多い場合、時間がかかることがあります。実行しますか？")) {
+                        alert("実行終了。");
+                    }
+                    else {
+                        alert("実行を取り消しました。");
+                    }
+                },
+                rangeAll_change: () => {
+                    app1.disastart = ! app1.rangeAll;
+                    app1.disaend = ! app1.rangeAll;
+                }
+            }
+        });
+    </script>
+
+    <!-- フッター -->
+    <p>&nbsp;</p>
+    <p style="text-align:center;"><a href="#">TOP</a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>    
+  </body>
+</html>

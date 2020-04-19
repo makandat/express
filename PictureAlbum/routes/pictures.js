@@ -1,14 +1,21 @@
 /* pictures.js */
 'use strict';
 var express = require('express');
+var fs = require('fs');
 var session = require('express-session');
 var mysql = require('./MySQL.js');
 
-const VERSION = "1.05";
 const LIMIT = 200;
 
 var router = express.Router();
 const SELECT = "SELECT id, title, creator, path, mark, info, fav, count, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS DT FROM";
+
+/* package.json からバージョン番号を得る。*/
+function getVersion() {
+  let pstr = fs.readFileSync("package.json", "utf-8");
+  let p = JSON.parse(pstr);
+  return p.version;
+}
 
 /* SELECT 文構築用 */
 class SelectSQL {
@@ -217,7 +224,10 @@ function getTableNameSync(mark="") {
     case "PIXIV":
       tableName = "PicturesPixiv"
       break;
-    case "ALL":
+      case "PHOTO":
+        tableName = "PicturesPhoto"
+        break;
+      case "ALL":
       tableName = "Pictures"
       break;
     default:
@@ -323,7 +333,7 @@ router.get('/', function(req, res, next) {
   mysql.getValue("SELECT max(sn) FROM Pictures", (n)=>{
     req.session.sn = n;
     req.session.mark = "ALL";
-    showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル) ' + VERSION});
+    showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル) v' + getVersion()});
   });
 });
 
@@ -394,7 +404,7 @@ router.get('/mark/:m', function(req, res, next) {
   let tableName = getTableNameSync(req.params.m);
   mysql.getValue("SELECT max(sn) FROM " + tableName, (n) => {
     req.session.sn = n;
-    showResults(res, {'mark':req.params.m, 'sn':n, 'order':'1'});
+    showResults(res, {'title':req.params.m + " 画像表示", 'mark':req.params.m, 'sn':n, 'order':'1'});
   });
 });
 

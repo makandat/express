@@ -41,7 +41,7 @@ function confirmData(req, res) {
   else {
     let sql = `SELECT * FROM Album WHERE id=${id}`;
     mysql.getRow(sql, function(row, fields) {
-      res.render("modify_album", {"title": "アルバムの作成・修正", "message": "データを取得しました。", "id": row.id, "album": row.name, "info": row.info, "bindata": row.bindata, "groupname": row.groupname});
+      res.render("modify_album", {"title": "アルバムの作成・修正", "message": "データを取得しました。", "id": row.id, "album": row.name, "mark":row.mark, "info": row.info, "bindata": row.bindata, "groupname": row.groupname});
     });
   }
 }

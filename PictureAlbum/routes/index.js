@@ -7,7 +7,7 @@ var mysql = require('./MySQL.js');
 var dt = require('./DateTime.js');
 
 const LIMIT = 200;  // 1ページの表示数
-const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM PictureAlbum GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album WHERE mark='picture'";
+const SELECT0 = "SELECT id, name, mark, (SELECT COUNT(album) FROM PictureAlbum GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album";
 
 /* package.json からバージョン番号を得る。*/
 function getVersion() {
@@ -19,14 +19,13 @@ function getVersion() {
 /* SELECT 文を作成する。*/
 function makeSelect(req) {
   let sql = SELECT0;
-  let where;
-  let orderby;
+  let where = " WHERE mark='picture'";
+  let orderby = "";
 
   if (req.session.desc) {
     // 降順
     orderby = " ORDER BY id DESC";
     if (req.session.groupname == "ALL") {
-      where = "";
     }
     else if (req.session.groupname == "NONAME") {
       where = ` WHERE mark='picture' AND (groupname = '' OR groupname IS NULL)`;
@@ -39,7 +38,6 @@ function makeSelect(req) {
     // 昇順
     orderby = " ORDER BY id ASC";
     if (req.session.groupname == "ALL") {
-      where = "";
     }
     else if (req.session.groupname == "NONAME") {
       where = ` WHERE mark = 'picture' AND (groupname = '' OR groupname IS NULL)`;
