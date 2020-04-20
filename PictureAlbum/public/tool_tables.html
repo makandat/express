@@ -39,6 +39,7 @@
                     <li><label><input type="radio" v-model="stored" value="InsertPictHcg" /> PicturesHcg</label></li>
                     <li><label><input type="radio" v-model="stored" value="InsertPictDoujin" /> PicturesDoujin</label></li>
                     <li><label><input type="radio" v-model="stored" value="InsertPictPixiv" /> PicturesPixiv</label></li>
+                    <li><label><input type="radio" v-model="stored" value="InsertPictPhoto" /> PicturesPhoto</label></li>
                     <!-- <li><label><input type="radio" v-model="stored" value="InsertPictTime" /> PicturesTime</label></li> -->
                 </ul>
             </div>
@@ -60,13 +61,14 @@
                     <li><label><input type="radio" v-model="table" value="HcgSN" /> PicturesHcg</label></li>
                     <li><label><input type="radio" v-model="table" value="DoujinSN" /> PicturesDoujin</label></li>
                     <li><label><input type="radio" v-model="table" value="PixivSN" /> PicturesPixiv</label></li>
+                    <li><label><input type="radio" v-model="table" value="PhotoSN" /> PicturesPhoto</label></li>
                     <li><label><input type="radio" v-model="table" value="TimeSN" /> PicturesTime</label></li>
                 </ul>
             </div>
             <div class="form_row">
                 <input type="button" id="button2" value=" 実行 " v-on:click="button2_click" />
             </div>
-            <p class="message" id="message2">行数の多いテーブルは時間がかかることがあります。</p>
+            <p class="message" v-text="message2"></p>
           </div>
           <br />
 
@@ -80,13 +82,14 @@
                     <li><label><input type="radio" v-model="rebuild" value="Hcg" /> PicturesHcg</label></li>
                     <li><label><input type="radio" v-model="rebuild" value="Doujin" /> PicturesDoujin</label></li>
                     <li><label><input type="radio" v-model="rebuild" value="Pixiv" /> PicturesPixiv</label></li>
+                    <li><label><input type="radio" v-model="rebuild" value="Photo" /> PicturesPhoto</label></li>
                     <li><label><input type="radio" v-model="rebuild" value="Time" /> PicturesTime</label></li>
                 </ul>
             </div>
             <div class="form_row">
                 <input type="button" id="button1" value=" 実行 " v-on:click="button3_click" />
             </div>
-            <p class="message" id="message3"></p>
+            <p class="message" v-text="message3"></p>
           </div>
 
           <!-- スクリプト -->
@@ -114,10 +117,13 @@
                 el: "#app2",
                 data: {
                     table: "PicturesSN",
+                    message2: "行数の多いテーブルは時間がかかることがあります。"
                 },
                 methods: {
                     button2_click: () => {
+                        app2.message2 = "実行中！ しばらくお待ちください。";
                         $.getJSON(URL2, {'table':app2.table}, (msg) => {
+                            app2.message2 = "";
                             alert(msg.message);
                         });
                     }
@@ -129,11 +135,14 @@
             var app3 = new Vue({
                 el: "#app3",
                 data: {
-                    rebuild: "Manga"
+                    rebuild: "Manga",
+                    message3: ""
                 },
                 methods: {
                     button3_click: () => {
+                        app3.message3 = "実行中！ しばらくお待ちください。";
                         $.get(URL3, {'rebuild':app3.rebuild}, (msg) => {
+                            app3.message3 = "";
                             alert(msg);
                         });
                     }

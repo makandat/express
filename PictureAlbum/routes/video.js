@@ -6,9 +6,10 @@ var os = require('os');
 var router = express.Router();
 var mysql = require('./MySQL.js');
 var dt = require('./DateTime.js');
+var fso = require('./FileSystem.js');
 const LIMIT = 200;  // 1ページの表示数
 
-const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM PictureAlbum GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album WHERE mark='video'";
+const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM Videos GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album WHERE mark='video'";
 
 /* package.json からバージョン番号を得る。*/
 function getVersion() {
@@ -121,8 +122,33 @@ function showVideoList(req, res) {
         res.render('videolist', {'title':title, 'message':'', 'results':results})
     }
     else {
-       results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
+      let afav = `<a href="/video/increase_fav">${row.count}</a>`;
+       results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, row.bindata]);
     }
+  });
+}
+
+
+/* 指定されたアルバム内のビデオ一覧表示 */
+function showVideosInAlbum(req, res) {
+  let album = req.params.album;
+  let sql = `SELECT * FROM Videos WHERE album = ${album}`;
+  let results = [];
+  mysql.getValue(`SELECT name FROM Album WHERE id=${album}`, (albumName) => {
+    mysql.query(sql, (row) => {
+      if (row == null) {
+        res.render('videoalbum', {'title':`(${album}) ${albumName}`, 'message':'', 'results':results});
+      }
+      else {
+        let apath = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.path}</a>`;
+        let atitle = `<a href="/video/download?path=${row.path}">${row.title}</a>`;
+        let afav = `<a href="/video/increase_fav/${row.id}">${row.fav}</a>`;
+        let aextract = `<img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" />`;
+        if (row.bindata == "" || row.bindata == null)
+          aextract = "";
+        results.push([row.id, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, aextract]);
+      }
+    });
   });
 }
 
@@ -144,21 +170,7 @@ router.get('/', function(req, res, next) {
 
 /* ビデオアルバム内容の表示 */
 router.get('/videoalbum/:album', function(req, res, next) {
-  let album = req.params.album;
-  let sql = `SELECT * FROM Videos WHERE album = ${album}`;
-  let results = [];
-  mysql.getValue(`SELECT name FROM Album WHERE id=${album}`, (albumName) => {
-    mysql.query(sql, (row) => {
-      if (row == null) {
-        res.render('videoalbum', {'title':`(${album}) ${albumName}`, 'message':'', 'results':results});
-      }
-      else {
-        let apath = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.path}</a>`;
-        let atitle = `<a href="/video/download?path=${row.path}">${row.title}</a>`;
-        results.push([row.id, atitle, apath, row.creator, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
-      }
-    });
-  });
+  showVideosInAlbum(req, res);
 });
 
 
@@ -344,6 +356,17 @@ async function confirmVideo(req, res) {
 /* ビデオの追加・更新 データ確認 */
 router.get('/confirm/:id', function(req, res, next) {
     confirmVideo(req, res);
+});
+
+/* Videos テーブルで fav を増やす。*/
+router.get('/increase_fav/:id', function(req, res, next) {
+  let id = req.params.id;
+  mysql.execute(`CALL IncreaseVideoFav(${id})`, ()=> {
+    mysql.getValue("SELECT album FROM Videos WHERE id=" + id, (album) => {
+      req.params.album = album;
+      showVideosInAlbum(req, res);
+    })
+  });
 });
 
 

@@ -60,6 +60,18 @@ exports.isFile = async (path, callback) => {
   callback(prom_stat.isFile());  
 }
 
+/* パスが存在するか判別する。*/
+exports.exists = (path) => {
+  let b = true;
+  try {
+    fs.accessSync(path);
+  }
+  catch (e) {
+    b = false
+  }
+  return b;
+}
+
 /* ファイルサイズを得る。*/
 /*   callback はファイルサイズを受け取るコールバック関数 */
 exports.getSize = async (path, callback) => {

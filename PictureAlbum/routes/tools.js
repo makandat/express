@@ -341,5 +341,49 @@ router.get('/view100', (req, res) => {
 });
 
 
+/* パスが存在するかどうかを返す。*/
+function existsPath(path) {
+    return new Promise((resolve) => {
+        fso.exists(path, (err) => {
+            if (err) {
+                resolve(false);
+            }
+            else {
+                resolve(true);
+            }
+        });
+    });
+}
+
+
+/* パスのチェックを行う。*/
+function checkPath(req, res) {
+    let badpaths = [];
+    let table = req.query.table;
+    let parts = req.query.range.split('-');
+    let startId = parts[0];
+    let endId = parts[1];
+    let sql = `SELECT id, path FROM ${table} WHERE id BETWEEN ${startId} AND ${endId}`;
+    mysql.query(sql, (row) => {
+        if (row == null) {
+            res.json(badpaths);        
+        }
+        else {
+            let id = row.id;
+            let path = row.path;
+            if (!fso.exists(path)) {
+                badpaths.push({'id':id, 'path':path});
+            }           
+        }
+    });
+}
+
+/* tool: パスのチェック */
+router.get('/check_paths', function(req, res,next) {
+    checkPath(req, res);
+});
+  
+
+
 /* エクスポート */
 module.exports = router;

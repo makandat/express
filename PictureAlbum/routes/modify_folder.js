@@ -42,24 +42,24 @@ function checkPath(path) {
 async function insertData(req, res) {
   let name = req.body.name.replace(/'/g, "''").trim();
   if (name == "") {
-    res.render('showInfo', {'title':'エラー', 'message':'名称が空欄です。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'名称が空欄です。', 'icon':'cancel.png', 'link':null});
     return;
   }
   let creator = req.body.creator.replace(/'/g, "''");
   if (creator == "") {
-    res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png', 'link':null});
     return;
   }
   let mark = req.body.mark;
   try {
     let b = await dirExists(req.body.path);
     if (! b) {
-      res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png'})
+      res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png', 'link':null})
       return;
     }
   }
   catch (e) {
-    res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png'})
+    res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png', 'link':null})
     return;
   }
   let path = req.body.path;
@@ -68,7 +68,7 @@ async function insertData(req, res) {
   }
   let countpath = await checkPath(path);
   if (countpath > 0) {
-    res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは登録済みです。', 'icon':'cancel.png'})
+    res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは登録済みです。', 'icon':'cancel.png', 'link':null})
     return;
   }
   path = path.replace(/'/g, "''").trim();
@@ -84,7 +84,7 @@ async function insertData(req, res) {
     });  
   }
   catch (err) {
-    res.render('showInfo', {'title':'エラー', 'message':'データベースのエラーを検出しました。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'データベースのエラーを検出しました。', 'icon':'cancel.png', 'link':null});
   }
 }
 
@@ -96,12 +96,12 @@ async function updateData(req, res) {
   let b = await dirExists(req.body.path);
   try {
     if (! b) {
-      res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png'})
+      res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png', 'link':null})
       return;
     }  
   }
   catch (e) {
-    res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png'})
+    res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png', 'link':null})
     return;
   }
   let path = req.body.path;

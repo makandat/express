@@ -36,7 +36,7 @@ async function showContent(req, res, picturesid=undefined) {
   }
   let n = await checkAlbum(album);
   if (n == 0) {
-    res.render('showInfo', {'title':'エラー', 'message':'指定したアルバムには画像がありません。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'指定したアルバムには画像がありません。', 'icon':'cancel.png', 'link':'<a href="javascript:window.close()">閉じる</a>'});
   }
   else {
     let albumName = await getAlbumName(album);

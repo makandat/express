@@ -29,12 +29,12 @@ function getNextId() {
 async function insert_creator(req, res) {
   let {id, creator, marks, info, fav, refcount, titlecount} = req.body;
   if (creator == "") {
-    res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png', 'link':null});
     return;
   }
   let b = await checkCreator(creator);
   if (b) {
-    res.render('showInfo', {'title':'エラー', 'message':'作者がすでに登録済みです。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'作者がすでに登録済みです。', 'icon':'cancel.png', 'link':null});
     return;
   }
   id = await getNextId();
@@ -49,11 +49,11 @@ async function insert_creator(req, res) {
 async function update_creator(req, res) {
   let {id, creator, marks, info, fav, refcount, titlecount} = req.body;
   if (isNaN(parseInt(id))) {
-    res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png', 'link':null});
     return;
   }
   if (creator == "") {
-    res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png'});
+    res.render('showInfo', {'title':'エラー', 'message':'作者が空欄です。', 'icon':'cancel.png', 'link':null});
     return;
   }
   creator = creator.replace(/'/g, "''");
@@ -102,7 +102,7 @@ router.post('/modify_creator', function(req, res) {
 router.get('/confirm_creator', function(req, res) {
   let id = req.query.id;
   if (isNaN(parseInt(id))) {
-    res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png'})
+    res.render('showInfo', {'title':'エラー', 'message':'id は数でなければなりません。', 'icon':'cancel.png', 'link':null})
   }
   else {
     mysql.getRow("SELECT * FROM Creators WHERE id = " + id, (row) => {
