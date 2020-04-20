@@ -96,7 +96,7 @@ function showVideoList(req, res) {
   let sql;
   if (album == undefined) {
     if (req.session.desc) {
-      sql = `SELECT * FROM Videos WHERE sn <= ${sn} ORDER BY id DESC LIMIT  + ${LIMIT}`;
+      sql = `SELECT * FROM Videos WHERE sn <= ${sn} ORDER BY id DESC LIMIT ${LIMIT}`;
     }
     else {
       sql = `SELECT * FROM Videos WHERE sn >= ${sn} ORDER BY id ASC LIMIT ${LIMIT}`;
@@ -119,11 +119,15 @@ function showVideoList(req, res) {
       else {
         title = 'ビデオ一覧 (album=' + album + ")";
       }
-        res.render('videolist', {'title':title, 'message':'', 'results':results})
+        res.render('videolist', {'title':title, 'message':'', 'results':results, 'menu0':'block', 'menu1':'none'})
     }
     else {
       let afav = `<a href="/video/increase_fav">${row.count}</a>`;
-       results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, row.bindata]);
+      let abindata = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
+      if (row.bindata == "" || row.bindata == 0) {
+        abindata = "";
+      }
+      results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
     }
   });
 }
@@ -162,9 +166,11 @@ router.get('/', function(req, res, next) {
   }
   else {
     req.session.desc = true;
-    req.session.sn = 1000000;
     req.session.groupname = "ALL";
-    showAlbum(req, res);  
+    mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
+      req.session.sn = n;
+      showAlbum(req, res);
+    });
   }
 });
 
@@ -190,12 +196,31 @@ router.get('/download', function(req, res, next) {
 router.get('/reverse', function(req, res, next) {
   req.session.desc = ! req.session.desc;
   if (req.session.desc) {
-    req.session.sn = 1000000;
+    mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
+      req.session.sn = n;
+    });
   }
   else {
     req.session.sn = 0;
   }
   showAlbum(req, res);
+});
+
+/* ワード検索 */
+router.get('/find', function(req, res, next) {
+  let word = req.query.word;
+  let sql = `SELECT * FROM Videos WHERE path LIKE '%${word}%' OR info LIKE '%${word}%'`;
+  let results = [];
+  mysql.query(sql, (row) => {
+    if (row == null) {
+      let title = "検索ワード: " + word;
+      res.render('videolist', {'title':title, 'message':'', 'results':results, 'menu0':'none', 'menu1':'block'})
+    }
+    else {
+       results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
+    }
+
+  });
 });
   
   
@@ -209,15 +234,19 @@ router.get('/groupname', function(req, res, next) {
 /* ビデオ一覧表示 */
 router.get('/videolist', function(req, res, next) {
     req.session.desc = true;
-    req.session.sn = 1000000;
-    showVideoList(req, res);
+    mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
+      req.session.sn = n;
+      showVideoList(req, res);
+    });
 });
 
 /* ビデオ一覧で逆順表示 */
 router.get('/reverse_list', function(req, res, next) {
   req.session.desc = ! req.session.desc;
   if (req.session.desc) {
-    req.session.sn = 1000000;
+    mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
+      req.session.sn = n;
+    });
   }
   else {
     req.session.sn = 0;
@@ -244,7 +273,7 @@ router.get('/prev', function(req, res, next) {
   else {
     req.session.sn -= LIMIT;
     if (req.session.sn < 0) {
-      req.sessionsn = 0;
+      req.session.sn = 0;
     }
   }
   showVideoList(req, res);
@@ -257,13 +286,13 @@ router.get('/next', function(req, res, next) {
     if (req.session.desc) {
       req.session.sn -= LIMIT;
       if (req.session.sn < 0) {
-        req.sessionsn = 0;
+        req.session.sn = 0;
       }
-      }
+    }
     else {
       req.session.sn += LIMIT;
-      if (maxSN > req.session.sn) {
-        req.sessionsn = maxSN - LIMIT;
+      if (maxSN < req.session.sn) {
+        req.session.sn = maxSN - LIMIT;
       }
     }
     showVideoList(req, res);  
@@ -285,31 +314,62 @@ router.get('/last', function(req, res, next) {
 
 
 /* ビデオを追加 */
-function insertVideo(req, res) {
-    let {title, album, path, creator, series, mark, info, fav, bindata} = req.body;
-    title = title.replace(/'/g, "''").trim();
-    path = path.replace(/'/g, "''").trim();
-    if (os.platform() == "win32") {
-      path = path.replace(/\\/g, "/");
-    }
-    let sql = `INSERT INTO Videos VALUES(NULL, ${album}, '${title}', '${path}', '${creator}', '${series}', '${mark}', '${info}', '${fav}', 0, ${bindata}, 0)`;
-    mysql.execute(sql, () => {
-        res.render('modify_video', {'message':title + 'を追加しました。', 'id':'', 'album':album, 'title':title, 'path':path, 'creator':creator, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
+async function insertVideo(req, res) {
+  let {title, album, path, creator, series, mark, info, fav, bindata} = req.body;
+  if (album == "") {
+    res.render('showInfo', {'title':'エラー', 'message':'アルバム番号が空欄です。', 'icon':'cancel.png', link:null});
+    return;
+  }
+  if (title == "") {
+    res.render('showInfo', {'title':'エラー', 'message':'タイトルが空欄です。', 'icon':'cancel.png', link:null});
+    return;
+  }
+  if (path == "") {
+    res.render('showInfo', {'title':'エラー', 'message':'パスが空欄です。', 'icon':'cancel.png', link:null});
+    return;
+  }
+  if (os.platform() == "win32") {
+    path = path.replace(/\\/g, "/");
+  }
+  let b = await checkPath(path);
+  if (b) {
+    res.render('showInfo', {'title':'エラー', 'message':path + ' はすでに登録されています。', 'icon':'cancel.png', link:null});
+    return;
+  }
+  title = title.replace(/'/g, "''").trim();
+  path = path.replace(/'/g, "''").trim();
+  let sql = `INSERT INTO Videos VALUES(NULL, ${album}, '${title}', '${path}', '${creator}', '${series}', '${mark}', '${info}', '${fav}', 0, ${bindata}, 0)`;
+  mysql.execute(sql, () => {
+    res.render('modify_video', {'message':title + 'を追加しました。', 'id':'', 'album':album, 'title':title, 'path':path, 'creator':creator, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
+  });
+}
+
+
+/* パスが登録されているかチェックする。*/
+function checkPath(path) {
+  return new Promise((resolve) => {
+    mysql.getValue(`SELECT count(id) FROM Videos WHERE path='${path}'`, (n) => {
+      resolve(n > 0);
     });
+  });
 }
 
 /* ビデオを更新 */
-function updateVideo(req, res) {
-    let {id, album, title, path, creator, series, mark, info, fav, bindata} = req.body;
-    title = title.replace(/'/g, "''").trim();
-    path = path.replace(/'/g, "''").trim();
-    if (os.platform() == "win32") {
-      path = path.replace(/\\/g, "/");
-    }
-    let sql = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', creator='${creator}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id = ${id}`;
-    mysql.execute(sql, () => {
-        res.render('modify_video', {'message':"id = " + id + 'を更新しました。', 'id':id, 'album':album, 'title':title, 'path':path, 'creator':creator, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
-    });
+async function updateVideo(req, res) {
+  let {id, album, title, path, creator, series, mark, info, fav, bindata} = req.body;
+  if (album == "") {
+    res.render('showInfo', {'title':'エラー', 'message':'アルバム番号が空欄です。', 'icon':'cancel.png', link:null});
+    return;
+  }
+  if (os.platform() == "win32") {
+    path = path.replace(/\\/g, "/");
+  }
+  title = title.replace(/'/g, "''").trim();
+  path = path.replace(/'/g, "''").trim();
+  let sql = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', creator='${creator}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id = ${id}`;
+  mysql.execute(sql, () => {
+    res.render('modify_video', {'message':"id = " + id + 'を更新しました。', 'id':id, 'album':album, 'title':title, 'path':path, 'creator':creator, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
+  });
 }
 
 /* ビデオの追加・更新 */
