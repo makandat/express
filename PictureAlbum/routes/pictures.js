@@ -308,8 +308,15 @@ async function showResults(res, p = {}) {
 
 /* お気に入り数を増やす。*/
 function favincrease(res, id) {
-  mysql.execute("CALL increaseFav(" + id +")", ()=>{
-    showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。", "info.png", null);
+  mysql.getValue(`SELECT PicturesXXX(${id})`, (tableName) => {
+    if (tableName == null) {
+      // 何もしない。
+    }
+    else {
+      mysql.execute(`CALL increaseFav(${id}, '${tableName}')`, ()=>{
+        showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。", "info.png", null);
+      });    
+    }
   });
 };
 
