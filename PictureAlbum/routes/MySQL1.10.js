@@ -1,4 +1,4 @@
-/* MySQL.js v1.20 */
+/* MySQL.js v1.10 */
 "use strict";
 var mysql = require("mysql");
 var fs = require("fs");
@@ -20,8 +20,7 @@ exports.query = (sql, callback, conf = null) => {
   let conn = mysql.createConnection(conf);
   conn.query(sql, (error, results, fields) => {
     if (error) {
-       callback(error);
-       conn.end();
+      throw error;
     }
     else {
        for (let i = 0; i < results.length; i++) {
@@ -42,11 +41,10 @@ exports.execute = (sql, callback, conf = null) => {
   let conn = mysql.createConnection(conf);
   conn.query(sql, (error, results, fields)=>{
       if (error) {
-         callback(error);
-         conn.end();
+        throw error;
       }
       else {
-         callback(null);
+         callback();
          conn.end();
       }
   });
@@ -60,8 +58,7 @@ exports.getValue = (sql, callback, conf = null) => {
   let conn = mysql.createConnection(conf);
   conn.query(sql, (error, results, fields)=>{
       if (error) {
-         callback(error);
-         conn.end();
+        throw error;
       }
       else {
          let row = results[0];
@@ -81,8 +78,7 @@ exports.getRow = (sql, callback, conf = null) => {
   let conn = mysql.createConnection(conf);
   conn.query(sql, (error, results, fields)=>{
       if (error) {
-         callback(error);
-         conn.end();
+        throw error;
       }
       else {
          callback(results[0], fields);

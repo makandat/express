@@ -32,20 +32,45 @@
                 <label>ファイル一覧 (クリップボードから貼り付ける)<br /><textarea v-model="filelist" cols="150" rows="12"></textarea></label>
             </div>
             <div class="form_row">
-                <label>アルバム番号<br /><input type="text" v-model="album" size="6" /></label>
+                <label>アルバム番号<br /><input type="text" v-model="album" size="10" placeholder="1234" /></label>
             </div>
             <div class="form_row">
                 <input type="button" id="button1" value=" インポート " v-on:click="button1_click" />&nbsp;
                 <input type="button" id="btnClear1" value=" クリア " v-on:click="btnClear1_click" />
             </div>
             <br />
-            <p class="message">{{ message1 }}</p>
+            <p class="message" v-text="message1"></p>
         </div>
         <br />
+
+        <!-- 指定フォルダに含まれる動画/画像ファイルを Videos / PictureAlbum テーブルにインポート app2 -->
+        <h2>指定フォルダに含まれる動画ファイルを Videos or PictureAlbum テーブルにインポート</h2>
+        <div class="app" id="app2">
+            <div class="form_row">
+                フォルダのパス<br /><input type="text" v-model="folder" size="150" />
+            </div>
+            <div class="form_row">
+                アルバム番号<br /><input type="text" v-model="album" size="10" placeholder="1234" />
+            </div>
+            <div class="form_row">
+                対象のテーブル
+                <ul style="list-style-type:none;border:solid thin gray;padding:10px;width:160px;">
+                    <li><label><input type="radio" v-model="table" value="PictureAlbum" /> PictureAlbum</label></li>
+                    <li><label><input type="radio" v-model="table" value="Videos" /> Videos</label></li>
+                </ul>
+            </div>
+            <div class="form_row">
+                <input type="button" id="button2" value=" インポート " v-on:click="button2_click" />&nbsp;
+                <input type="button" id="btnClear2" value=" クリア " v-on:click="btnClear2_click" />
+            </div>
+            <br />
+            <p class="message" v-text="message2"></p>
+        </div>
         
         <!-- Vue.js スクリプト -->
         <script>
             'use strict';
+            /* app1 */
             const URL1 ="/tools/import_filelist";
             var app1 = new Vue({
                 el: "#app1",
@@ -72,6 +97,40 @@
                     btnClear1_click: () => {
                         app1.filelist = "";
                         app1.message1 = "";
+                    }
+                }
+            });
+
+            /* app2 */
+            const URL2 ="/tools/import_folder";
+            var app2 = new Vue({
+                el: "#app2",
+                data: {
+                    folder: "",
+                    album: "",
+                    table: "Videos",
+                    message2: ""
+                },
+                methods: {
+                    button2_click: async () => {
+                        app2.message2 = "実行中！しばらくお待ちください。";
+                        if (app2.folder == "") {
+                            alert("フォルダのパスが空欄です。");
+                            return;
+                        }
+                        if (app2.album == "") {
+                            alert("アルバム番号が空欄です。");
+                            return;
+                        }
+                        let qs = new URLSearchParams({'folder':app2.folder, 'album':app2.album, 'table':app2.table});
+                        let reqstr = URL2 + `?${qs}`;
+                        let p = (await fetch(reqstr)).text();
+                        p.then(text => app2.message2 = text).catch(err => app2.message2 = "エラーを検出。");
+                    },
+                    btnClear2_click: () => {
+                        app2.folder = "";
+                        app2.album = "";
+                        app2.message2 = "";
                     }
                 }
             });

@@ -85,13 +85,12 @@ router.get('/insertDerivedTable', (req, res) => {
 });
 
 /* テーブルの行番号 (sn) を付け直す。*/
-router.get('/renumberSN', (req,res) =>{
+router.get('/renumberSN', (req, res) =>{
     let table = req.query.table;
-    let sql = `CALL ${table}()`;
+    let sql = `CALL ${table}(req.query.start)`;
     mysql.execute(sql, () => {
-        //res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
+        res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
     });
-    res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
 });
 
 
@@ -192,6 +191,86 @@ router.get('/import_filelist', (req, res) => {
     insertFileList(files, album);
     let n = files.length.toString();
     res.send("アルバム " + album + " に " + n + " 個のデータを追加しました。");
+});
+
+
+/* path が テーブルに登録済みかチェックする。*/
+function checkVideo(path, tableName) {
+    return new Promise((resolve) => {
+        let sql = `SELECT count(id) FROM ${tableName} WHERE path ='${path}'`;
+        mysql.getValue(sql, n => resolve(n > 0));
+    });
+}
+
+/* Videos テーブルの次の連続番号(sn)を得る。*/
+function getNextSN(tableName) {
+    return new Promise((resolve) => {
+        mysql.getValue(`SELECT max(sn) FROM ${tableName}`, (n) => {
+            if (n == null) {
+                resolve(1);
+            }
+            else {
+                n++;
+                resolve(n);
+            }
+        });
+    });
+}
+
+// importFile で使用する sn の値
+var sn_import = 0;
+
+/* ファイルをインポートする。*/
+async function importFile(req, res, path, tableName) {
+    let album = req.query.album;
+    if (os.platform() == "win32") {
+        path = path.replace(/\\/g, "/");
+    }
+    path = path.replace(/'/g, "''").trim();
+    let fileName = fso.getFileName(path);
+    let pp = fileName.lastIndexOf('.');
+    let title = fileName.slice(0, pp);
+    if (sn_import == 0) {
+        sn_import = await getNextSN(tableName);
+    }
+    else {
+        sn_import++;
+    }
+    let b = await checkVideo(path, tableName);
+    let sql;
+    if (b == false) {
+        if (tableName == "Videos") {
+            sql = `INSERT INTO Videos VALUES(NULL, ${album}, '${title}', '${path}', '', '', 'video', '', 0, 0, 0, ${sn_import})`;
+        }
+        else {
+            sql = `INSERT INTO PictureTable VALUES(NULL, ${album}, '${title}', '${path}', '', '', 0, 0, 0, CURRENT_DATE(), ${sn_import})`;
+        }
+        mysql.execute(sql, () => { });
+    }
+}
+
+/* 指定フォルダに含まれるファイル一覧を Videos にインポートする。*/
+router.get('/import_folder', (req, res) => {
+    let folder = req.query.folder;
+    let table = req.query.table;
+    sn_import = 0;
+    
+    if (table == "Videos") {
+        fso.getFiles(folder, ['.mp4', '.avi', '.wmv', '.mkv', '.mov', '.mpg', '.gif'], (paths) => {
+            for (let path of paths) {
+                importFile(req, res, path, table);
+            }
+            res.send(`OK: ${folder} から動画ファイルを ${paths.length} 件インポートしました。`);
+        });
+    }
+    else {
+        fso.getFiles(folder, ['.jpg', '.png', '.gif', '.JPG', '.jpeg'], (paths) => {
+            for (let path of paths) {
+                importFile(req, res, path, table);
+            }
+            res.send(`OK: ${folder} から画像ファイルを ${paths.length} 件インポートしました。`);
+        });
+    }
 });
 
 

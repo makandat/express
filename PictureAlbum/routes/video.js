@@ -93,21 +93,21 @@ function showVideoList(req, res) {
   let album = req.query.album;
   let sn = req.session.sn;
   let results = [];
-  let sql;
+  let sql = "SELECT v.id, concat(v.album, ':', a.name) AS album, v.title, v.path, v.creator, v.series, v.mark, v.info, v.fav, v.count, v.bindata FROM Videos v INNER JOIN album a ON v.album = a.id";
   if (album == undefined) {
     if (req.session.desc) {
-      sql = `SELECT * FROM Videos WHERE sn <= ${sn} ORDER BY id DESC LIMIT ${LIMIT}`;
+      sql = sql + ` WHERE v.sn <= ${sn} ORDER BY v.id DESC LIMIT ${LIMIT}`;
     }
     else {
-      sql = `SELECT * FROM Videos WHERE sn >= ${sn} ORDER BY id ASC LIMIT ${LIMIT}`;
+      sql = sql + ` WHERE v.sn >= ${sn} ORDER BY v.id ASC LIMIT ${LIMIT}`;
     }
   }
   else {
     if (req.session.desc) {
-      sql = "SELECT * FROM Videos WHERE album = " + album + " AND sn <= ${sn} ORDER BY id DESC";
+      sql = sql +  `WHERE v.album = ${album} AND v.sn <= ${sn} ORDER BY v.id DESC`;
     }
     else {
-      sql = "SELECT * FROM Videos WHERE album = " + album + " AND sn >= ${sn} ORDER BY id ASC";
+      sql = sql + ` WHERE v.album = ${album} AND v.sn >= ${sn} ORDER BY v.id ASC`;
     }
   }
   mysql.query(sql, (row) => {
@@ -127,7 +127,8 @@ function showVideoList(req, res) {
       if (row.bindata == "" || row.bindata == 0) {
         abindata = "";
       }
-      results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
+      let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
+      results.push([row.id, row.album, atitle, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
     }
   });
 }
@@ -145,7 +146,7 @@ function showVideosInAlbum(req, res) {
       }
       else {
         let apath = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.path}</a>`;
-        let atitle = `<a href="/video/download?path=${row.path}">${row.title}</a>`;
+        let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
         let afav = `<a href="/video/increase_fav/${row.id}">${row.fav}</a>`;
         let aextract = `<img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" />`;
         if (row.bindata == "" || row.bindata == null)

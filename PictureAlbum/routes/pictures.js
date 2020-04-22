@@ -267,7 +267,11 @@ async function showResults(res, p = {}) {
     p.mark = "";
   }
   let tableName = await getTableName(p.mark);
-  let title = tableName;
+  let title = "画像フォルダ一覧 (" + tableName + " テーブル)";
+  let version = getVersion();
+  if (p.version) {
+    version = p.version;
+  }
   let maxsn = await getMaxSN(res, tableName);
   let maxid = await getMaxId(res, tableName);
   let minid = await getMinId(res, tableName);
@@ -277,12 +281,15 @@ async function showResults(res, p = {}) {
   console.log(sql);
   let menu0 = 'inline';
   let menu1 = 'none';
-  if (!(p.word == undefined && p.fav == undefined)) {
+  if (!(p.word == undefined && p.fav == undefined && p.creator == undefined)) {
     menu0 = 'none';
-    menu1 = 'inline';
+    menu1 = 'block';
   }
   if (p.title != undefined) {
     title = p.title;
+  }
+  if (p.creator != undefined) {
+    title = 'Pictures テーブル (作者 ' + p.creator + ')';
   }
   let results = [];
   mysql.query(sql, (row)=>{
@@ -301,7 +308,7 @@ async function showResults(res, p = {}) {
     }
     else {
       let message = `テーブル ${tableName} の行数=${rowCount}, id の最小値=${minid}, id の最大値=${maxid}, sn の最大値=${maxsn}`;
-      res.render('pictures', { title:title, "message":message, "marks":marks, "results":results, 'display_menu0':menu0, 'display_menu1':menu1 });
+      res.render('pictures', { title:title, "message":message, "marks":marks, "results":results, 'version':version, 'display_menu0':menu0, 'display_menu1':menu1 });
     }
   })
 }
@@ -340,7 +347,8 @@ router.get('/', function(req, res, next) {
   mysql.getValue("SELECT max(sn) FROM Pictures", (n)=>{
     req.session.sn = n;
     req.session.mark = "ALL";
-    showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル) v' + getVersion()});
+    let version = getVersion();
+    showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル)', 'version':version});
   });
 });
 

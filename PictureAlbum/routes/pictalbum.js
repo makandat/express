@@ -30,8 +30,12 @@ function getAlbumName(album) {
 /* PictureAlbum テーブルの内容を表示する。 */
 async function showContent(req, res, picturesid=undefined) {
   let album = req.session.album;
-  if (picturesid == undefined && (album == undefined || album == null || album == "" || album == "0")) {
+  if (req.session.state == "details" && picturesid == undefined && (album == undefined || album == null || album == "" || album == "0")) {
     showDetailAll(req, res);
+    return;
+  }
+  if (album == "") {
+    res.render('showInfo', {'title':'エラー', 'message':'アルバム指定のないモードではこのメニューはサポートされません。', 'icon':'cancel.png', 'link':null});
     return;
   }
   let n = await checkAlbum(album);
@@ -83,7 +87,7 @@ function showDetails(req, res, albumName="") {
 /* アルバムを指定せず PictureAlbum テーブルの内容を詳細表示する。*/
 function showDetailAll(req, res) {
   let results = [];
-  let sql = "SELECT * FROM PictureAlbum";
+  let sql = "SELECT p.id, CONCAT(p.album,':',a.name) AS album, p.title, p.path, p.creator, p.info, p.fav, p.bindata, p.picturesid, DATE_FORMAT(p.date, '%Y-%m-%d') AS DT FROM PictureAlbum p INNER JOIN Album a ON a.id = p.album";
   if (req.session.desc) {
     if (req.session.sn == 0) {
       req.session.sn = 1000000;

@@ -55,6 +55,7 @@
             <div class="form_row">
                 <ul style="list-style-type: none;border:solid thin gray; padding:8px;">
                     <li><label><input type="radio" v-model="table" value="PicturesSN" /> Pictures</label></li>
+                    <li><label><input type="radio" v-model="table" value="VideosSN" /> Videos</label></li>
                     <li><label><input type="radio" v-model="table" value="PictureAlbumSN" /> PictureAlbum</label></li>
                     <li><label><input type="radio" v-model="table" value="BINDATASN" /> BINDATA</label></li>
                     <li><label><input type="radio" v-model="table" value="MangaSN" /> PicturesManga</label></li>
@@ -64,6 +65,10 @@
                     <li><label><input type="radio" v-model="table" value="PhotoSN" /> PicturesPhoto</label></li>
                     <li><label><input type="radio" v-model="table" value="TimeSN" /> PicturesTime</label></li>
                 </ul>
+            </div>
+            <div class="form_row">
+                id 開始位置<br />
+                <input type="number" v-model="startId" size="10" />
             </div>
             <div class="form_row">
                 <input type="button" id="button2" value=" 実行 " v-on:click="button2_click" />
@@ -117,12 +122,13 @@
                 el: "#app2",
                 data: {
                     table: "PicturesSN",
+                    startId: 0,
                     message2: "行数の多いテーブルは時間がかかることがあります。"
                 },
                 methods: {
                     button2_click: () => {
                         app2.message2 = "実行中！ しばらくお待ちください。";
-                        $.getJSON(URL2, {'table':app2.table}, (msg) => {
+                        $.getJSON(URL2, {'table':app2.table, 'start':app2.start}, (msg) => {
                             app2.message2 = "";
                             alert(msg.message);
                         });
