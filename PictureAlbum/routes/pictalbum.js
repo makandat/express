@@ -34,16 +34,18 @@ async function showContent(req, res, picturesid=undefined) {
     showDetailAll(req, res);
     return;
   }
-  if (album == "") {
-    res.render('showInfo', {'title':'エラー', 'message':'アルバム指定のないモードではこのメニューはサポートされません。', 'icon':'cancel.png', 'link':null});
-    return;
+  let n = -1;
+  if (album != "") {
+    n = await checkAlbum(album);
   }
-  let n = await checkAlbum(album);
   if (n == 0) {
     res.render('showInfo', {'title':'エラー', 'message':'指定したアルバムには画像がありません。', 'icon':'cancel.png', 'link':'<a href="javascript:window.close()">閉じる</a>'});
   }
   else {
-    let albumName = await getAlbumName(album);
+    let albumName = "";
+    if (album != "") {
+      albumName = await getAlbumName(album);
+    }
     switch (req.session.state) {
       case "pictlist":
         showPictList(req, res, albumName, picturesid);
@@ -52,7 +54,7 @@ async function showContent(req, res, picturesid=undefined) {
         showThumbs(req, res, albumName);
         break;
       default:
-        showDetails(req, res,albumName);
+        showDetails(req, res, albumName);
         break;
     }  
   }
@@ -62,13 +64,17 @@ async function showContent(req, res, picturesid=undefined) {
 function showDetails(req, res, albumName="") {
   let sql = makeSelect(req, req.session.album);
   let results = [];
+  let menu0 = "block";
+  let menu1 = "none";
   mysql.query(sql, (row) =>{
     if (row == null) {
       let message = "アルバム=" + albumName;
       if (albumName == "") {
         message = "";
+        menu0 = "none";
+        menu1 = "block";
       }
-      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": message });
+      res.render('pictalbum_details', { "title": `画像アルバム (${albumName})`, "results": results, "message": message, "menu0":menu0, "menu1":menu1 });
     }
     else {
       let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.path}</a>`;
@@ -100,7 +106,7 @@ function showDetailAll(req, res) {
   mysql.query(sql, (row) =>{
     if (row == null) {
       let message = "sn =" + req.session.sn;
-      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": message });
+      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": message, "menu0":"none", "menu1":"block" });
     }
     else {
       let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.path}</a>`;
@@ -122,7 +128,7 @@ function showPictList(req, res, albumName, picturesid=undefined) {
   let results = [];
   mysql.query(sql, (row) =>{
     if (row == null) {
-      res.render('pictalbum_pictlist', { "title": '画像アルバム for express4 (PictureAlbum)', "results": results, "message": "アルバム=" + albumName });
+      res.render('pictalbum_pictlist', { "title": `画像アルバム (${albumName})`, "results": results, "message": "アルバム=" + albumName });
     }
     else {
       let dir = path_module.dirname(row.path);
@@ -137,7 +143,7 @@ function showThumbs(req, res, albumName) {
   let results = [];
   mysql.query(sql, (row) =>{
     if (row == null) {
-      res.render('pictalbum_thumbs', { "title": "画像アルバム for express4 (PictureAlbum)", "results": results, "message": "アルバム=" + albumName });
+      res.render('pictalbum_thumbs', { "title": `画像アルバム (${albumName})`, "results": results, "message": "アルバム=" + albumName });
     }
     else {
       let picturesid;
@@ -200,26 +206,27 @@ router.get('/', function(req, res, next) {
     req.session.state = "details";
   }
   req.session.album = req.query.album;
-  showContent(req, res);
+  req.session.state = "thumbs";
+  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* 逆順で表示 */
 router.get('/reverse', function(req, res, next) {
   req.session.desc = ! req.session.desc;
-  showContent(req, res);
+  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* 画像一覧表示 */
 router.get('/pictlist', function(req, res, next) {
   req.session.state = "pictlist";
   let picturesid = req.query.picturesid;
-  showContent(req, res, picturesid);
+  showContent(req, res, picturesid).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* サムネール一覧表示 */
 router.get('/thumbs', function(req, res, next) {
   req.session.state = "thumbs";
-  showContent(req, res);  
+  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));  
 });
 
 /* 詳細一覧表示 */
@@ -230,7 +237,7 @@ router.get('/details', function(req, res, next) {
   }
   req.session.sn = 0;
   req.session.desc = false;
-  showContent(req, res);
+  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* 先頭のページ */
@@ -241,46 +248,72 @@ router.get('/first', function(req, res, next) {
   else {
     req.session.sn = 0;
   }
-  showContent(req, res);
+  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* 前のページ */
 router.get('/prev', function(req, res, next) {
-  let n = parseInt(req.session.sn);
+  let sn = parseInt(req.session.sn);
   if (req.session.desc) {
-    n += LIMIT;
+    mysql.getValue("SELECT max(sn) FROM PictureAlbum", (n) => {
+      if (sn + LIMIT > n) {
+        sn = n - LIMIT;
+        if (sn < 0) {
+          sn = LIMIT;
+        }
+      }
+      else {
+        sn += LIMIT;
+      }
+      req.sessionsn = sn;
+      showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+    });
   }
   else {
-    n -= LIMIT;
+    sn -= LIMIT;
+    if (sn < 0) {
+      sn = 0;
+    }
+    showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }  
-  req.session.sn = n;
-  showContent(req, res);
 });
 
 /* 次のページ */
 router.get('/next', function(req, res, next) {
-  let n = parseInt(req.session.sn);
+  let sn = parseInt(req.session.sn);
   if (req.session.desc) {
-    n -= LIMIT;
+    sn -= LIMIT;
+    if (sn < 0) {
+      sn = 0;
+    }
+    req.session.sn = sn;
+    showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
-    n += LIMIT;
+    mysql.getValue("SELECT max(sn) FROM PictureAlbum", (n) => {
+      if (sn + LIMIT > n) {
+        sn = n >= LIMIT ? n - LIMIT : 0;
+      }
+      else {
+        sn += LIMIT;
+      }
+      req.session.sn = sn;
+      showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+    });
   }  
-  req.session.sn = n;
-  showContent(req, res);
 });
 
 /* 最後のページ */
 router.get('/last', function(req, res, next) {
   if (req.session.desc) {
     req.session.sn = 0;
-    showContent(req, res);
+    showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
     mysql.getValue("SELECT max(sn) FROM PictureAlbum", (n) => {
       n -= LIMIT;
       req.session.sn = n;
-      showContent(req, res);
+      showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     });
   }
 });
