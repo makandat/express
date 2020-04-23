@@ -382,10 +382,10 @@ router.get('/modify_video', function(req, res, next) {
 router.post('/modify_video', function(req, res, next) {
     let id = req.body.id;
     if (id == "") {
-        insertVideo(req, res);
+        insertVideo(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     }
     else {
-        updateVideo(req, res);
+        updateVideo(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     }
 });
 
@@ -416,7 +416,7 @@ async function confirmVideo(req, res) {
 
 /* ビデオの追加・更新 データ確認 */
 router.get('/confirm/:id', function(req, res, next) {
-    confirmVideo(req, res);
+    confirmVideo(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* Videos テーブルで fav を増やす。*/

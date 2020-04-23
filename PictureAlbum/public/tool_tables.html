@@ -128,7 +128,7 @@
                 methods: {
                     button2_click: () => {
                         app2.message2 = "実行中！ しばらくお待ちください。";
-                        $.getJSON(URL2, {'table':app2.table, 'start':app2.start}, (msg) => {
+                        $.getJSON(URL2, {'table':app2.table, 'startId':app2.startId}, (msg) => {
                             app2.message2 = "";
                             alert(msg.message);
                         });

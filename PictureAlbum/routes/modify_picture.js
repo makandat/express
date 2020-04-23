@@ -130,18 +130,11 @@ async function updateData(req, res) {
   }
   let path = req.body.path;
   let b = await fileExists(path);
-  try {
-    if (b == false) {
-      message = `データの更新に失敗しました。パスはファイルでなければなりません。`;
-      res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
-      return;
-    }  
-  }
-  catch (e) {
-    message = `データの更新に失敗しました。パスが存在しません。`;
+  if (b == false) {
+    message = `データの更新に失敗しました。パスはファイルでなければなりません。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
-    return
-  }
+    return;
+  }  
   if (os.platform() == "win32") {
     path = path.replace(/\\/g, "/");
   }
@@ -198,11 +191,11 @@ router.post("/", function(req, res, next) {
   let id = req.body.id;
   if (id == "") {
     // 挿入
-    insertData(req, res);
+    insertData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
     // 更新
-    updateData(req, res);
+    updateData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }  
 });
 

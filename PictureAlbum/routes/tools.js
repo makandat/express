@@ -86,8 +86,8 @@ router.get('/insertDerivedTable', (req, res) => {
 
 /* テーブルの行番号 (sn) を付け直す。*/
 router.get('/renumberSN', (req, res) =>{
-    let table = req.query.table;
-    let sql = `CALL ${table}(req.query.start)`;
+    let {table, startId} = req.query;
+    let sql = `CALL ${table}(${startId})`;
     mysql.execute(sql, () => {
         res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
     });
@@ -142,14 +142,14 @@ async function rebuildTable(table) {
 /* 派生テーブルの再構築 */
 router.get('/rebuild', (req, res) => {
     let table = req.query.rebuild;
-    rebuildTable(table);
+    rebuildTable(table).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     res.send("再構築終了。Pictures" + table);
 });
 
 /* Pictures と派生テーブルからのデータ削除 */
 router.get('/deletePictures', (req, res) => {
     let {id, derived_table, bindata} = req.query;
-    deleteData(id, derived_table, bindata);
+    deleteData(id, derived_table, bindata).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     res.json({'err':'0', 'message':"id = " + id + " のデータを削除しました。"});
 });
 

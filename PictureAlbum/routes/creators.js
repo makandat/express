@@ -91,10 +91,10 @@ router.get('/modify_creator', function(req, res) {
 router.post('/modify_creator', function(req, res) {
   let id = req.body.id;
   if (id == "") {
-    insert_creator(req, res);
+    insert_creator(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
-    update_creator(req, res);
+    update_creator(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));;
   }
 });
 

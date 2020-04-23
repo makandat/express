@@ -153,11 +153,11 @@ router.post("/", function(req, res, next) {
   let id = req.body.id;
   if (id == "") {
     // 挿入
-    insertData(req, res);
+    insertData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
     // 更新
-    updateData(req, res);
+    updateData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }  
 });
 

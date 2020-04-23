@@ -348,14 +348,14 @@ router.get('/', function(req, res, next) {
     req.session.sn = n;
     req.session.mark = "ALL";
     let version = getVersion();
-    showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル)', 'version':version});
+    showResults(res, {'order':"1", 'title':'画像フォルダ一覧 (Pictures テーブル)', 'version':version}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   });
 });
 
 /* /favorites: お気に入りが 0 以外の項目をリスト表示 */
 router.get('/favorites', function(req, res, next) {
   req.session.status = "favorites";
-  showResults(res, {'fav':true, 'title':'お気に入り一覧'})
+  showResults(res, {'fav':true, 'title':'お気に入り一覧'}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 
@@ -379,7 +379,7 @@ router.get('/orderby/:order', function(req, res, next) {
     default:
       break;
   }
-  showResults(res, {'order':req.params.order, 'mark':req.session.mark})
+  showResults(res, {'order':req.params.order, 'mark':req.session.mark}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* /jump/:id 指定した id を先頭としてリスト表示 */
@@ -397,7 +397,7 @@ router.get('/jump/:id', function(req, res, next) {
       sql = `SELECT sn FROM ${tableName} WHERE id=${pid}`;
       mysql.getValue(sql, (n)=>{
         req.session.sn = n;
-        showResults(res, {'mark':req.session.mark, 'sn':n, 'order':req.session.order});  
+        showResults(res, {'mark':req.session.mark, 'sn':n, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));  
       });
     }
   });
@@ -408,7 +408,7 @@ router.get('/find', function(req, res, next) {
   req.session.mark = "ALL";
   req.session.order = "2";
   req.session.status = "find";
-  showResults(res, {'title':'検索ワード：' + req.query.word, 'word':req.query.word, 'mark':''})
+  showResults(res, {'title':'検索ワード：' + req.query.word, 'word':req.query.word, 'mark':''}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* /mark/:m  指定したマークでフィルタリング表示 */
@@ -419,7 +419,7 @@ router.get('/mark/:m', function(req, res, next) {
   let tableName = getTableNameSync(req.params.m);
   mysql.getValue("SELECT max(sn) FROM " + tableName, (n) => {
     req.session.sn = n;
-    showResults(res, {'title':req.params.m + " 画像表示", 'mark':req.params.m, 'sn':n, 'order':'1'});
+    showResults(res, {'title':req.params.m + " 画像表示", 'mark':req.params.m, 'sn':n, 'order':'1'}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   });
 });
 
@@ -442,54 +442,102 @@ router.get('/first', function(req, res, next) {
       default:
         break;
     }
-    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
+    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
 });
 
 /* /prev: 前のリストページ */
 router.get('/prev', function(req, res, next) {
-  if (req.session.status == "") {
-    switch (req.session.order) {
-      case "1":
-        req.session.sn += LIMIT;
-        break;
-      case "2":
-        req.session.sn -= LIMIT;
-        break;
-      case "3":
-        req.session.sn += LIMIT;
-        break;
-      case "4":
-        req.session.sn -= LIMIT;
-        break;
-      default:
-        break;
+  let sn = req.session.sn;
+  mysql.getValue("SELECT max(sn) FROM Pictures", (maxsn) => {
+    if (req.session.status == "") {
+      switch (req.session.order) {
+        case "1":
+          if (sn + LIMIT > maxsn) {
+            sn = maxsn;
+          }
+          else {
+            sn += LIMIT;
+          }
+          break;
+        case "2":
+          if (sn - LIMIT < 0) {
+            sn = 1;
+          }
+          else {
+            sn -= LIMIT;
+          }
+          break;
+        case "3":
+          if (sn + LIMIT > maxsn) {
+            sn = maxsn;
+          }
+          else {
+            sn += LIMIT;
+          }
+          break;
+        case "4":
+          if (sn - LIMIT < 0) {
+            sn = 1;
+          }
+          else {
+            sn -= LIMIT;
+          }
+          break;
+        default:
+          break;
+      }
+      req.session.sn = sn;
+      showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     }
-    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
-  }
+  });
 });
 
 /* /next: 次のリストページ */
 router.get('/next', function(req, res, next) {
-  if (req.session.status == "") {
-    switch (req.session.order) {
-      case "1":
-        req.session.sn -= LIMIT;
-        break;
-      case "2":
-        req.session.sn += LIMIT;
-        break;
-      case "3":
-        req.session.sn -= LIMIT;
-        break;
-      case "4":
-        req.session.sn += LIMIT;
-        break;
-      default:
-        break;
+  let sn = req.session.sn;
+  mysql.getValue("SELECT max(sn) FROM Pictures", (maxsn) => {
+    if (req.session.status == "") {
+      switch (req.session.order) {
+        case "1":
+          if (sn - LIMIT < 0) {
+            sn = maxsn - LIMIT;
+          }
+          else {
+            sn -= LIMIT;
+          }
+          break;
+        case "2":
+          if (sn + LIMIT > maxsn) {
+            sn = maxsn - LIMIT;
+          }
+          else {
+            sn += LIMIT;
+          }
+          break;
+        case "3":
+          if (sn - LIMIT < 0) {
+            sn = maxsn - LIMIT;
+          }
+          else {
+            sn -= LIMIT;
+          }
+          break;
+        case "4":
+          if (sn + LIMIT > maxsn) {
+            sn = maxsn - LIMIT;
+          }
+          else {
+            sn += LIMIT;
+          }
+          break;
+        default:
+          break;
+      }
+      req.session.sn = sn;
+      showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     }
-    showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
-  }
+  });
 });
 
 /* /last: 最後のリストページ */
@@ -502,28 +550,28 @@ router.get('/last', function(req, res, next) {
         sql = `SELECT min(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
           req.session.sn = n + LIMIT;
-          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
         });
         break;
       case "2":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
           session.sn = n - LIMIT;
-          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
         });
         break;
       case "3":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
           req.session.sn = n - LIMIT;
-          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
         });
         break;
       case "4":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
           req.session.sn = n - LIMIT;
-          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order});
+          showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
         });
         break;
       default:
@@ -537,7 +585,7 @@ router.get('/last', function(req, res, next) {
 
 /* /selectcreator?creator=name: 作者をクリックしたとき、その作者の画像リスト */
 router.get('/selectcreator', function(req, res, next) {
-  showResults(res, {'creator':req.query.creator});
+  showResults(res, {'creator':req.query.creator}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* /countup?id=n: お気に入りをクリックしたとき、その画像のお気に入りカウントを増やす。*/
