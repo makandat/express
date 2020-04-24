@@ -1,11 +1,11 @@
 delimiter //
-CREATE PROCEDURE PhotoSN(IN startId INT)
+CREATE PROCEDURE user.PhotoSN(IN startId INT)
 BEGIN
   DECLARE i INT;
   DECLARE xid INT;
   DECLARE xsn INT;
   DECLARE done INT DEFAULT FALSE;
-  DECLARE cur CURSOR FOR SELECT id, sn FROM PicturesPhoto WHERE id >= startId ORDER BY id ASC;
+  DECLARE cur CURSOR FOR SELECT id, sn FROM user.PicturesPhoto WHERE id >= startId ORDER BY id ASC;
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
   OPEN cur;
@@ -18,7 +18,7 @@ BEGIN
     IF i = 0 THEN
       SET i = xsn;
     END IF;
-    UPDATE PicturesPhoto SET sn = i WHERE id = xid;
+    UPDATE user.PicturesPhoto SET sn = i WHERE id = xid;
     SET i = i + 1;
   END LOOP;
   CLOSE cur;

@@ -1,5 +1,5 @@
 delimiter //
-CREATE PROCEDURE PictAlbumSN()
+CREATE PROCEDURE user.PictAlbumSN()
 BEGIN
   DECLARE i INT;
   DECLARE xid INT;

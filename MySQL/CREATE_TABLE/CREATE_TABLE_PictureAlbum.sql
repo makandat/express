@@ -1,4 +1,4 @@
-CREATE TABLE `album` (
+CREATE TABLE `Album` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `mark` varchar(10) DEFAULT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE `album` (
   KEY `album_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `picturealbum` (
+CREATE TABLE `PictureAlbum` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) NOT NULL,
   `title` varchar(100) NOT NULL,

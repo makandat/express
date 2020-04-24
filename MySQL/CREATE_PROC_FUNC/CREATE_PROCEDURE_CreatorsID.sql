@@ -1,5 +1,5 @@
 delimiter //
-CREATE PROCEDURE CreatorsID()
+CREATE PROCEDURE user.CreatorsID()
 BEGIN
   DECLARE i INT;
   DECLARE xid INT;

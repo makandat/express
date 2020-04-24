@@ -1,4 +1,4 @@
-CREATE TABLE `videos` (
+CREATE TABLE `Videos` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`album` INT(8) NULL DEFAULT 0,
 	`title` VARCHAR(100) NOT NULL,

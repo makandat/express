@@ -1,6 +1,6 @@
 delimiter //
 -- Pictures テーブルの作者修正
-CREATE PROCEDURE PicturesPixivCreator()
+CREATE PROCEDURE user.PicturesPixivCreator()
 BEGIN
   DECLARE done INT DEFAULT FALSE;
   DECLARE xid INT;

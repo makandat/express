@@ -1,12 +1,12 @@
 delimiter //
 -- Pictures の指定した id の行を PicturesPixiv に挿入する。
-CREATE PROCEDURE InsertPictPixiv(IN pid INT)
+CREATE PROCEDURE user.InsertPictPixiv(IN pid INT)
 BEGIN
   DECLARE last INT;
-  SELECT MAX(sn) INTO last FROM PicturesPixiv;
-  INSERT INTO PicturesPixiv SELECT * FROM Pictures WHERE id = pid;
+  SELECT MAX(sn) INTO last FROM user.PicturesPixiv;
+  INSERT INTO user.PicturesPixiv SELECT * FROM user.Pictures WHERE id = pid;
   SET last = last + 1;
-  UPDATE PicturesPixiv SET sn = last WHERE id = pid;
+  UPDATE user.PicturesPixiv SET sn = last WHERE id = pid;
 END
 //
 delimiter ;

@@ -1,4 +1,4 @@
-CREATE TABLE user.Creators (
+CREATE TABLE Creators (
   id INT NOT NULL AUTO_INCREMENT,
   creator VARCHAR(50) NOT NULL UNIQUE,
   marks VARCHAR(50) DEFAULT '',

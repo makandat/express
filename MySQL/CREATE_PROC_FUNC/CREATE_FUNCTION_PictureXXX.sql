@@ -1,32 +1,35 @@
 delimiter //
+SET GLOBAL log_bin_trust_function_creators = 1;
 -- id が含まれる Pictures の派生テーブルを返す。
-CREATE FUNCTION PicturesXXX(pid INT) RETURNS VARCHAR(20)
+CREATE FUNCTION user.PicturesXXX(pid INT) RETURNS VARCHAR(20)
 BEGIN
   DECLARE xcountmanga INT;
   DECLARE xcounthcg INT;
   DECLARE xcountdoujin INT;
   DECLARE xcountpixiv INT;
   DECLARE xcountphoto INT;
+  DECLARE xtable VARCHAR(20);
 
-  SELECT count(id) INTO xcountmanga FROM PicturesManga WHERE id = pid;
-  SELECT count(id) INTO xcounthcg FROM PicturesHcg WHERE id = pid;
-  SELECT count(id) INTO xcountdoujin FROM PicturesDoujin WHERE id = pid;
-  SELECT count(id) INTO xcountpixiv FROM PicturesPixiv WHERE id = pid;
-  SELECT count(id) INTO xcountphoto FROM PicturesPhoto WHERE id = pid;
+  SELECT count(id) INTO xcountmanga FROM user.PicturesManga WHERE id = pid;
+  SELECT count(id) INTO xcounthcg FROM user.PicturesHcg WHERE id = pid;
+  SELECT count(id) INTO xcountdoujin FROM user.PicturesDoujin WHERE id = pid;
+  SELECT count(id) INTO xcountpixiv FROM user.PicturesPixiv WHERE id = pid;
+  SELECT count(id) INTO xcountphoto FROM user.PicturesPhoto WHERE id = pid;
 
   IF xcountmanga = 1 THEN
-    RETURN 'PicturesManga';
+    SET xtable = 'PicturesManga';
   ELSEIF xcounthcg = 1 THEN
-    RETURN 'PicturesHcg';
+    SET xtable = 'PicturesHcg';
   ELSEIF xcountdoujin = 1 THEN
-    RETURN 'PicturesDoujin';
+    SET xtable = 'PicturesDoujin';
   ELSEIF xcountpixiv = 1 THEN
-    RETURN 'PicturesPixiv';
+    SET xtable = 'PicturesPixiv';
   ELSEIF xcountphoto = 1 THEN
-    RETURN 'PicturesManga';
+    SET xtable = 'PicturesManga';
   ELSE
-    RETURN NULL;
+    SET xtable = NULL;
   END IF;
+  RETURN xtable;
 END
 //
 delimiter ;

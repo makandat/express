@@ -1,12 +1,12 @@
 delimiter //
 -- Pictures の指定した id の行を PicturesDoujin に挿入する。
-CREATE PROCEDURE InsertPictDoujin(IN pid INT)
+CREATE PROCEDURE user.InsertPictDoujin(IN pid INT)
 BEGIN
   DECLARE last INT;
-  SELECT MAX(sn) INTO last FROM PicturesDoujin;
-  INSERT INTO PicturesDoujin SELECT * FROM Pictures WHERE id = pid;
+  SELECT MAX(sn) INTO last FROM user.PicturesDoujin;
+  INSERT INTO user.PicturesDoujin SELECT * FROM user.Pictures WHERE id = pid;
   SET last = last + 1;
-  UPDATE PicturesDoujin SET sn = last WHERE id = pid;
+  UPDATE user.PicturesDoujin SET sn = last WHERE id = pid;
 END
 //
 delimiter ;

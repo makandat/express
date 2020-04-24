@@ -1,11 +1,11 @@
 delimiter //
-CREATE PROCEDURE PictureAlbumSN(IN startId INT)
+CREATE PROCEDURE user.PictureAlbumSN(IN startId INT)
 BEGIN
   DECLARE i INT;
   DECLARE xid INT;
   DECLARE xsn INT;
   DECLARE done INT DEFAULT FALSE;
-  DECLARE cur CURSOR FOR SELECT id, sn FROM PictureAlbum WHERE id >= startId ORDER BY id ASC;
+  DECLARE cur CURSOR FOR SELECT id, sn FROM user.PictureAlbum WHERE id >= startId ORDER BY id ASC;
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
   OPEN cur;
