@@ -278,7 +278,7 @@ async function showResults(res, p = {}) {
   let rowCount = await getRowCount(res, tableName);
   let marks = await getMarks();
   let sql = await makeSQL(p);
-  console.log(sql);
+  // console.log(sql);
   let menu0 = 'inline';
   let menu1 = 'none';
   if (!(p.word == undefined && p.fav == undefined && p.creator == undefined)) {
@@ -388,7 +388,7 @@ router.get('/jump/:id', function(req, res, next) {
   let pid = req.params.id;
   req.session.status = "";  // normal
   let sql = `SELECT count(id) FROM ${tableName} WHERE id=${pid}`;
-  console.log(sql);
+  // console.log(sql);
   mysql.getValue(sql, (n)=>{
     if (n == 0) {
       showInfo(res, 'エラー', '指定した id は存在しないため不正です。', 'cancel.png', null);

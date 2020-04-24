@@ -2,6 +2,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+var fs = require('fs');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer = require('multer');
@@ -81,4 +82,15 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+/* package.json からバージョン番号を得る。*/
+function getVersion() {
+  let pstr = fs.readFileSync("package.json", "utf-8");
+  let p = JSON.parse(pstr);
+  return p.version;
+}
+
+console.info('画像アルバム for Express4 version ' + getVersion());
+console.info('URL: http://127.0.0.1:3000');
+
+/* モジュールエクスポート */
 module.exports = app;

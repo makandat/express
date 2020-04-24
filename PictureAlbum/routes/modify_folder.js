@@ -78,14 +78,65 @@ async function insertData(req, res) {
   let sn = await getNextSN();
   let message = "データの挿入に成功しました。(" + name + ")";
   let sql = `INSERT INTO Pictures(title, creator, path, mark, info, fav, count, bindata, date, sn) VALUES('${name}', '${creator}', '${path}', '${mark}', '${info}', 0, 0, ${bindata}, CURRENT_DATE(), ${sn})`;
-  try {
-    mysql.execute(sql, function() {
-      res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
-    });  
-  }
-  catch (err) {
-    res.render('showInfo', {'title':'エラー', 'message':'データベースのエラーを検出しました。', 'icon':'cancel.png', 'link':null});
-  }
+  mysql.execute(sql, () => {
+    mysql.getValue("SELECT max(id) FROM Pictures", (maxId) => {
+      switch (mark) {
+        case "HCG":
+          mysql.execute(`CALL InsertPictHcg(${maxId})`, (c) => {
+            if (c == null) {
+              res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
+            }
+            else {
+              res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+            }
+          });
+          break;
+        case "DOUJIN":
+          mysql.execute(`CALL InsertPictDoujin(${maxId})`, (c) => {
+            if (c == null) {
+              res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
+            }
+            else {
+              res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+            }
+          });
+          break;
+        case "MANGA":
+          mysql.execute(`CALL InsertPictManga(${maxId})`, (c) => {
+            if (c == null) {
+              res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
+            }
+            else {
+              res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+            }
+          });
+          break;
+        case "PIXIV":
+          mysql.execute(`CALL InsertPictPixiv(${maxId})`, (c) => {
+            if (c == null) {
+              res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
+            }
+            else {
+              res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+            }
+          });
+          break;
+        case "PHOTO":
+          mysql.execute(`CALL InsertPictPhoto(${maxId})`, (c) => {
+            if (c == null) {
+              res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
+            }
+            else {
+              res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+            }
+          });
+          break;
+        default:
+          res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": "", "name": name, "creator": creator, "path": path, "mark": mark, "info": info, "fav": 0, "count": 0, "bindata": bindata});
+          break;
+        }  
+    });
+  });  
 }
 
 /* フォームデータでテーブルを更新する。*/
@@ -94,16 +145,10 @@ async function updateData(req, res) {
   let name = req.body.name.replace(/'/g, "''").trim();
   let creator = req.body.creator.replace(/'/g, "''");
   let b = await dirExists(req.body.path);
-  try {
-    if (! b) {
-      res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png', 'link':null})
-      return;
-    }  
-  }
-  catch (e) {
+  if (! b) {
     res.render('showInfo', {'title':'エラー', 'message':'指定したディレクトリは存在しません。', 'icon':'cancel.png', 'link':null})
     return;
-  }
+  }  
   let path = req.body.path;
   if (os.platform() == "win32") {
     path = path.replace(/\\/g, '/');
@@ -116,9 +161,73 @@ async function updateData(req, res) {
   let bindata = req.body.bindata;
   let message = `データの更新に成功しました。id = ${id}`;
   let sql = `UPDATE Pictures SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
-  mysql.execute(sql, function() {
-    res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
-    "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata});
+  mysql.execute(sql, () => {
+    switch (mark) {
+      case "HCG":
+        sql = `UPDATE PicturesHcg SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
+        mysql.execute(sql, (c) => {
+          if (c == null) {
+            res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
+            "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata}); 
+          }
+          else {
+            res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+          }
+        });
+        break;
+      case "DOUJIN":
+        sql = `UPDATE PicturesDoujin SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
+        mysql.execute(sql, (c) => {
+          if (c == null) {
+            res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
+            "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata}); 
+          }
+          else {
+            res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+          }
+        });
+        break;
+      case "MANGA":
+        sql = `UPDATE PicturesManga SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
+        mysql.execute(sql, (c) => {
+          if (c == null) {
+            res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
+            "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata}); 
+          }
+          else {
+            res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+          }
+        });
+        break;
+      case "PIXIV":
+        sql = `UPDATE PicturesPixiv SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
+        mysql.execute(sql, (c) => {
+          if (c == null) {
+            res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
+            "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata}); 
+          }
+          else {
+            res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+          }
+        });
+        break;
+      case "PHOTO":
+        sql = `UPDATE PicturesPhoto SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
+        mysql.execute(sql, (c) => {
+          if (c == null) {
+            res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
+            "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata}); 
+          }
+          else {
+            res.render('showInfo', {'title':'エラー', 'message':sql, 'icon':'cancel.png', 'link':null});
+          }
+        });
+        break;
+      default:
+        res.render("modify_folder", {"title": PAGE_TITLE, "message": message, "id": id, "name": name, "creator": creator, "path": path, 
+           "mark": mark, "info": info, "fav": fav, "count": count, "bindata": bindata});
+        break;
+    }
   });
 }
 
@@ -153,11 +262,13 @@ router.post("/", function(req, res, next) {
   let id = req.body.id;
   if (id == "") {
     // 挿入
-    insertData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+    insertData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}))
+    .catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', 'link':null}));
   }
   else {
     // 更新
-    updateData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+    updateData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}))
+    .catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', 'link':null}));
   }  
 });
 

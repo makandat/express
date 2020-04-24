@@ -149,8 +149,20 @@ router.get('/rebuild', (req, res) => {
 /* Pictures と派生テーブルからのデータ削除 */
 router.get('/deletePictures', (req, res) => {
     let {id, derived_table, bindata} = req.query;
-    deleteData(id, derived_table, bindata).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
-    res.json({'err':'0', 'message':"id = " + id + " のデータを削除しました。"});
+    let n = 0;
+    if (id.includes('-')) {
+        let ids = id.split('-');
+        for (let i = ids[0]; i <= ids[1]; i++) {
+            deleteData(i, derived_table, bindata)
+            .then(() => {n++})
+        }
+        res.json({'err':'0', 'message':"Pictures からデータを削除しました。"});
+    }
+    else {
+        deleteData(id, derived_table, bindata)
+        .then(() => { res.json({'err':'0', 'message':"Picturs id = " + id + " を削除しました。"})})
+        .catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+    }
 });
 
 /* アルバムを削除 */
@@ -159,6 +171,15 @@ router.get('/deleteAlbum', (req, res) => {
     mysql.execute(`CALL DeleteAlbum(${id})`, () => {
         res.json({'err':'0', 'message':"アルバム id = " + id + " を削除しました。"});
     });
+});
+
+/* PictureAlbum の画像データを削除 */
+router.get('/deletePictureAlbum', (req, res) => {
+    let id = req.query.id;
+    deleteRow('PictureAlbum', id)
+      then((resolve) => {
+        res.json({'err':'0', 'message':"PictureAlbum id = " + id + " を削除しました。"});
+      });
 });
 
 /* ファイルを PictureAlbum にインポートする promise 関数 */

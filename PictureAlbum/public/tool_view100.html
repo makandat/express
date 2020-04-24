@@ -11,8 +11,13 @@
                 border: solid thin gray;
                 padding: 12px;
                 font-size: small;
-                margin-left: 5%;
-                margin-right: 5%;
+                margin-left:5%;
+                margin-right:5%;
+            }
+            table {
+                margin-left:auto;
+                margin-right:auto;
+                margin-bottom:40px;
             }
         </style>
     </head>
@@ -20,11 +25,11 @@
     <body>
         <h1>テーブルデータ最新100件</h1>
         <div class="menu">
-            <a href="javascript:window.close()">閉じる</a>&nbsp;&nbsp;
+            <a href="javascript:window.close()"><img src="/img/close2.png"> 閉じる</a>&nbsp;&nbsp;
         </div>
         <br />
         <div id="app1" class="app">
-            <div class="form_row">
+            <div class="form_row" style="margin-left:10%;">
                 表示するテーブル<br />
                 <ul style="list-style-type:none;">
                     <li><label><input type="radio" v-model="table" value="Pictures" /> Pictures</label></li>
@@ -37,10 +42,11 @@
                     <li><label><input type="radio" v-model="table" value="PicturesDoujin" /> PictureDoujin</label></li>
                     <li><label><input type="radio" v-model="table" value="PicturesPixiv" /> PicturePixiv</label></li>
                     <li><label><input type="radio" v-model="table" value="PicturesTime" /> PictureTime</label></li>
+                    <li><label><input type="radio" v-model="table" value="Videos" /> Videos</label></li>
                 </ul>
             </div>
-            <div class="form_row">
-                <input type="button" id="button1" value=" 表示 " v-on:click="button1_click" />
+            <div class="form_row" style="margin-left:10%;">
+                <input type="button" id="button1" value=" 表示 " style="width:180px;" v-on:click="button1_click" />
             </div>
             <br />
             <p id="message1" class="message" v-text="message1"></p>

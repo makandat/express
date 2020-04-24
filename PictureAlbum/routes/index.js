@@ -16,6 +16,7 @@ function getVersion() {
   return p.version;
 }
 
+
 /* SELECT 文を作成する。*/
 function makeSelect(req) {
   let sql = SELECT0;
