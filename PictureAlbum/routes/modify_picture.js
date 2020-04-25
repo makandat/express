@@ -98,7 +98,7 @@ async function insertData(req, res) {
   else {
     let id = await getMaxId();
     message = `データの挿入に成功しました。id = ${id+1}`;
-    let sql = `INSERT INTO PictureAlbum(album, title, path, creator, info, fav, bindata, picturesid, date) VALUES(${album}, '${name}', '${path}', '${creator}', '${info}', ${fav}, ${bindata}, ${picturesid}, CURRENT_DATE())`;
+    let sql = `INSERT INTO PictureAlbum(album, title, path, creator, info, fav, bindata, picturesid, date, sn) VALUES(${album}, '${name}', '${path}', '${creator}', '${info}', ${fav}, ${bindata}, ${picturesid}, CURRENT_DATE(), user.NextPictureAlbumSN())`;
     mysql.execute(sql, function() {
       res.render("modify_picture", {"title": PAGE_TITLE, "message": message, "id": "", "album": album, "name": name, "creator": creator, "path": path, 
       "info": info, "fav": fav, "bindata": bindata, "picturesid": picturesid});

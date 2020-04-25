@@ -3,6 +3,7 @@
 var express = require('express');
 var session = require('express-session');
 var fso = require('./FileSystem.js');
+var os = require('os');
 var router = express.Router();
 
 
@@ -115,8 +116,11 @@ router.get('/navinit', function(req, res, next){
     let dir = fso.getDirectory(path);
     session.dir = dir;
     let n = 0;
-    fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files)=>{
+    fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files) => {
         for (let i = 0; i < files.length; i++) {
+            if (os.platform() == "win32") {
+                files[i] = files[i].replace(/\\/g, '/');
+            }
             if (path == files[i]) {
                 n = i;
                 break;

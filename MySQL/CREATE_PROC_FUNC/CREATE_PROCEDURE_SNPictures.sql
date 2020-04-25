@@ -16,7 +16,11 @@ BEGIN
       LEAVE read_loop;
     END IF;
     IF i = 0 THEN
-      SET i = xsn;
+      IF xsn IS NULL THEN
+        SET i = 1;
+      ELSE
+        SET i = xsn;
+      END IF;
     END IF;
     UPDATE user.Pictures SET sn = i WHERE id = xid;
     SET i = i + 1;
