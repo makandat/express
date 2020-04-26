@@ -10,7 +10,7 @@ function insertData(req, res) {
   let bindata = req.body.bindata;
   let mark = req.body.mark;
   let groupname = req.body.groupname.replace(/'/g, "''");
-  let message = "データの挿入に成功しました。";
+  let message = "データの挿入に成功しました。(" + name + ")";
   let sql = `INSERT INTO Album VALUES(NULL, '${name}', '${mark}', '${info}', ${bindata}, '${groupname}', CURRENT_DATE())`;
   mysql.execute(sql, function() {
     res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": "", "album": name, "mark":mark, "info": info, "bindata": bindata, "groupname": groupname});
@@ -25,7 +25,7 @@ function updateData(req, res) {
   let info = req.body.info.replace(/'/g, "''");
   let bindata = req.body.bindata;
   let groupname = req.body.groupname.replace(/'/g, "''");
-  let message = `データの更新に成功しました。id = ${id}`;
+  let message = `データの更新に成功しました。id = ${id}: ${name}`;
   let sql = `UPDATE Album SET name='${name}', info='${info}', mark='${mark}', bindata=${bindata}, groupname='${groupname}', \`date\`=CURRENT_DATE() WHERE id=${id}`;
   mysql.execute(sql, function() {
     res.render("modify_album", {"title": "アルバムの作成・修正", "message": message, "id": id, "album": name, "mark":mark, "info": info, "bindata": bindata, "groupname": groupname});

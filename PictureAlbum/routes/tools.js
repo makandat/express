@@ -183,37 +183,42 @@ router.get('/deletePictureAlbum', (req, res) => {
 });
 
 /* ファイルを PictureAlbum にインポートする promise 関数 */
-function insertFile(path, album) {
+function insertFile(path, album, table) {
     return new Promise((resolve) => {
         let title = fso.getFileName(path).replace(/'/g, "''");
-        let sql = `INSERT INTO PictureAlbum VALUES(NULL, ${album}, '${title}', '${path}', '-', '', 0, 0, 0, CURRENT_DATE(), 0)`;
+        let ext = fso.getExtension(path);
+        title = title.replace(ext, '');
+        let sql;
+        if (table == "PictureAlbum") {
+            sql = `INSERT INTO PictureAlbum VALUES(NULL, ${album}, '${title}', '${path}', 'creator', 'info', 0, 0, 0, CURRENT_DATE(), 0)`;
+        }
+        else {
+            sql = `INSERT INTO Videos VALUES(NULL, ${album}, '${title}', '${path}', 'creator', 'series', 'video', 'info', 0, 0, 0, 0)`;
+        }
         mysql.execute(sql, () => {
             resolve(1);
         });
     });
 }
 
-/* ファイルリストを PictureAlbum にインポートする async 関数 */
-async function insertFileList(files, album) {
-    for (let fn of files) {
-        if (os.platform() == "win32") {
-            fn = fn.replace(/\\/g, "/");
-        }
-        fn = fn.trim().replace(/'/g, "''");
-        await insertFile(fn, album);
-    }
-}
 
-/* ファイルリストを PictureAlbum にインポートする。*/
-router.get('/import_filelist', (req, res) => {
-    let filelist = req.query.filelist;
-    let album = req.query.album;
+/* POST: ファイルリストを PictureAlbum or Videos にインポートする。*/
+router.post('/import_filelist', (req, res) => {
+    let {filelist, album, table} = req.body;
     let files = filelist.split(/\n/g);
-    insertFileList(files, album);
-    let n = files.length.toString();
-    res.send("アルバム " + album + " に " + n + " 個のデータを追加しました。");
+    let promises = [];
+    for (let i = 0; i < files.length; i++) {
+        if (os.platform() == "win32") {
+            files[i] = files[i].replace(/\\/g, "/");
+        }
+        files[i] = files[i].trim().replace(/'/g, "''");
+        promises.push(insertFile(files[i], album, table));
+    }
+    Promise.all(promises).then(f => {
+        let n = f.length.toString();
+        res.send("アルバム " + album + " に " + n + " 個のデータを追加しました。");    
+    });
 });
-
 
 /* path が テーブルに登録済みかチェックする。*/
 function checkVideo(path, tableName) {

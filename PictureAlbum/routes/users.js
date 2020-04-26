@@ -36,7 +36,7 @@ router.get('/page', (req, res) => {
 
 /* LOGIN リクエスト */
 router.post('/login', (req, res) => {
-    let {userid, password} = req.body;
+    let {userid, password, page} = req.body;
     if (userid == "" || password == "") {
         req.session.user = undefined;
         res.render("showInfo", {'title':'エラー', 'message':MESSAGE0, 'icon':'cancel.png', 'link':'<a href="/users">ログイン</a>'});
@@ -46,7 +46,17 @@ router.post('/login', (req, res) => {
     mysql.getRow(sql, (row) => {
         if (row.password == password && row.expired == '0') {
             req.session.user = userid;
-            res.redirect('/');
+            switch (page) {
+                case "Pictures":
+                    res.redirect('/pictures');
+                    break;
+                case "Videos":
+                    res.redirect('/video');
+                    break;
+                default:
+                    res.redirect('/');
+                    break;
+            }
         }
         else {
             res.render('login', {'message':MESSAGE1, 'userid':'', 'password':''});

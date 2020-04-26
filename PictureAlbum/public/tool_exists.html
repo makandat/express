@@ -29,14 +29,14 @@
     <div class="app" id="app1">
         <div class="form_row">
             対象テーブル<br />
-            <ul style="list-style-type:none;padding:10px;border:solid thin gray;width:75%;">
+            <ul style="list-style-type:none;padding:10px;border:solid thin gray;width:75%;margin-top:0px;">
                 <li><input type="radio" v-model="table" value="pictures" /> Pictures</li>
                 <li><input type="radio" v-model="table" value="videos" /> Videos</li>
             </ul>
         </div>
         <div class="form_row">
             範囲<br />
-            <ul style="list-style-type:none;padding:10px;border:solid thin gray;width:75%;">
+            <ul style="list-style-type:none;padding:10px;border:solid thin gray;width:75%;margin-top:0px;">
                 <li><label><input type="checkbox" name="rangeAll" id="rangeAll" v-model="rangeAll" v-on:change="rangeAll_change" /> すべて</label></li>
                 <li><label>開始 id <input type="number" name="startId" id="startId" v-model="startId" size="8" v-bind:disabled="disastart" /></label></li>
                 <li><label>終了 id <input type="number" name="endId" id="endId" v-model="endId" size="8"  v-bind:disabled="disaend" /></label></li>

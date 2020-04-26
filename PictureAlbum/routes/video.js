@@ -183,13 +183,23 @@ router.get('/videoalbum/:album', function(req, res, next) {
 
 /* ビデオファイル表示 */
 router.get('/video_viewer', function(req, res, next) {
-  res.render('video_viewer', {'title':req.query.title, 'message':req.query.source, 'source':req.query.source});
+  let path = req.query.source;
+  let title = req.query.title;
+  mysql.getValue(`SELECT id FROM Videos WHERE path='${path}'`, (id) => {
+    mysql.execute(`CALL increaseVideoCount(${id})`, () => {
+      res.render('video_viewer', {'title':title, 'message':path, 'source':path});
+    });
+  });
 });
 
 /* ビデオファイルのダウンロード */
 router.get('/download', function(req, res, next) {
   let path = req.query.path;
-  res.sendFile(path);
+  mysql.getValue(`SELECT id FROM Videos WHERE path='${path}'`, (id) => {
+    mysql.execute(`CALL increaseVideoCount(${id})`, () => {
+      res.sendFile(path);
+    });  
+  });
 });
 
 

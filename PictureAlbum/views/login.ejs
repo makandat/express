@@ -36,16 +36,13 @@
             $('#btnLogin').click(() =>{
                 let password = md5($("#password").val());
                 $('#password').val(password);
-                console.log(password);
                 $('#form1').submit();
             });
 
             /* ユーザ管理者ボタン */
             $('#btnAdmin').click(() => {
                 let userid = $("#userid").val();
-                console.log(userid);
                 let password = md5($("#password").val());
-                console.log(password);
                 location.href = `/users/admin?userid=${userid}&password=${password}`;    
             });
 
@@ -67,6 +64,14 @@
     </div>
     <div class="form-row" style="margin-left:10%;">
         パスワード<br /><input type="password" name="password" id="password" size="50" value="<%= password %>" />
+    </div>
+    <div class="form-row" style="margin-left:10%;">
+        開くページ
+        <ul style="list-style-type:none;padding:6px;border:solid thin gray;width:50%;margin-top:0px;">
+            <li><label></li><input type="radio" name="page" id="page1" value="Album" checked /> アルバム一覧</label></li>
+            <li><label></li><input type="radio" name="page" id="page2" value="Pictures" /> 画像フォルダ一覧</label></li>
+            <li><label></li><input type="radio" name="page" id="page3" value="Videos" /> ビデオ一覧</label></li>
+        </ul>
     </div>
     <div class="form-row" style="margin-left:10%;">
         <br /><button type="button" name="btnLogin" id="btnLogin"><b>ログイン</b></button>&nbsp;

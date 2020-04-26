@@ -34,7 +34,7 @@
             <br />
             <div class="form_row">
                 挿入先の派生テーブル
-                <ul style="list-style-type: none;border:solid thin gray; padding:8px;">
+                <ul style="list-style-type: none;border:solid thin gray; padding:8px;margin-top:0px;">
                     <li><label><input type="radio" v-model="stored" value="InsertPictManga" /> PicturesManga</label></li>
                     <li><label><input type="radio" v-model="stored" value="InsertPictHcg" /> PicturesHcg</label></li>
                     <li><label><input type="radio" v-model="stored" value="InsertPictDoujin" /> PicturesDoujin</label></li>
@@ -53,7 +53,8 @@
           <h2>テーブルの行番号 (sn) 付け直し</h2>
           <div id="app2" class="app">
             <div class="form_row">
-                <ul style="list-style-type: none;border:solid thin gray; padding:8px;">
+                対象のテーブル
+                <ul style="list-style-type: none;border:solid thin gray; padding:8px;margin-top:0px;">
                     <li><label><input type="radio" v-model="table" value="PicturesSN" /> Pictures</label></li>
                     <li><label><input type="radio" v-model="table" value="VideosSN" /> Videos</label></li>
                     <li><label><input type="radio" v-model="table" value="PictureAlbumSN" /> PictureAlbum</label></li>
@@ -67,7 +68,7 @@
                 </ul>
             </div>
             <div class="form_row">
-                id 開始位置 (null でない)<br />
+                id 開始位置 (sn = null でない)<br />
                 <input type="number" v-model="startId" size="10" />
             </div>
             <div class="form_row">
