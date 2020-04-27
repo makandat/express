@@ -254,7 +254,16 @@ function confirmData(req, res) {
 
 /*  デフォルトのハンドラ */
 router.get('/', function(req, res, next) {
-  res.render("modify_folder", {"title": PAGE_TITLE, "message": "", "id": "", "name": "", "creator": "", "path": "", "mark": "", "info": "", "fav": 0, "bindata": 0});
+  let id = "";
+  if (req.query.id) {
+    id = req.query.id;
+    mysql.getRow(`SELECT * FROM Pictures WHERE id=${id}`, (row) => {
+      res.render("modify_folder", {"title": PAGE_TITLE, "message": "", "id": id, "name": row.title, "creator": row.creator, "path": row.path, "mark": row.mark, "info": row.info, "fav": row.fav, "bindata": row.bindata});
+    })
+  }
+  else {
+    res.render("modify_folder", {"title": PAGE_TITLE, "message": "", "id": "", "name": "", "creator": "", "path": "", "mark": "", "info": "", "fav": 0, "bindata": 0});
+  }
 });
 
 /* フォームデータを受け取る。*/

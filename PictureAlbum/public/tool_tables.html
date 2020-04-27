@@ -65,6 +65,7 @@
                     <li><label><input type="radio" v-model="table" value="PixivSN" /> PicturesPixiv</label></li>
                     <li><label><input type="radio" v-model="table" value="PhotoSN" /> PicturesPhoto</label></li>
                     <li><label><input type="radio" v-model="table" value="TimeSN" /> PicturesTime</label></li>
+                    <li><label><input type="radio" v-model="table" value="Creators" /> Creators</label></li>
                 </ul>
             </div>
             <div class="form_row">
@@ -90,10 +91,11 @@
                     <li><label><input type="radio" v-model="rebuild" value="Pixiv" /> PicturesPixiv</label></li>
                     <li><label><input type="radio" v-model="rebuild" value="Photo" /> PicturesPhoto</label></li>
                     <li><label><input type="radio" v-model="rebuild" value="Time" /> PicturesTime</label></li>
+                    <li><label><input type="radio" v-model="rebuild" value="Creators" /> Creators</label></li>
                 </ul>
             </div>
             <div class="form_row">
-                <input type="button" id="button1" value=" 実行 " v-on:click="button3_click" />
+                <input type="button" id="button3" value=" 実行 " v-on:click="button3_click" />
             </div>
             <p class="message" v-text="message3"></p>
           </div>
@@ -143,7 +145,7 @@
                 el: "#app3",
                 data: {
                     rebuild: "Manga",
-                    message3: ""
+                    message3: "行数の多いテーブルは時間がかかることがあります。"
                 },
                 methods: {
                     button3_click: () => {

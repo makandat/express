@@ -56,7 +56,15 @@ router.get('/', function(req, res, next) {
   if (req.query.mark != undefined) {
     mark = req.query.mark;
   }
-  res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": "", "album": "", "mark":mark, "info": "", "bindata":0, "groupname": ""});
+  if (req.query.id) {
+    let sql = `SELECT * FROM Album WHERE id = ${req.query.id}`;
+    mysql.getRow(sql, (row) => {
+      res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": row.id, "album": row.album, "mark": row.mark, "info": row.info, "bindata": row.bindata, "groupname": row.groupname});
+    });
+  }
+  else {
+    res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": "", "album": "", "mark":mark, "info": "", "bindata":0, "groupname": ""});
+  }
 });
 
 /* フォームデータを受け取る。*/
@@ -78,4 +86,5 @@ router.get('/confirm/:id', function(req, res, next) {
   confirmData(req, res);
 });
 
+/* エクスポート */
 module.exports = router;

@@ -12,7 +12,10 @@ const MESSAGE1 = 'ログイン失敗： ユーザIDとパスワードを再確�
 
 /* デフォルトのリクエスト */
 router.get('/', (req, res) => {
-    if (req.session.user == undefined) {
+    if (req.query.force) {
+        res.render('login', {'message':MESSAGE0, 'userid':'', 'password':''});
+    }
+    else if (req.session.user == undefined) {
         res.render('login', {'message':MESSAGE0, 'userid':'', 'password':''});
     }
     else {
@@ -47,6 +50,9 @@ router.post('/login', (req, res) => {
         if (row.password == password && row.expired == '0') {
             req.session.user = userid;
             switch (page) {
+                case "AlbumGroup":
+                    res.redirect('/album_group.html');
+                    break;
                 case "Pictures":
                     res.redirect('/pictures');
                     break;
@@ -68,7 +74,7 @@ router.post('/login', (req, res) => {
 /* ログアウト */
 router.get('/logout', (req, res) => {
     req.session.user = undefined;
-    res.render('showInfo', {title:"ログアウト", message:'ログアウトしました。', icon:"info.png", link:'<a href="/users">ログイン</a>'});
+    res.render('showInfo', {title:"ログアウト", message:'ログアウトしました。', icon:"info.png", link:'<a href="/users?force=yes">再びログインする。</a>'});
 });
 
 

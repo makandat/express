@@ -17,8 +17,9 @@ function showBINDATAList(req, res) {
       res.render('bindata', { "title": '画像サムネール一覧 (BINDATA テーブル)', "results": results, "message": "データの挿入や更新はコマンドで行う。詳細はヘルプを参照。" });
     }
     else {
+      let aid = `<a href="/bindata/modify_bindata?id=${row.id}" target="_blank">${row.id}</a>`;
       let aextract = `<img src="/bindata/extract/${row.id}" alt="id=${row.id}" />`;
-      results.push([row.id, aextract, row.title, row.original, row.datatype, row.info, row.size]);
+      results.push([aid, aextract, row.title, row.original, row.datatype, row.info, row.size]);
     }  
   });
 }
@@ -120,7 +121,14 @@ router.get('/jump/:id', function(req, res, next) {
 
 /* 情報の修正 */
 router.get('/modify_bindata', function(req, res, next) {
-  res.render('modify_bindata', {'message':'', 'id':'', 'title':'', 'original':'', 'datatype':'', 'data':'', 'info':'', 'size':''});
+  if (req.query.id) {
+    mysql.getRow(`SELECT * FROM BINDATA WHERE id=${req.query.id}`, (row) => {
+      res.render('modify_bindata', {'message':'', 'id':row.id, 'title':row.title, 'original':row.original, 'datatype':row.datatype, 'data':row.data, 'info':row.info, 'size':row.size});
+    });
+  }
+  else {
+    res.render('modify_bindata', {'message':'', 'id':'', 'title':'', 'original':'', 'datatype':'', 'data':'', 'info':'', 'size':''});
+  }
 });
 
 /* 情報の修正 POST */

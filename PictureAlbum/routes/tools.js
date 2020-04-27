@@ -87,10 +87,19 @@ router.get('/insertDerivedTable', (req, res) => {
 /* テーブルの行番号 (sn) を付け直す。*/
 router.get('/renumberSN', (req, res) =>{
     let {table, startId} = req.query;
-    let sql = `CALL ${table}(${startId})`;
-    mysql.execute(sql, () => {
-        res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
-    });
+    let sql;
+    if (table == 'Creators') {
+        sql = `CALL CreatorsID()`;
+        mysql.execute(sql, () => {
+            res.json({'err':'0', 'message':"ストアドプロシージャ CreatorsID を実行しました。"});
+        });
+    }
+    else {
+        sql = `CALL ${table}(${startId})`;
+        mysql.execute(sql, () => {
+            res.json({'err':'0', 'message':"ストアドプロシージャ " + table + " を実行しました。"});
+        });
+    }
 });
 
 
@@ -98,6 +107,9 @@ router.get('/renumberSN', (req, res) =>{
 function rebuildTruncate(table) {
     return new Promise((resolve) => {
         let tableName = "Pictures" + table;
+        if (table == "Creators") {
+            tableName = table;
+        }
         mysql.execute("TRUNCATE TABLE " + tableName, () => {
             resolve("OK");
         });
@@ -107,28 +119,43 @@ function rebuildTruncate(table) {
 /* 派生テーブルの再構築 INSERT */
 function rebuildInsert(table) {
     return new Promise((resolve) => {
-        let tableName = "Pictures" + table;
-        let mark = table.toUpperCase();
         let sql;
-        if (table == "Time") {
-            sql = `INSERT INTO ${tableName} SELECT * FROM Pictures ORDER BY id`;
+        if (table == 'Creators') {
+            sql = "INSERT INTO user.Creators SELECT null, creator as name, '' as marks, '' as info, sum(fav) as fav, sum(count) as refcount, count(creator) as titlecount FROM user.Pictures GROUP BY creator;";
+            mysql.execute(sql, () => {
+                resolve("OK");
+            });    
         }
         else {
-            sql = `INSERT INTO ${tableName} SELECT * FROM Pictures WHERE mark='${mark}' ORDER BY id`;
+            let tableName = "Pictures" + table;
+            let mark = table.toUpperCase();
+            if (table == "Time") {
+                sql = `INSERT INTO ${tableName} SELECT * FROM Pictures ORDER BY id`;
+            }
+            else {
+                sql = `INSERT INTO ${tableName} SELECT * FROM Pictures WHERE mark='${mark}' ORDER BY id`;
+            }
+            mysql.execute(sql, () => {
+                resolve("OK");
+            });    
         }
-        mysql.execute(sql, () => {
-            resolve("OK");
-        });
     });
 }
 
 /* 派生テーブルの再構築 Renumber SN */
 function rebuildRenumSN(table) {
     return new Promise((resolve) => {
-        let ProcName = table + "SN()";
-        mysql.execute("CALL " + ProcName, () => {
-            resolve("OK");
-        });
+        if (table == "Creators") {
+            mysql.execute("CALL CreatorsID()", () => {
+                resolve("OK");
+            });    
+        }
+        else {
+            let ProcName = table + "SN()";
+            mysql.execute("CALL " + ProcName, () => {
+                resolve("OK");
+            });    
+        }
     });
 }
 

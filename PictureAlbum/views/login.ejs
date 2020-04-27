@@ -29,6 +29,17 @@
         #userid {
             ime-mode: inactive;
         }
+        .caption {
+            margin-top:10px;
+        }
+        ul.radios {
+            list-style-type:none;
+            padding:6px;
+            border:solid thin gray;
+            width:50%;margin-top:0px;
+            border-radius:6px;
+            background-color: snow;
+        }
     </style>
     <script>
         $(() => {
@@ -60,21 +71,25 @@
   <br />
   <form id="form1" method="POST" action="/users/login">
     <div class="form-row" style="margin-left:10%;">
-        ユーザ ID<br /><input type="text" name="userid" id="userid" size="50" value="<%= userid %>" autofocus />
+        <div class="caption">ユーザ ID</div>
+        <div><input type="text" name="userid" id="userid" size="50" value="<%= userid %>" autofocus /></div>
     </div>
     <div class="form-row" style="margin-left:10%;">
-        パスワード<br /><input type="password" name="password" id="password" size="50" value="<%= password %>" />
+        <div class="caption">パスワード</div>
+        <div><input type="password" name="password" id="password" size="50" value="<%= password %>" /></div>
     </div>
     <div class="form-row" style="margin-left:10%;">
-        開くページ
-        <ul style="list-style-type:none;padding:6px;border:solid thin gray;width:50%;margin-top:0px;">
-            <li><label></li><input type="radio" name="page" id="page1" value="Album" checked /> アルバム一覧</label></li>
-            <li><label></li><input type="radio" name="page" id="page2" value="Pictures" /> 画像フォルダ一覧</label></li>
-            <li><label></li><input type="radio" name="page" id="page3" value="Videos" /> ビデオ一覧</label></li>
+        <div class="caption">開くページ</div>
+        <ul class="radios">
+            <li><label><input type="radio" name="page" id="page0" value="AlbumGroup" /> アルバムグループ</label></li>
+            <li><label><input type="radio" name="page" id="page1" value="Album" checked /> アルバム一覧</label></li>
+            <li><label><input type="radio" name="page" id="page2" value="Pictures" /> 画像フォルダ一覧</label></li>
+            <li><label><input type="radio" name="page" id="page3" value="Videos" /> ビデオ一覧</label></li>
         </ul>
     </div>
+    <br />
     <div class="form-row" style="margin-left:10%;">
-        <br /><button type="button" name="btnLogin" id="btnLogin"><b>ログイン</b></button>&nbsp;
+        <button type="button" name="btnLogin" id="btnLogin"><b>ログイン</b></button>&nbsp;
         <input type="button" name="btnAdmin" id="btnAdmin" value=" ユーザ管理 (管理者のみ) " />&nbsp;
         <input type="button" name="btnClear" id="btnClear" value=" パスワードクリア " />
     </div>

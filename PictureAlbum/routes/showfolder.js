@@ -3,6 +3,7 @@
 var express = require('express');
 var session = require('express-session');
 var fso = require('./FileSystem.js');
+var mysql = require('./MySQL.js');
 var os = require('os');
 var router = express.Router();
 
@@ -69,14 +70,16 @@ router.get('/', function(req, res, next) {
         res.render('showfolder', {'title':'エラー', 'message':'フォルダが指定されていません。', 'dir':'', 'files':[]});
     }
     else {
-        let parts = dir.split(/[\/|\\]/g);
-        let title = parts[parts.length-1]
-        fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files) => {
-            let files1 = files;
-            if (req.session.showfolder_desc) {
-                files1 = files.reverse();
-            }
-            res.render('showfolder', {'title':title, 'message':'画像をクリックしてファイルリストを作成できます。', 'dir':dir, 'files':files1});
+        mysql.getValue(`SELECT id FROM Pictures WHERE path='${dir}'`, (id) => {
+            let parts = dir.split(/[\/|\\]/g);
+            let title = parts[parts.length-1]
+            fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files) => {
+                let files1 = files;
+                if (req.session.showfolder_desc) {
+                    files1 = files.reverse();
+                }
+                res.render('showfolder', {'title':title, 'message':'画像をクリックしてファイルリストを作成できます。', 'dir':dir, 'files':files1, 'id':id});
+            });    
         });
     }
 });

@@ -86,7 +86,8 @@ function showResults(req, res) {
       else {
         abin = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
       }
-      albums.push([row.id, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);
+      let aid = `<a href="/modify_album?id=${row.id}" target="_blank">${row.id}</a>`;
+      albums.push([aid, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);
     }
   });
 }
@@ -113,8 +114,18 @@ router.get('/reverse', function(req, res, next) {
 
 /* アルバムグループの指定 */
 router.get('/groupname', function(req, res, next) {
-  req.session.groupname = req.query.name;
-  showResults(req, res);
+  let name = req.query.name;
+  let mark = req.query.mark;
+  req.session.groupname = name;
+  if (mark == undefined || mark == "picture") {
+    showResults(req, res);
+  }
+  else if (mark == "video") {
+    res.redirect("/video/groupname?name=" + name);
+  }
+  else {
+    res.render('showInfo', {title:"エラー", message:"不正な分類マークです。" + mark, icon:"cancel.png", link:null});
+  }
 });
 
 /* 画像ファイルを送る。*/
@@ -122,6 +133,19 @@ router.get("/getimage", function(req, res) {
   res.sendFile(req.query.path);
 });
 
+/* アルバムグループ一覧を返す。*/
+router.get('/album_group/:mark', function(req, res) {
+  let mark = req.params.mark;
+  let groups = [];
+  mysql.query(`SELECT DISTINCT groupname AS g FROM Album WHERE mark='${mark}'`, (row) => {
+    if (row == null) {
+      res.json(groups);
+    }
+    else {
+      groups.push(row.g);
+    }
+  });
+});
 
 
 /* エクスポート */

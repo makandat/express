@@ -9,7 +9,7 @@ var dt = require('./DateTime.js');
 var fso = require('./FileSystem.js');
 const LIMIT = 200;  // 1ページの表示数
 
-const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM Videos GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album WHERE mark='video'";
+const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM Videos GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album";
 
 /* package.json からバージョン番号を得る。*/
 function getVersion() {
@@ -28,7 +28,7 @@ function makeSelect(req) {
       // 降順
       orderby = " ORDER BY id DESC";
       if (req.session.groupname == "ALL") {
-        where = "";
+        where = " WHERE mark='video'";
       }
       else if (req.session.groupname == "NONAME") {
         where = ` WHERE mark='video' AND (groupname = '' OR groupname IS NULL)`;
@@ -238,6 +238,7 @@ router.get('/find', function(req, res, next) {
 /* アルバムグループの指定 */
 router.get('/groupname', function(req, res, next) {
   req.session.groupname = req.query.name;
+  req.session.desc = false;
   showAlbum(req, res);
 });
 

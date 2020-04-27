@@ -58,7 +58,7 @@
     <% for (let album of albums) { %>
       <tr>
         <% for (let i = 0; i < album.length; i++) { %>
-          <% if (i == 1 || i == 4) { %>
+          <% if (i == 0 || i == 1 || i == 4) { %>
             <td><%- album[i] %></td>          
           <% } else { %>
             <td><%= album[i] %></td>

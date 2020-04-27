@@ -294,6 +294,7 @@ async function showResults(res, p = {}) {
   let results = [];
   mysql.query(sql, (row)=>{
     if (row != null) {
+      let aid = `<a href="/modify_folder?id=${row.id}" target="_blank">${row.id}</a>`;
       let atitle = `<a href="/showfolder/?path=${row.path}" target="_blank">${row.title}</a>`;
       let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
       let afav = `<a href="/pictures/countup?id=${row.id}">${row.fav}</a>`;
@@ -304,7 +305,7 @@ async function showResults(res, p = {}) {
       else {
         athumb = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
       }
-      results.push([row.id, atitle, acreator, row.path, row.mark, row.info, afav, row.count, athumb, row.DT]);
+      results.push([aid, atitle, acreator, row.path, row.mark, row.info, afav, row.count, athumb, row.DT]);
     }
     else {
       let message = `テーブル ${tableName} の行数=${rowCount}, id の最小値=${minid}, id の最大値=${maxid}, sn の最大値=${maxsn}`;

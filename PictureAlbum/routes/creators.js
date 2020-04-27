@@ -72,11 +72,12 @@ router.get('/', function(req, res, next) {
   let results = [];
   mysql.query(sql, (row) => {
     if (row == null) {
-      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results});
+      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results, 'checked0':'', 'checked1':'checked'});
     }
     else {
       let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
-      results.push([row.id, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
+      let aid = `<a href="/creators/modify_creator?id=${row.id}">${row.id}</a>`;
+      results.push([aid, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
     }
   });
 });
@@ -84,7 +85,16 @@ router.get('/', function(req, res, next) {
 
 /* 作者の追加・更新 */
 router.get('/modify_creator', function(req, res) {
-  res.render('modify_creator', {'message':'id が空欄の場合は追加、数の場合は更新となります。', 'id':'', 'creator':'', 'marks':'', 'info':'', 'fav':'0', 'refcount':'0', 'titlecount':'0'});
+  if (req.query.id) {
+    let id = req.query.id;
+    let sql = `SELECT * FROM Creators WHERE id=${id}`;
+    mysql.getRow(sql, (row) => {
+      res.render('modify_creator', {'message':'更新モードです。', 'id':row.id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount});
+    });
+  }
+  else {
+    res.render('modify_creator', {'message':'id が空欄の場合は追加、数の場合は更新となります。', 'id':'', 'creator':'', 'marks':'', 'info':'', 'fav':'0', 'refcount':'0', 'titlecount':'0'});
+  }
 });
 
 /* 作者の追加・更新 POST  */
@@ -113,11 +123,24 @@ router.get('/confirm_creator', function(req, res) {
 
 /* 降順で表示 */
 router.get('/desc', function(req, res) {
-  let sql = "SELECT * FROM Creators ORDER BY creator DESC";
+  let sort = "id";
+  if (req.query.sort) {
+    sort = req.query.sort;
+  }
+  let sql = `SELECT * FROM Creators ORDER BY ${sort} DESC`;
   let results = [];
   mysql.query(sql, (row) => {
     if (row == null) {
-      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results});
+      let checked0, checked1;
+      if (sort == "id") {
+        checked0 = "checked";
+        checked1 = "";
+      }
+      else {
+        checked0 = "";
+        checked1 = "checked";
+      }
+      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results, 'checked0':checked0, 'checked1':checked1});
     }
     else {
       let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
@@ -128,11 +151,24 @@ router.get('/desc', function(req, res) {
 
 /* 昇順で表示 */
 router.get('/asc', function(req, res) {
-  let sql = "SELECT * FROM Creators ORDER BY creator ASC";
+  let sort = "id";
+  if (req.query.sort) {
+    sort = req.query.sort;
+  }
+  let sql = `SELECT * FROM Creators ORDER BY ${sort} ASC`;
   let results = [];
   mysql.query(sql, (row) => {
+    let checked0, checked1;
+    if (sort == "id") {
+      checked0 = "checked";
+      checked1 = "";
+    }
+    else {
+      checked0 = "";
+      checked1 = "checked";
+    }
     if (row == null) {
-      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results});
+      res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results, 'checked0':checked0, 'checked1':checked1});
     }
     else {
       let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;

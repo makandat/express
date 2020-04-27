@@ -183,7 +183,14 @@ function confirmData(req, res) {
 /* ハンドラ */
 /*  デフォルトのハンドラ */
 router.get('/', function(req, res, next) {
-  res.render("modify_picture", {"title": PAGE_TITLE, "message": "", "id": "", "album": 0, "name": "", "creator":"", "path": "", "mark": "", "info": "", "fav": 0, "bindata": 0, "picturesid":0});
+  if (req.query.id) {
+    mysql.getRow(`SELECT * FROM PictureAlbum WHERE id=${req.query.id}`, (row) => {
+      res.render("modify_picture", {"title": PAGE_TITLE, "message": "", "id": row.id, "album": row.album, "name": row.title, "creator": row.creator, "path": row.path, "mark": row.mark, "info": row.info, "fav": row.fav, "bindata": row.bindata, "picturesid":row.picturesid});
+    });
+  }
+  else {
+    res.render("modify_picture", {"title": PAGE_TITLE, "message": "", "id": "", "album": 0, "name": "", "creator":"", "path": "", "mark": "", "info": "", "fav": 0, "bindata": 0, "picturesid":0});
+  }
 });
 
 /* フォームデータを受け取る。*/
