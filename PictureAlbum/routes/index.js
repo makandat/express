@@ -75,7 +75,7 @@ function showResults(req, res) {
             albumgroups.push(row.grpname);
           }
         }
-      });  
+      });
     }
     else {
       let hid = `<a href="/pictalbum/?album=${row.id}" target="_blank">${row.name}</a>`;
@@ -101,7 +101,7 @@ router.get('/', function(req, res, next) {
   else {
     req.session.desc = false;
     req.session.groupname = "ALL";
-    showResults(req, res);  
+    showResults(req, res);
   }
 });
 
@@ -115,6 +115,7 @@ router.get('/reverse', function(req, res, next) {
 /* アルバムグループの指定 */
 router.get('/groupname', function(req, res, next) {
   let name = req.query.name;
+  name = name == '[無名]' ? 'NONAME' : name;
   let mark = req.query.mark;
   req.session.groupname = name;
   if (mark == undefined || mark == "picture") {

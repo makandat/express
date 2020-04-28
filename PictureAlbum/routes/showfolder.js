@@ -78,8 +78,10 @@ router.get('/', function(req, res, next) {
                 if (req.session.showfolder_desc) {
                     files1 = files.reverse();
                 }
-                res.render('showfolder', {'title':title, 'message':'画像をクリックしてファイルリストを作成できます。', 'dir':dir, 'files':files1, 'id':id});
-            });    
+                mysql.execute(`CALL IncreaseCount(${id})`, () => {
+                    res.render('showfolder', {'title':title, 'message':'画像をクリックしてファイルリストを作成できます。', 'dir':dir, 'files':files1, 'id':id});
+                });
+            });
         });
     }
 });

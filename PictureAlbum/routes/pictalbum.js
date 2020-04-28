@@ -56,7 +56,7 @@ async function showContent(req, res, picturesid=undefined) {
       default:
         showDetails(req, res, albumName);
         break;
-    }  
+    }
   }
 }
 
@@ -68,7 +68,7 @@ function showDetails(req, res, albumName="") {
   let menu1 = "none";
   mysql.query(sql, (row) =>{
     if (row == null) {
-      let message = "アルバム=" + albumName;
+      let message = `アルバム id=${req.session.album}, name=${albumName}`;
       if (albumName == "") {
         message = "";
         menu0 = "none";
@@ -87,7 +87,7 @@ function showDetails(req, res, albumName="") {
         atitle = `<a href="/pictalbum/pictlist?picturesid=${row.picturesid}" target="_blank">${row.title}</a>`;
       }
       results.push([aid, row.album, atitle, apath, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT]);
-    } 
+    }
   });
 }
 
@@ -107,7 +107,7 @@ function showDetailAll(req, res) {
   mysql.query(sql, (row) =>{
     if (row == null) {
       let message = "sn =" + req.session.sn;
-      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": message, "menu0":"none", "menu1":"block" });
+      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": `アルバム name=${albumName}`, "menu0":"none", "menu1":"block" });
     }
     else {
       let aid = `<a href="/modify_picture?id=${row.id}" target="_blank">${row.id}</a>`;
@@ -120,7 +120,7 @@ function showDetailAll(req, res) {
         atitle = `<a href="/pictalbum/pictlist?picturesid=${row.picturesid}" target="_blank">${row.title}</a>`;
       }
       results.push([aid, row.album, atitle, apath, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT]);
-    } 
+    }
   });
 }
 
@@ -130,12 +130,12 @@ function showPictList(req, res, albumName, picturesid=undefined) {
   let results = [];
   mysql.query(sql, (row) =>{
     if (row == null) {
-      res.render('pictalbum_pictlist', { "title": `画像アルバム (${albumName})`, "results": results, "message": "アルバム=" + albumName });
+      res.render('pictalbum_pictlist', { "title": `画像アルバム (${albumName})`, "results": results, "message": `アルバム id=${req.session.album}, name=${albumName}` });
     }
     else {
       let dir = path_module.dirname(row.path);
       results.push([row.id, row.album, row.title, row.path, row.creator, row.info, row.fav, row.bindata, row.picturesid, row.DT, dir]);
-    } 
+    }
   });
 }
 
@@ -145,7 +145,7 @@ function showThumbs(req, res, albumName) {
   let results = [];
   mysql.query(sql, (row) =>{
     if (row == null) {
-      res.render('pictalbum_thumbs', { "title": `画像アルバム (${albumName})`, "results": results, "message": "アルバム=" + albumName });
+      res.render('pictalbum_thumbs', { "title": `画像アルバム (${albumName})`, "results": results, "message": `アルバム id=${req.session.album}, name=${albumName}` });
     }
     else {
       let picturesid;
@@ -154,11 +154,11 @@ function showThumbs(req, res, albumName) {
       else
         picturesid = row.picturesid;
       results.push([row.id, row.album, row.title, row.path, row.creator, row.info, row.fav, row.bindata, picturesid, row.DT]);
-    } 
+    }
   });
 }
 
-  
+
 /* SELECT 文を作成する。*/
 function makeSelect(req, album, picturesid=undefined) {
   let sql = SELECT0;
@@ -228,7 +228,7 @@ router.get('/pictlist', function(req, res, next) {
 /* サムネール一覧表示 */
 router.get('/thumbs', function(req, res, next) {
   req.session.state = "thumbs";
-  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));  
+  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* 詳細一覧表示 */
@@ -245,76 +245,50 @@ router.get('/details', function(req, res, next) {
 /* 先頭のページ */
 router.get('/first', function(req, res, next) {
   if (req.session.desc) {
-    req.session.sn = 1000000;
+    mysql.getValue("SELECT max(sn) FROM PictureAlbum", (maxSN) => {
+      req.session.sn = maxSN - LIMIT + 1;
+      showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+    });
   }
   else {
     req.session.sn = 0;
+    showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
-  showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
 });
 
 /* 前のページ */
 router.get('/prev', function(req, res, next) {
-  let sn = parseInt(req.session.sn);
   if (req.session.desc) {
-    mysql.getValue("SELECT max(sn) FROM PictureAlbum", (n) => {
-      if (sn + LIMIT > n) {
-        sn = n - LIMIT;
-        if (sn < 0) {
-          sn = LIMIT;
-        }
-      }
-      else {
-        sn += LIMIT;
-      }
-      req.sessionsn = sn;
-      showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
-    });
+    req.session.sn += LIMIT;
+    showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
-    sn -= LIMIT;
-    if (sn < 0) {
-      sn = 0;
-    }
+    req.session.sn -= LIMIT;
     showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
-  }  
+  }
 });
 
 /* 次のページ */
 router.get('/next', function(req, res, next) {
-  let sn = parseInt(req.session.sn);
   if (req.session.desc) {
-    sn -= LIMIT;
-    if (sn < 0) {
-      sn = 0;
-    }
-    req.session.sn = sn;
+    req.session.sn -= LIMIT;
     showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
-    mysql.getValue("SELECT max(sn) FROM PictureAlbum", (n) => {
-      if (sn + LIMIT > n) {
-        sn = n >= LIMIT ? n - LIMIT : 0;
-      }
-      else {
-        sn += LIMIT;
-      }
-      req.session.sn = sn;
-      showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
-    });
-  }  
+    req.session.sn += LIMIT;
+    showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
+  }
 });
 
 /* 最後のページ */
 router.get('/last', function(req, res, next) {
   if (req.session.desc) {
-    req.session.sn = 0;
+    req.session.sn = LIMIT;
     showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
   }
   else {
     mysql.getValue("SELECT max(sn) FROM PictureAlbum", (n) => {
-      n -= LIMIT;
-      req.session.sn = n;
+      req.session.sn = n - LIMIT + 1;
       showContent(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
     });
   }

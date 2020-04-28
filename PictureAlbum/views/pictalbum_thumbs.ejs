@@ -6,6 +6,20 @@
         <title><%= title %></title>
         <link rel="stylesheet" href="/css/style.css" />
         <script src="/js/jquery.min.js"></script>
+        <style>
+            figcaption {
+                font-size: smaller;
+                text-align:center;
+            }
+            figure {
+                display:inline-block;
+                width:12%;
+                margin-bottom:12px;
+            }
+            img.thumb {
+                width:100%;
+            }
+        </style>
     </head>
 
     <body>
@@ -26,7 +40,7 @@
         <div>
             <% for (let row of results) { %>
                 <% let srclink = "/getimage?path=" + row[3]; %>
-                <a href="/showfolder/navinit/?path=<%= row[3] %>" target="_blank"><img src="<%- srclink %>" alt="<%= row[3] %>" style="width:18%;margin-bottom:12px;" /></a>
+                <a href="/showfolder/navinit/?path=<%= row[3] %>" target="_blank"><figure><img src="<%- srclink %>" alt="<%= row[3] %>" class="thumb" /><figcaption>id: <%= row[0] %></figcaption></figure></a>
             <% } %>
         </div>
         <!-- フッター -->

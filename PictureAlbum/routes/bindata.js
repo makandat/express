@@ -20,7 +20,7 @@ function showBINDATAList(req, res) {
       let aid = `<a href="/bindata/modify_bindata?id=${row.id}" target="_blank">${row.id}</a>`;
       let aextract = `<img src="/bindata/extract/${row.id}" alt="id=${row.id}" />`;
       results.push([aid, aextract, row.title, row.original, row.datatype, row.info, row.size]);
-    }  
+    }
   });
 }
 
@@ -59,18 +59,30 @@ router.get('/', function(req, res, next) {
 /* 逆順で表示 */
 router.get('/reverse', function(req, res, next) {
   req.session.desc = !req.session.desc;
-  showBINDATAList(req, res);
+  if (req.session.desc) {
+    mysql.getValue("SELECT max(sn) FROM BINDATA", (maxSN) => {
+      req.session.sn = maxSN;
+      showBINDATAList(req, res);
+    });
+  }
+  else {
+    req.session.sn = 0;
+    showBINDATAList(req, res);
+  }
 });
 
 /* 先頭のページへ */
 router.get('/first', function(req, res, next) {
   if (req.session.desc) {
-    req.session.sn = 1000000;
+    mysql.getValue("SELECT max(sn) FROM BINDATA", (maxSN) => {
+      req.session.sn = maxSN;
+      showBINDATAList(req, res);
+    });
   }
   else {
     req.session.sn = 0;
+    showBINDATAList(req, res);
   }
-  showBINDATAList(req, res);
 });
 
 /* 前のページへ */
@@ -103,7 +115,7 @@ router.get('/last', function(req, res, next) {
   }
   else {
     mysql.getValue("SELECT max(sn) FROM BINDATA", (n) =>{
-      req.session.sn = n - LIMIT;
+      req.session.sn = n - LIMIT + 1;
       showBINDATAList(req, res);
     });
   }
@@ -180,7 +192,7 @@ router.get('/extract/:id', function(req, res, next){
         type = "image/gif";
       }
       res.set("Content-Type", type);
-      res.send(row.data);  
+      res.send(row.data);
     }
   });
 });

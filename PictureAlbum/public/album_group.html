@@ -19,7 +19,13 @@
             li.list {
                 display:inline-block;
                 font-size:12pt;
-                width:120px;
+                width:150px;
+                height:150px;
+            }
+            figcaption {
+                display:block;
+                text-align:center;
+                font-size:smaller;
             }
         </style>
     </head>
@@ -33,7 +39,7 @@
             <!-- 画像 -->
             <h2>画像グループ</h2>
             <div class="app">
-                <ul v-html="picture_list">          
+                <ul v-html="picture_list">
                 </ul>
             </div>
             <br />
@@ -41,13 +47,13 @@
             <!-- ビデオ -->
             <h2>ビデオグループ</h2>
             <div class="app">
-                <ul v-html="video_list">          
+                <ul v-html="video_list">
                 </ul>
             </div>
         </div>
 
         <!-- スクリプト -->
-        <script>           
+        <script>
             var app = new Vue({
                 el: "#app",
                 data: {
@@ -59,16 +65,18 @@
                         let p1 = (await fetch("/album_group/picture")).json();
                         p1.then(
                             (xgroups) => {
-                                for (let row of xgroups) {
-                                    app.picture_list += `<li class="list"><a href="/groupname?name=${row}&mark=picture"><img src="/img/photo.png"><br />${row}</a></li>`;
+                                for (let g of xgroups) {
+                                    g = g == null ? "[無名]" : g;
+                                    app.picture_list += `<li class="list"><a href="/groupname?name=${g}&mark=picture"><figure><img src="/img/picture0.png" alt="画像"><figcaption>${g}</figcaption><figure></a></li>`;
                                 }
                             }
                         );
                         let p2 = (await fetch("/album_group/video")).json();
                         p2.then(
                             (xgroups) => {
-                                for (let row of xgroups) {
-                                    app.video_list += `<li class="list"><a href="/groupname?name=${row}&mark=video"><img src="/img/video.png"><br />${row}</a></li>`;
+                                for (let g of xgroups) {
+                                    g = g == null ? "無名" : g;
+                                    app.video_list += `<li class="list"><a href="/groupname?name=${g}&mark=video"><figure><img src="/img/video0.png" alt="ビデオ"><br /><figcaption>${g}</figcaption><figure></a></li>`;
                                 }
                             }
                         );
@@ -80,7 +88,7 @@
         <p>&nbsp;</p>
         <p style="text-align:center;"><a href="#">TOP</a></p>
         <p>&nbsp;</p>
-        <p>&nbsp;</p>    
+        <p>&nbsp;</p>
 
     </body>
 </html>

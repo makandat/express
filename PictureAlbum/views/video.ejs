@@ -30,6 +30,7 @@
     <h1><%= title %><br /><span class="version">Version <%= version %></span></h1>
     <div class="menu">
       <a href="/video"><img src="/img/refresh2.png" /> 表示リセット</a>&nbsp;/&nbsp;
+      <a href="/album_group.html"><img src="/img/thumbs2.png" /> アルバムグループ</a>&nbsp;/&nbsp;
       <a href="/modify_album?mark=video" target="_blank" title="Album テーブルへの追加・更新"><img src="/img/form.png" /> アルバムの作成・修正</a>&nbsp;/&nbsp;
       <a href="/video/modify_video" target="_blank" title="Videos テーブルへの追加・更新"><img src="/img/form.png" /> ビデオの追加・修正</a>&nbsp;/&nbsp;
       <a href="/video/reverse"><img src="/img/reverse2.png" /> 逆順で表示</a>&nbsp;/&nbsp;
@@ -56,7 +57,7 @@
       <tr>
         <% for (let i = 0; i < album.length; i++) { %>
           <% if (i == 1 || i == 4) { %>
-            <td><%- album[i] %></td>          
+            <td><%- album[i] %></td>
           <% } else { %>
             <td><%= album[i] %></td>
           <% } %>
@@ -71,4 +72,3 @@
     <p>&nbsp;</p>
     </body>
   </html>
-  

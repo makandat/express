@@ -323,7 +323,7 @@ function favincrease(res, id) {
     else {
       mysql.execute(`CALL increaseFav(${id}, '${tableName}')`, ()=>{
         showInfo(res, "お気に入り数", "お気に入り数を１増やしました。表示は自動的に更新されないのでリロードしてください。", "info.png", null);
-      });    
+      });
     }
   });
 };
@@ -398,7 +398,7 @@ router.get('/jump/:id', function(req, res, next) {
       sql = `SELECT sn FROM ${tableName} WHERE id=${pid}`;
       mysql.getValue(sql, (n)=>{
         req.session.sn = n;
-        showResults(res, {'mark':req.session.mark, 'sn':n, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));  
+        showResults(res, {'mark':req.session.mark, 'sn':n, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
       });
     }
   });
@@ -557,14 +557,14 @@ router.get('/last', function(req, res, next) {
       case "2":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
-          session.sn = n - LIMIT;
+          req.session.sn = n - LIMIT + 1;
           showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
         });
         break;
       case "3":
         sql = `SELECT max(sn) FROM ${tableName}`;
         mysql.getValue(sql, (n)=>{
-          req.session.sn = n - LIMIT;
+          req.session.sn = n - LIMIT + 1;
           showResults(res, {'mark':req.session.mark, 'sn':req.session.sn, 'order':req.session.order}).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
         });
         break;
@@ -582,7 +582,7 @@ router.get('/last', function(req, res, next) {
 });
 
 /* /showfolder?path=dir: タイトルをクリックしたときそのフォルダの画像一覧表示 */
-//    To showfolderRouter 
+//    To showfolderRouter
 
 /* /selectcreator?creator=name: 作者をクリックしたとき、その作者の画像リスト */
 router.get('/selectcreator', function(req, res, next) {

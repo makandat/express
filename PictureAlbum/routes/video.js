@@ -23,7 +23,7 @@ function makeSelect(req) {
     let sql = SELECT0;
     let where;
     let orderby;
-  
+
     if (req.session.desc) {
       // 降順
       orderby = " ORDER BY id DESC";
@@ -50,9 +50,9 @@ function makeSelect(req) {
         where = ` WHERE mark = 'video' AND groupname = '${req.session.groupname}'`;
       }
     }
-  
+
     sql += (where + orderby + ` LIMIT ${LIMIT}`);
-    return sql;  
+    return sql;
 }
 
 /* アルバム一覧を表示 */
@@ -72,7 +72,7 @@ function showAlbum(req, res) {
             albumgroups.push(row.grpname);
           }
         }
-      });  
+      });
     }
     else {
       let hid = `<a href="/video/videoalbum/${row.id}" target="_blank">${row.name}</a>`;
@@ -85,7 +85,7 @@ function showAlbum(req, res) {
       }
       albums.push([row.id, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);
     }
-  }); 
+  });
 }
 
 /* ビデオ一覧表示 */
@@ -198,7 +198,7 @@ router.get('/download', function(req, res, next) {
   mysql.getValue(`SELECT id FROM Videos WHERE path='${path}'`, (id) => {
     mysql.execute(`CALL increaseVideoCount(${id})`, () => {
       res.sendFile(path);
-    });  
+    });
   });
 });
 
@@ -233,8 +233,8 @@ router.get('/find', function(req, res, next) {
 
   });
 });
-  
-  
+
+
 /* アルバムグループの指定 */
 router.get('/groupname', function(req, res, next) {
   req.session.groupname = req.query.name;
@@ -307,7 +307,7 @@ router.get('/next', function(req, res, next) {
         req.session.sn = maxSN - LIMIT;
       }
     }
-    showVideoList(req, res);  
+    showVideoList(req, res);
   });
 });
 
@@ -318,7 +318,7 @@ router.get('/last', function(req, res, next) {
       req.session.sn = LIMIT;
     }
     else {
-      req.session.sn = maxSN - LIMIT;
+      req.session.sn = maxSN - LIMIT + 1;
     }
     showVideoList(req, res);
   });

@@ -33,6 +33,7 @@
             </div>
             <div class="form_row">
                 <input type="button"  id="button1" value=" 実行 " v-on:click="button1_click" />&nbsp;
+                <input type="button"  id="btnBindataId" value=" BINDATA テーブルの id を取得 " v-on:click="btnBindataId_click" />&nbsp;
                 <input type="button"  id="btnClear1" value=" クリア " v-on:click="btnClear1_click" />
             </div>
             <br />
@@ -65,6 +66,7 @@
             'use strict';
             /* サムネール画像ツール */
             const URL1 = "/tools/ins_bindata";
+            const URL11 = "/tools/bindata_maxid";
             var app1 = new Vue({
                 el: "#app1",
                 data: {
@@ -85,6 +87,10 @@
                     btnClear1_click: () => {
                         app1.path1 = "";
                         app1.message1 = "";
+                    },
+                    btnBindataId_click: async () => {
+                        let p = (await fetch(URL11)).text();
+                        p.then(n => app1.message1 = "BINDATA の最大 id は " + n + " です。").catch(err=>app1.message1 = "エラーを検出。");
                     }
                 }
             });

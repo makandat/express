@@ -13,7 +13,16 @@
         </div>
         <br />
         <div style="text-align:center;">
-            <video src="<%= source %>" controls></video>
+            <% var ext = source.split('.').pop(); %>
+            <% if (ext == 'gif') { %>
+                <img src="/getimage?path=<%= source %>">
+            <% } else if (ext == 'mp4' || ext == 'webm' || ext == 'ogv') { %>
+                <video id="player1" preload="none" autoplay loop controls muted>
+                    <source src="/video/download?path=<%= source %>" />
+                </video>    
+            <% } else { %>
+                <p class="message"><b>ERROR: ファイルタイプ <%= ext %> はサポートされません。</b></p> 
+            <% } %>
         </div>
         <p class="message"><%= message %></p>
         <p>&nbsp;</p>

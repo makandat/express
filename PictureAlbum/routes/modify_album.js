@@ -59,7 +59,7 @@ router.get('/', function(req, res, next) {
   if (req.query.id) {
     let sql = `SELECT * FROM Album WHERE id = ${req.query.id}`;
     mysql.getRow(sql, (row) => {
-      res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": row.id, "album": row.album, "mark": row.mark, "info": row.info, "bindata": row.bindata, "groupname": row.groupname});
+      res.render("modify_album", {"title": "アルバムの作成・修正", "message": "", "id": row.id, "album": row.name, "mark": row.mark, "info": row.info, "bindata": row.bindata, "groupname": row.groupname});
     });
   }
   else {

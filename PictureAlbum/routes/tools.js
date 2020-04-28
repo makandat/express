@@ -363,6 +363,14 @@ router.get('/ins_bindata3', (req, res) => {
     });    
 });
 
+/* BINDATA の最大 id を返す。*/
+router.get('/bindata_maxid', (req, res) => {
+    mysql.getValue("SELECT max(id) AS maxId FROM BINDATA", (maxId) => {
+        res.set('Content-Type', 'text/plain');
+        res.send(maxId.toString());
+    });
+});
+
 
 
 /* テーブルの表示・最新１００件 */
