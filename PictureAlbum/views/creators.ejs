@@ -13,7 +13,7 @@
 
         function creators_desc() {
             let sort = $("input[name='sort']:checked").val();
-            location.href = "/creators/desc?sort=" + sort;            
+            location.href = "/creators/desc?sort=" + sort;
         }
     </script>
 </head>
@@ -26,7 +26,7 @@
       並べ替えのキー <input type="radio" name="sort" value="id" <%= checked0 %> /> 番号 , <input type="radio" name="sort" value="creator" <%= checked1 %> /> 作者名&nbsp;/&nbsp;
       <a href="javascript:creators_desc()">降順で表示</a>&nbsp;/&nbsp;
       <a href="javascript:creators_asc()">昇順で表示</a>&nbsp;/&nbsp;
-      <a href="/tools.html" target="_blank"><img src="/img/tool2.png"> ツール</a>&nbsp;/&nbsp;
+      <a href="/tool.html" target="_blank"><img src="/img/tool2.png"> ツール</a>&nbsp;/&nbsp;
       <a href="/help.html" target="_blank"><img src="/img/question2.png"> ヘルプ</a>
     </div>
     <br />

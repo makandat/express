@@ -32,7 +32,7 @@
                 <label>ファイル一覧 (クリップボードから貼り付ける)<br /><textarea v-model="filelist" cols="150" rows="12"></textarea></label>
             </div>
             <div class="form_row">
-                <label>アルバム番号<br /><input type="text" v-model="album" size="10" placeholder="1234" /></label>
+                <label>アルバム番号<br /><input type="number" v-model="album" size="10" placeholder="1234" /></label>
             </div>
             <div class="form_row">
                 対象のテーブル
@@ -57,7 +57,7 @@
                 フォルダのパス<br /><input type="text" v-model="folder" size="150" />
             </div>
             <div class="form_row">
-                アルバム番号<br /><input type="text" v-model="album" size="10" placeholder="1234" />
+                アルバム番号<br /><input type="number" v-model="album" size="10" placeholder="1234" />
             </div>
             <div class="form_row">
                 対象のテーブル

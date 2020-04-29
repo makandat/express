@@ -13,7 +13,7 @@ function checkCreator(creator) {
     mysql.getValue(`SELECT count(*) FROM Creators WHERE creator='${creator}'`, (v) => {
       resolve(v > 0);
     });
-  }); 
+  });
 }
 
 /* 次の id を得る。*/
@@ -93,7 +93,7 @@ router.get('/modify_creator', function(req, res) {
     });
   }
   else {
-    res.render('modify_creator', {'message':'id が空欄の場合は追加、数の場合は更新となります。', 'id':'', 'creator':'', 'marks':'', 'info':'', 'fav':'0', 'refcount':'0', 'titlecount':'0'});
+    res.render('modify_creator', {'message':'id が空欄の場合は追加、数の場合は更新となります。', 'id':'', 'creator':'', 'marks':'', 'info':'', 'fav':'0', 'refcount':'0', 'titlecount':'1'});
   }
 });
 
@@ -117,7 +117,7 @@ router.get('/confirm_creator', function(req, res) {
   else {
     mysql.getRow("SELECT * FROM Creators WHERE id = " + id, (row) => {
       res.render('modify_creator', {'message':`id ${id} が検索されました。`, 'id':id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount})
-    });    
+    });
   }
 });
 
@@ -180,4 +180,3 @@ router.get('/asc', function(req, res) {
 
 /* エクスポート */
 module.exports = router;
-  

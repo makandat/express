@@ -41,7 +41,7 @@ function makeSelect(req) {
       // 昇順
       orderby = " ORDER BY id ASC";
       if (req.session.groupname == "ALL") {
-        where = "";
+        where = " WHERE mark = 'video'";
       }
       else if (req.session.groupname == "NONAME") {
         where = ` WHERE mark = 'video' AND (groupname = '' OR groupname IS NULL)`;
@@ -83,7 +83,8 @@ function showAlbum(req, res) {
       else {
         abin = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
       }
-      albums.push([row.id, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);
+      let aid = `<a href="/modify_album?id=${row.id}">${row.id}</a>`;
+      albums.push([aid, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);
     }
   });
 }
@@ -122,13 +123,14 @@ function showVideoList(req, res) {
         res.render('videolist', {'title':title, 'message':'', 'results':results, 'menu0':'block', 'menu1':'none'})
     }
     else {
+      let aid = `<a href="/video/modify_video?id=${row.id}">${row.id}</a>`;
       let afav = `<a href="/video/increase_fav">${row.count}</a>`;
       let abindata = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
       if (row.bindata == "" || row.bindata == 0) {
         abindata = "";
       }
       let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
-      results.push([row.id, row.album, atitle, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
+      results.push([aid, row.album, atitle, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
     }
   });
 }
@@ -145,13 +147,14 @@ function showVideosInAlbum(req, res) {
         res.render('videoalbum', {'title':`(${album}) ${albumName}`, 'message':'', 'results':results});
       }
       else {
+        let aid = `<a href="/video/modify_video?id=${row.id}">${row.id}</a>`;
         let apath = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.path}</a>`;
         let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
         let afav = `<a href="/video/increase_fav/${row.id}">${row.fav}</a>`;
         let aextract = `<img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" />`;
         if (row.bindata == "" || row.bindata == null)
           aextract = "";
-        results.push([row.id, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, aextract]);
+        results.push([aid, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, aextract]);
       }
     });
   });
@@ -386,7 +389,14 @@ async function updateVideo(req, res) {
 
 /* ビデオの追加・更新 */
 router.get('/modify_video', function(req, res, next) {
+  if (req.query.id) {
+    mysql.getRow(`SELECT * FROM Videos WHERE id=${req.query.id}`, (row) => {
+      res.render('modify_video', {'message':'', 'id':row.id, 'album':row.name, 'title':row.title, 'path':row.path, 'creator':row.creator, 'series':row.series, 'mark':row.mark, 'info':row.info, 'fav':row.fav, 'bindata':row.bindata});
+    });
+  }
+  else {
     res.render('modify_video', {'message':'', 'id':'', 'album':'', 'title':'', 'path':'', 'creator':'', 'series':'', 'mark':'', 'info':'', 'fav':'0', 'bindata':'0'});
+  }
 });
 
 /* ビデオの追加・更新 POST */

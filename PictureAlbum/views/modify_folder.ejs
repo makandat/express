@@ -19,6 +19,8 @@
 
         $("#btnClear").click(() => {
           $("input[type='text']").val("");
+          $("#fav").val("0");
+          $("#bindata").val("0");
         });
       });
     </script>
@@ -67,11 +69,11 @@
       </div>
       <div class="form_row">
         お気に入り<br />
-        <input type="text" name="fav" id="fav" size="2" value="<%= fav %>" />
+        <input type="number" name="fav" id="fav" size="2" value="<%= fav %>" />
       </div>
       <div class="form_row">
         画像リンク<br />
-        <input type="text" name="bindata" id="bindata" size="20" value="<%= bindata %>" />
+        <input type="number" name="bindata" id="bindata" size="20" value="<%= bindata %>" />
       </div>
       <br />
       <div class="form_row">
