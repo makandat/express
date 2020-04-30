@@ -334,12 +334,34 @@ router.get('/ins_bindata', (req, res) => {
         path = path.replace(/\\/g, "/");
     }
     path = path.trim().replace(/'/g, "''");
-    child_process.exec("InsBINDATA " + path, (error, stdout, stderr) => {
+    let cmd = "InsBINDATA " + path;
+    child_process.exec(cmd, (error, stdout, stderr) => {
         if (error) {
             res.send("エラーを検出。");
         }
         else {
-            res.send("成功 " + path);
+            mysql.getValue("SELECT max(id) FROM BINDATA", (maxId) => {
+                res.send("挿入成功 path:" + path + ", id:" + maxId);
+            });
+        }
+    });    
+});
+
+
+/* BINDATA テーブルで指定された id の画像データを更新する。*/
+router.get('/upd_bindata', (req, res) => {
+    let {path, id} = req.query;
+    if (os.platform() == "win32") {
+        path = path.replace(/\\/g, "/");
+    }
+    path = path.trim().replace(/'/g, "''");
+    let cmd = `UpdateBINDATA ${path} ${id}`;
+    child_process.exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+            res.send("エラーを検出。");
+        }
+        else {
+            res.send("更新成功 path:" + path + ", id:" + id);
         }
     });    
 });
@@ -362,6 +384,7 @@ router.get('/ins_bindata3', (req, res) => {
         }
     });    
 });
+
 
 /* BINDATA の最大 id を返す。*/
 router.get('/bindata_maxid', (req, res) => {

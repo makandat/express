@@ -41,7 +41,7 @@ async function insert_creator(req, res) {
   creator = creator.replace(/'/g, "''");
   let sql = `INSERT INTO Creators VALUES(${id}, '${creator}', '${marks}', '${info}', ${fav}, ${refcount}, ${titlecount})`;
   mysql.execute(sql, () => {
-    res.render('modify_creator', {'message':'作者 ' + creator + " を追加しました。", 'id':id, 'creator':creator, 'marks':marks, 'info':info, 'fav':fav, 'refcount':refcount, 'titlecount':titlecount});
+    res.render('modify_creator', {'message':'作者 ' + creator + " を追加しました。", 'id':id, 'creator':creator, 'marks':marks, 'info':info, 'fav':fav, 'refcount':refcount, 'titlecount':titlecount, 'modify':false});
   });
 }
 
@@ -60,7 +60,7 @@ async function update_creator(req, res) {
   info = info.replace(/'/g, "''");
   let sql = `UPDATE Creators SET id='${id}', marks='${marks}', info='${info}', fav=${fav}, refcount=${refcount}, titlecount=${titlecount} WHERE creator = '${creator}'`;
   mysql.execute(sql, () => {
-    res.render('modify_creator', {'message':'作者 ' + creator + " を更新しました。", 'id':id, 'creator':creator, 'marks':marks, 'info':info, 'fav':fav, 'refcount':refcount, 'titlecount':titlecount});
+    res.render('modify_creator', {'message':'作者 ' + creator + " を更新しました。", 'id':id, 'creator':creator, 'marks':marks, 'info':info, 'fav':fav, 'refcount':refcount, 'titlecount':titlecount, 'modify':true});
   });
 
 }
@@ -89,11 +89,11 @@ router.get('/modify_creator', function(req, res) {
     let id = req.query.id;
     let sql = `SELECT * FROM Creators WHERE id=${id}`;
     mysql.getRow(sql, (row) => {
-      res.render('modify_creator', {'message':'更新モードです。', 'id':row.id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount});
+      res.render('modify_creator', {'message':'更新モードです。', 'id':row.id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount, 'modify':true});
     });
   }
   else {
-    res.render('modify_creator', {'message':'id が空欄の場合は追加、数の場合は更新となります。', 'id':'', 'creator':'', 'marks':'', 'info':'', 'fav':'0', 'refcount':'0', 'titlecount':'1'});
+    res.render('modify_creator', {'message':'id が空欄の場合は追加、数の場合は更新となります。', 'id':'', 'creator':'', 'marks':'', 'info':'', 'fav':'0', 'refcount':'0', 'titlecount':'1', 'modify':false});
   }
 });
 
@@ -116,7 +116,7 @@ router.get('/confirm_creator', function(req, res) {
   }
   else {
     mysql.getRow("SELECT * FROM Creators WHERE id = " + id, (row) => {
-      res.render('modify_creator', {'message':`id ${id} が検索されました。`, 'id':id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount})
+      res.render('modify_creator', {'message':`id ${id} が検索されました。`, 'id':row.id, 'creator':row.creator, 'marks':row.marks, 'info':row.info, 'fav':row.fav, 'refcount':row.refcount, 'titlecount':row.titlecount, 'modify':true})
     });
   }
 });

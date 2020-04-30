@@ -94,21 +94,21 @@ function showVideoList(req, res) {
   let album = req.query.album;
   let sn = req.session.sn;
   let results = [];
-  let sql = "SELECT v.id, concat(v.album, ':', a.name) AS album, v.title, v.path, v.creator, v.series, v.mark, v.info, v.fav, v.count, v.bindata FROM Videos v INNER JOIN album a ON v.album = a.id";
+  let sql = "SELECT id, album, title, path, creator, series, mark, info, fav, count, bindata FROM Videos";
   if (album == undefined) {
     if (req.session.desc) {
-      sql = sql + ` WHERE v.sn <= ${sn} ORDER BY v.id DESC LIMIT ${LIMIT}`;
+      sql = sql + ` WHERE sn <= ${sn} ORDER BY id DESC LIMIT ${LIMIT}`;
     }
     else {
-      sql = sql + ` WHERE v.sn >= ${sn} ORDER BY v.id ASC LIMIT ${LIMIT}`;
+      sql = sql + ` WHERE sn >= ${sn} ORDER BY id ASC LIMIT ${LIMIT}`;
     }
   }
   else {
     if (req.session.desc) {
-      sql = sql +  `WHERE v.album = ${album} AND v.sn <= ${sn} ORDER BY v.id DESC`;
+      sql = sql +  `WHERE album = ${album} AND sn <= ${sn} ORDER BY id DESC`;
     }
     else {
-      sql = sql + ` WHERE v.album = ${album} AND v.sn >= ${sn} ORDER BY v.id ASC`;
+      sql = sql + ` WHERE album = ${album} AND sn >= ${sn} ORDER BY id ASC`;
     }
   }
   mysql.query(sql, (row) => {
@@ -120,12 +120,15 @@ function showVideoList(req, res) {
       else {
         title = 'ビデオ一覧 (album=' + album + ")";
       }
-        res.render('videolist', {'title':title, 'message':'', 'results':results, 'menu0':'block', 'menu1':'none'})
+      mysql.getRow("SELECT max(id) AS maxId, min(id) AS minId, count(id) AS countId FROM Videos", (row) => {
+        let message = `レコード数=${row.countId}, 最小 id = ${row.minId}, 最大 id = ${row.maxId}`;
+        res.render('videolist', {'title':title, 'message':message, 'results':results, 'menu0':'block', 'menu1':'none'});
+      });
     }
     else {
       let aid = `<a href="/video/modify_video?id=${row.id}">${row.id}</a>`;
       let afav = `<a href="/video/increase_fav">${row.count}</a>`;
-      let abindata = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
+      let abindata = `<figure><img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" /><figcaption>${row.bindata}</figcaption><figure>`;
       if (row.bindata == "" || row.bindata == 0) {
         abindata = "";
       }
@@ -151,7 +154,7 @@ function showVideosInAlbum(req, res) {
         let apath = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.path}</a>`;
         let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
         let afav = `<a href="/video/increase_fav/${row.id}">${row.fav}</a>`;
-        let aextract = `<img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" />`;
+        let aextract = `<figure><img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" /><figcaption>${row.bindata}</figcaption></figure>`;
         if (row.bindata == "" || row.bindata == null)
           aextract = "";
         results.push([aid, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, aextract]);
@@ -248,83 +251,109 @@ router.get('/groupname', function(req, res, next) {
 
 /* ビデオ一覧表示 */
 router.get('/videolist', function(req, res, next) {
+  if (req.query.id) {
+    mysql.getValue(`SELECT sn FROM Videos WHERE id=${req.query.id}`, (sn) => {
+      if (sn) {
+        req.session.sn = sn;
+        showVideoList(req, res);
+      }
+      else {
+        res.render('showInfo', {title:'エラー', message:'指定した id は存在しません。', icon:'cancel.png', link:null});
+      }
+    });
+  }
+  else {
     req.session.desc = true;
-    mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
-      req.session.sn = n;
+    mysql.getValue("SELECT max(sn) AS maxSN FROM Videos", (maxSN) => {
+      req.session.sn = maxSN;
       showVideoList(req, res);
     });
+  }
 });
 
 /* ビデオ一覧で逆順表示 */
 router.get('/reverse_list', function(req, res, next) {
   req.session.desc = ! req.session.desc;
   if (req.session.desc) {
-    mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
-      req.session.sn = n;
+    mysql.getValue("SELECT max(sn) AS maxSN FROM Videos", (maxSN) => {
+      req.session.sn = maxSN;
     });
   }
   else {
     req.session.sn = 0;
+    showVideoList(req, res);
   }
-  showVideoList(req, res);
 });
 
 /* ビデオ一覧 先頭へ */
 router.get('/first', function(req, res, next) {
   if (req.session.desc) {
-    req.session.sn = 1000000;
+    mysql.getValue("SELECT max(sn) AS maxSN FROM Videos", (maxSN) => {
+      req.session.sn = maxSN;
+      showVideoList(req, res);
+    });
   }
   else {
     req.session.sn = 0;
+    showVideoList(req, res);
   }
-  showVideoList(req, res);
 });
 
 /* ビデオ一覧 前へ */
 router.get('/prev', function(req, res, next) {
   if (req.session.desc) {
-    req.session.sn += LIMIT;
+    mysql.getValue("SELECT max(sn) AS maxSN FROM Videos", (maxSN) => {
+      if (req.session.sn + LIMIT > maxSN) {
+        req.session.sn = maxSN - LIMIT + 1;
+      }
+      else {
+        req.session.sn += LIMIT;
+      }
+      showVideoList(req, res);
+    });
   }
   else {
     req.session.sn -= LIMIT;
     if (req.session.sn < 0) {
       req.session.sn = 0;
     }
+    showVideoList(req, res);
   }
-  showVideoList(req, res);
 });
 
 
 /* ビデオ一覧 次へ */
 router.get('/next', function(req, res, next) {
-  mysql.getValue('SELECT max(sn) FROM Videos', (maxSN) => {
-    if (req.session.desc) {
-      req.session.sn -= LIMIT;
-      if (req.session.sn < 0) {
-        req.session.sn = 0;
-      }
+  if (req.session.desc) {
+    req.session.sn -= LIMIT;
+    if (req.session.sn < 0) {
+      req.session.sn = 0;
     }
-    else {
+    showVideoList(req, res);
+  }
+  else {
+    mysql.getValue('SELECT max(sn) FROM Videos', (maxSN) => {
       req.session.sn += LIMIT;
       if (maxSN < req.session.sn) {
         req.session.sn = maxSN - LIMIT;
       }
-    }
-    showVideoList(req, res);
-  });
+      showVideoList(req, res);
+    });
+  }
 });
 
 /* ビデオ一覧 最後へ */
 router.get('/last', function(req, res, next) {
-  mysql.getValue('SELECT max(sn) FROM Videos', (maxSN) => {
-    if (req.session.desc) {
-      req.session.sn = LIMIT;
-    }
-    else {
-      req.session.sn = maxSN - LIMIT + 1;
-    }
+  if (req.session.desc) {
+    req.session.sn = LIMIT;
     showVideoList(req, res);
-  });
+  }
+  else {
+    mysql.getValue('SELECT max(sn) FROM Videos', (maxSN) => {
+      req.session.sn = maxSN - LIMIT + 1;
+      showVideoList(req, res);
+    });
+  }
 });
 
 
