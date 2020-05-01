@@ -52,15 +52,8 @@ async function insertData(req, res) {
   }
   let path = req.body.path;
   let b = await fileExists(path);
-  try {
-    if (b == false) {
-      message = `データの挿入に失敗しました。パスはファイルでなければなりません。`;
-      res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
-      return;
-    }  
-  }
-  catch (e) {
-    message = `データの挿入に失敗しました。パスが存在しません。`;
+  if (b == false) {
+    message = `データの挿入に失敗しました。パスはファイルでなければなりません。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
     return;
   }
@@ -68,6 +61,10 @@ async function insertData(req, res) {
     path = path.replace(/\\/g, '/');
   }
   path = path.replace(/'/g, "''").trim();
+  if (path.includes('#') || path.includes('&')) {
+    res.render('showInfo', {'title':'エラー', 'message':'# や & がパスに含まれていますが使用できません。パス名を変更してください。', 'icon':'cancel.png', 'link':null});
+    return;
+  }
   let info = req.body.info.replace(/'/g, "''");
   let fav = req.body.fav;
   if (fav == "") {
@@ -100,7 +97,7 @@ async function insertData(req, res) {
     message = `データの挿入に成功しました。id = ${id+1}`;
     let sql = `INSERT INTO PictureAlbum(album, title, path, creator, info, fav, bindata, picturesid, date, sn) VALUES(${album}, '${name}', '${path}', '${creator}', '${info}', ${fav}, ${bindata}, ${picturesid}, CURRENT_DATE(), user.NextPictureAlbumSN())`;
     mysql.execute(sql, function() {
-      res.render("modify_picture", {"title": PAGE_TITLE, "message": message, "id": "", "album": album, "name": name, "creator": creator, "path": path, 
+      res.render("modify_picture", {"title": PAGE_TITLE, "message": message, "id": "", "album": album, "name": name, "creator": creator, "path": path,
       "info": info, "fav": fav, "bindata": bindata, "picturesid": picturesid});
     });
   }
@@ -134,7 +131,7 @@ async function updateData(req, res) {
     message = `データの更新に失敗しました。パスはファイルでなければなりません。`;
     res.render('showInfo', {'title':'エラー', 'message':message, 'icon':'cancel.png', 'link':null});
     return;
-  }  
+  }
   if (os.platform() == "win32") {
     path = path.replace(/\\/g, "/");
   }
@@ -174,7 +171,7 @@ function confirmData(req, res) {
   else {
     let sql = `SELECT * FROM PictureAlbum WHERE id=${id}`;
     mysql.getRow(sql, function(row, fields) {
-      res.render("modify_picture", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.id, "album": row.album, "name": row.title, "path": row.path, "creator": row.creator, "mark": row.mark, 
+      res.render("modify_picture", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.id, "album": row.album, "name": row.title, "path": row.path, "creator": row.creator, "mark": row.mark,
       "info": row.info, "fav": row.fav, "bindata": row.bindata, "picturesid": row.picturesid});
     });
   }
@@ -203,7 +200,7 @@ router.post("/", function(req, res, next) {
   else {
     // 更新
     updateData(req, res).catch(e => res.render('showInfo', {'title':'エラー', 'message':e.message, 'icon':'cancel.png', link:null}));
-  }  
+  }
 });
 
 /* データ確認 */
