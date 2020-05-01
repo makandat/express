@@ -30,6 +30,7 @@
     <h1>画像アルバム for Express4 ツール (Tool)</h1>
     <div class="menu">
       <a href="javascript:window.close()"><img src="/img/close2.png"> 閉じる</a>&nbsp;/&nbsp;
+      <a href="/"><img src="/img/home.png"> 画像アルバム</a>&nbsp;/&nbsp;
       <a href="tool_delete.html" target="_blank">削除ツール</a>&nbsp;/&nbsp;
       <a href="tool_tables.html" target="_blank">派生テーブルツール</a>&nbsp;/&nbsp;
       <a href="tool_import.html" target="_blank">データインポートツール</a>&nbsp;/&nbsp;
@@ -63,7 +64,7 @@
           path: サムネール画像ファイルのパス
         </pre>
       </div>
-  
+
       <div class="block2">
         <h3>InsPictures.py</h3>
           <p>InsPictures.py は指定した親ディレクトリに含まれる画像ファイルを含むサブディレクトリ一覧を Pictures テーブルにインポートする。</p>
@@ -170,7 +171,7 @@
       </div>
     </div>
     <br />
-    
+
     <!-- MySQL SQLファイル -->
     <div class="block1">
       <h2>MySQL SQLファイル</h2>
@@ -189,7 +190,7 @@
             UNIQUE KEY `name` (`name`),
             KEY `album_name` (`name`)
           ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-          
+
           CREATE TABLE `picturealbum` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `album` int(11) NOT NULL,
@@ -207,7 +208,7 @@
             KEY `album_path` (`path`),
             KEY `album_number` (`album`)
           ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-          
+
           CREATE TABLE `pictures` (
             `ID` int(11) NOT NULL AUTO_INCREMENT,
             `TITLE` varchar(100) NOT NULL,
@@ -255,8 +256,8 @@
           CREATE TABLE PicturesDoujin SELECT * FROM Pictures WHERE mark='DOUJIN';
           CREATE TABLE PicturesTime SELECT * FROM Pictures ORDER BY `date`;
           -- id を INT 型にする必要がある。Insert Select を使った方がよい。
-          CREATE TABLE Creators SELECT null as id, creator, '' as marks, '' as info, 
-          sum(fav) as fav, sum(count) as refcount, count(creator) as titlecount FROM Pictures GROUP BY creator ORDER BY creator;            
+          CREATE TABLE Creators SELECT null as id, creator, '' as marks, '' as info,
+          sum(fav) as fav, sum(count) as refcount, count(creator) as titlecount FROM Pictures GROUP BY creator ORDER BY creator;
         </pre>
       </div>
 

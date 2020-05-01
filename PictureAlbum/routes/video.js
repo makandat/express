@@ -83,7 +83,7 @@ function showAlbum(req, res) {
       else {
         abin = `<img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" />`;
       }
-      let aid = `<a href="/modify_album?id=${row.id}">${row.id}</a>`;
+      let aid = `<a href="/modify_album?id=${row.id}" target="_blank">${row.id}</a>`;
       albums.push([aid, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);
     }
   });
@@ -126,14 +126,15 @@ function showVideoList(req, res) {
       });
     }
     else {
-      let aid = `<a href="/video/modify_video?id=${row.id}">${row.id}</a>`;
+      let aid = `<a href="/video/modify_video?id=${row.id}" target="_blank">${row.id}</a>`;
       let afav = `<a href="/video/increase_fav">${row.count}</a>`;
       let abindata = `<figure><img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" /><figcaption>${row.bindata}</figcaption><figure>`;
       if (row.bindata == "" || row.bindata == 0) {
         abindata = "";
       }
-      let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
-      results.push([aid, row.album, atitle, row.path, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
+      let atitle = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.title}</a>`;
+      let apath = `<a href="/video/download?path=${row.path}" target="_blank">${row.path}</a>`;
+      results.push([aid, row.album, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
     }
   });
 }
@@ -150,9 +151,9 @@ function showVideosInAlbum(req, res) {
         res.render('videoalbum', {'title':`(${album}) ${albumName}`, 'message':'', 'results':results});
       }
       else {
-        let aid = `<a href="/video/modify_video?id=${row.id}">${row.id}</a>`;
-        let apath = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.path}</a>`;
-        let atitle = `<a href="/video/download?path=${row.path}" target="_blank">${row.title}</a>`;
+        let aid = `<a href="/video/modify_video?id=${row.id}" target="_blank">${row.id}</a>`;
+        let atitle = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.title}</a>`;
+        let apath = `<a href="/video/download?path=${row.path}" target="_blank">${row.path}</a>`;
         let afav = `<a href="/video/increase_fav/${row.id}">${row.fav}</a>`;
         let aextract = `<figure><img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" /><figcaption>${row.bindata}</figcaption></figure>`;
         if (row.bindata == "" || row.bindata == null)
@@ -169,7 +170,7 @@ function showVideosInAlbum(req, res) {
 /* GET home page.  表示リセット */
 router.get('/', function(req, res, next) {
   if (req.session.user == undefined) {
-    res.redirect('/users');
+    res.redirect('/users?from=video');
   }
   else {
     req.session.desc = true;
@@ -448,6 +449,65 @@ function checkId(id) {
         });
     });
 }
+
+
+/* id から path を得る。*/
+function getPathFromId(id) {
+  return new Promise((resolve) => {
+    mysql.getValue(`SELECT path FROM Videos WHERE id='${id}'`, path => resolve(path));
+  });
+}
+
+/* 前の id を得る。*/
+function getPrevId(path) {
+  return new Promise((resolve) => {
+    mysql.getValue(`SELECT max(id) AS maxId FROM Videos WHERE id < (SELECT id FROM Videos WHERE path='${path}')`, maxId => resolve(maxId));
+  });
+}
+
+/* 次の id を得る。*/
+function getNextId(path) {
+  return new Promise((resolve) => {
+    mysql.getValue(`SELECT min(id) AS maxId FROM Videos WHERE id > (SELECT id FROM Videos WHERE path='${path}')`, maxId => resolve(maxId));
+  });
+}
+
+/* タイトルを得る。*/
+function getTitle(id) {
+  return new Promise((resolve) => {
+    mysql.getValue(`SELECT title FROM Videos WHERE id = ${id}`, title => resolve(title));
+  });
+
+}
+
+/* ビデオのナビゲート表示 Previous */
+router.get('/nav_prev', async function(req, res, next) {
+  let path = req.query.path;
+  let prevId = await getPrevId(path);
+  if (prevId) {
+    let prevPath = await getPathFromId(prevId);
+    let title = await getTitle(prevId);
+    res.srender('video_viewer', {'title':title, 'message':prevPath, 'source':prevPath});
+  }
+  else {
+    res.render('showInfo', {'title':'エラー', 'message':'前へ移動できません。', 'icon':'cancel.png', link:null});
+  }
+});
+
+/* ビデオのナビゲート表示 Next */
+router.get('/nav_next', async function(req, res, next) {
+  let path = req.query.path;
+  let nextId = await getNextId(path);
+  if (nextId) {
+    let nextPath = await getPathFromId(nextId);
+    let title = await getTitle(nextId);
+    res.render('video_viewer', {'title':title, 'message':nextPath, 'source':nextPath});
+  }
+  else {
+    res.render('showInfo', {'title':'エラー', 'message':'次へ移動できません。', 'icon':'cancel.png', link:null});
+  }
+});
+
 
 
 /* データ確認 ヘルパ関数 */

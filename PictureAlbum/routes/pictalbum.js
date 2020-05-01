@@ -77,7 +77,7 @@ function showDetails(req, res, albumName="") {
       res.render('pictalbum_details', { "title": `画像アルバム (${albumName})`, "results": results, "message": message, "menu0":menu0, "menu1":menu1 });
     }
     else {
-      let aid = `<a href="/modify_album?id=${row.id}" target="_blank">${row.id}</a>`;
+      let aid = `<a href="/modify_picture?id=${row.id}" target="_blank">${row.id}</a>`;
       let apath = `<a href="/getimage?path=${row.path}" target="_blank">${row.path}</a>`;
       let atitle;
       if (row.picturesid == 0 || row.picturesid == null) {

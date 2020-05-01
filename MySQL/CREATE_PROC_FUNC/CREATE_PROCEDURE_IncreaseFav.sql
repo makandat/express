@@ -2,6 +2,8 @@ delimiter //
 CREATE PROCEDURE user.IncreaseFav(IN pid INT, IN subTable VARCHAR(20))
 BEGIN
   DECLARE xfav INT;
+  DECLARE favTotal INT;
+  DECLARE xcreator VARCHAR(50);
 
   SELECT fav INTO xfav FROM user.Pictures WHERE id = pid;
   SET xfav = xfav + 1;
@@ -28,6 +30,10 @@ BEGIN
     SET xfav = xfav + 1;
     UPDATE user.PicturesPhoto SET fav = xfav WHERE id = pid;
   END IF;
+
+  SELECT creator INTO xcreator FROM user.Pictures WHERE id = pid;
+  SELECT count(fav) INTO favTotal FROM user.Pictures WHERE creator = xcreator;
+  UPDATE user.Creators SET fav = favTotal WHERE creator = xcreator;
 END
 //
 delimiter ;

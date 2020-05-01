@@ -60,27 +60,25 @@
                     picture_list: "",
                     video_list: ""
                 },
-                methods: {
-                    window:onload = async () => {
-                        let p1 = (await fetch("/album_group/picture")).json();
-                        p1.then(
-                            (xgroups) => {
-                                for (let g of xgroups) {
-                                    g = g == null ? "[無名]" : g;
-                                    app.picture_list += `<li class="list"><a href="/groupname?name=${g}&mark=picture"><figure><img src="/img/picture0.png" alt="画像"><figcaption>${g}</figcaption><figure></a></li>`;
-                                }
+                created: async () => {
+                    let p1 = (await fetch("/album_group/picture")).json();
+                    p1.then(
+                        (xgroups) => {
+                            for (let g of xgroups) {
+                                g = g == null ? "[無名]" : g;
+                                app.picture_list += `<li class="list"><a href="/groupname?name=${g}&mark=picture"><figure><img src="/img/picture0.png" alt="画像"><figcaption>${g}</figcaption><figure></a></li>`;
                             }
-                        );
-                        let p2 = (await fetch("/album_group/video")).json();
-                        p2.then(
-                            (xgroups) => {
-                                for (let g of xgroups) {
-                                    g = g == null ? "無名" : g;
-                                    app.video_list += `<li class="list"><a href="/groupname?name=${g}&mark=video"><figure><img src="/img/video0.png" alt="ビデオ"><br /><figcaption>${g}</figcaption><figure></a></li>`;
-                                }
+                        }
+                    );
+                    let p2 = (await fetch("/album_group/video")).json();
+                    p2.then(
+                        (xgroups) => {
+                            for (let g of xgroups) {
+                                g = g == null ? "無名" : g;
+                                app.video_list += `<li class="list"><a href="/groupname?name=${g}&mark=video"><figure><img src="/img/video0.png" alt="ビデオ"><br /><figcaption>${g}</figcaption><figure></a></li>`;
                             }
-                        );
-                    }
+                        }
+                    );
                 }
             });
         </script>

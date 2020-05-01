@@ -18,6 +18,10 @@ router.get('/', (req, res) => {
     else if (req.session.user == undefined) {
         res.render('login', {'message':MESSAGE0, 'userid':'', 'password':''});
     }
+    else if (req.query.from) {
+        let from = req.query.from;
+        res.redirect('/' + from);
+    }
     else {
         res.redirect('/');
     }
