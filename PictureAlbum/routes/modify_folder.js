@@ -154,9 +154,9 @@ async function updateData(req, res) {
   path = path.replace(/'/g, "''").trim();
   let mark = req.body.mark;
   let info = req.body.info.replace(/'/g, "''");
-  let fav = req.body.fav;
-  let count = req.body.count;
-  let bindata = req.body.bindata;
+  let fav = req.body.fav ? req.body.fav : 0;
+  let count = req.body.count ? req.body.count : 0;
+  let bindata = req.body.bindata ? req.body.bindata : 0;
   let message = `データの更新に成功しました。id = ${id}`;
   let sql = `UPDATE Pictures SET title='${name}', creator='${creator}', path='${path}', mark='${mark}', info='${info}', fav='${fav}', bindata=${bindata}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
   mysql.execute(sql, () => {

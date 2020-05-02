@@ -154,6 +154,15 @@ async function updateData(req, res) {
   }
   else {
     message = `データの更新に成功しました。id = ${id}`;
+    if (!picturesid) {
+      picturesid = 0;
+    }
+    if (!bindata) {
+      bindata = 0;
+    }
+    if (!fav) {
+      fav = 0;
+    }
     let sql = `UPDATE PictureAlbum SET album=${album}, title='${name}', creator='${creator}', path='${path}', info='${info}', bindata=${bindata}, picturesid=${picturesid}, \`date\`=CURRENT_DATE() WHERE id=${id}`;
     mysql.execute(sql, function() {
       res.render("modify_picture", {"title": PAGE_TITLE, "message": message, "id": id, "album": album, "name": name, "creator": creator, "path": path, "info": info,

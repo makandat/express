@@ -106,8 +106,7 @@ function showDetailAll(req, res) {
   }
   mysql.query(sql, (row) =>{
     if (row == null) {
-      let message = "sn =" + req.session.sn;
-      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": `アルバム name=${albumName}`, "menu0":"none", "menu1":"block" });
+      res.render('pictalbum_details', { "title": '画像アルバム (PictureAlbum)', "results": results, "message": `アルバム name=${row.album}`, "menu0":"none", "menu1":"block" });
     }
     else {
       let aid = `<a href="/modify_picture?id=${row.id}" target="_blank">${row.id}</a>`;

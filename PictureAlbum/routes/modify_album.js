@@ -23,7 +23,7 @@ function updateData(req, res) {
   let name = req.body.album;
   let mark = req.body.mark;
   let info = req.body.info.replace(/'/g, "''");
-  let bindata = req.body.bindata;
+  let bindata = req.body.bindata ? req.body.bindata : 0;
   let groupname = req.body.groupname.replace(/'/g, "''");
   let message = `データの更新に成功しました。id = ${id}: ${name}`;
   let sql = `UPDATE Album SET name='${name}', info='${info}', mark='${mark}', bindata=${bindata}, groupname='${groupname}', \`date\`=CURRENT_DATE() WHERE id=${id}`;
@@ -77,7 +77,7 @@ router.post("/", function(req, res, next) {
   else {
     // 更新
     updateData(req, res);
-  }  
+  }
 });
 
 /* データ確認 */
