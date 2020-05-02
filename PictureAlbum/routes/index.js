@@ -92,6 +92,47 @@ function showResults(req, res) {
   });
 }
 
+
+/* アルバム一覧をアイコン形式で表示 */
+function showIcons(req, res) {
+  let albums = [];
+  let sql = makeSelect(req);
+  mysql.query(sql, (row) => {
+    if (row == null) {
+      let albumgroups = [];
+      let mark = 'picture';
+      if (req.query.mark != undefined) {
+        mark = req.query.mark;
+      }
+      let sql = `SELECT DISTINCT groupname AS grpname FROM Album WHERE mark = '${mark}'`;
+
+      mysql.query(sql, (row) =>{
+        if (row == null) {
+          res.render('index2', {'title':'画像アルバム for Express4', 'version':getVersion(), 'message':'アルバムグループ：' + req.session.groupname, 'albums':albums, 'albumgroups':albumgroups});
+        }
+        else {
+          if (row.grpname != null) {
+            albumgroups.push(row.grpname);
+          }
+        }
+      });
+    }
+    else {
+      let caption = row.name.length > 15 ? row.name.slice(0, 12) + ' ...' : row.name;
+      caption = `<a href="/pictalbum/?album=${row.id}" target="_blank">${caption}</a>`;
+      let icon;
+      if (row.bindata == null || row.bindata == 0) {
+        icon = "/img/no_icon.png";
+      }
+      else {
+        icon = `/bindata/extract/${row.bindata}`;
+      }
+      albums.push({'id':row.id, 'icon':icon, 'caption':caption});
+    }
+  });
+}
+
+
 /*  リクエストハンドラ */
 /* GET home page.  表示リセット */
 router.get('/', function(req, res, next) {
@@ -101,14 +142,33 @@ router.get('/', function(req, res, next) {
   else {
     req.session.desc = false;
     req.session.groupname = "ALL";
+    req.session.mode = "list";
     showResults(req, res);
+  }
+});
+
+/* アイコン形式で表示 */
+router.get('/icon', function(req, res, next) {
+  if (req.session.user == undefined) {
+    res.redirect('/users');
+  }
+  else {
+    req.session.desc = false;
+    req.session.groupname = "ALL";
+    req.session.mode = "icons";
+    showIcons(req, res);
   }
 });
 
 /* 逆順で表示 */
 router.get('/reverse', function(req, res, next) {
   req.session.desc = ! req.session.desc;
-  showResults(req, res);
+  if (req.session.mode == "list") {
+    showResults(req, res);
+  }
+  else {
+    showIcons(req, res);
+  }
 });
 
 
@@ -119,7 +179,12 @@ router.get('/groupname', function(req, res, next) {
   let mark = req.query.mark;
   req.session.groupname = name;
   if (mark == undefined || mark == "picture") {
-    showResults(req, res);
+    if (req.session.mode == "list") {
+      showResults(req, res);
+    }
+    else {
+      showIcons(req, res);
+    }
   }
   else if (mark == "video") {
     res.redirect("/video/groupname?name=" + name);
