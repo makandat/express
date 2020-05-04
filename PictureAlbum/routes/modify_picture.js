@@ -171,17 +171,27 @@ async function updateData(req, res) {
   }
 }
 
+/* Pictures ID を取得する。*/
+function getPicturesID(id) {
+  return new Promise((resolve) => {
+    mysql.getValue("SELECT p.id FROM PictureAlbum a, Pictures p WHERE INSTR(a.path, p.path) AND a.id=" + id, (pid) => {
+        resolve(pid.toString());
+    });
+  });
+}
+
 /* データ確認 */
-function confirmData(req, res) {
+async function confirmData(req, res) {
   let id = req.params.id;
   if (id == undefined) {
     res.render("modify_picture", {"title": PAGE_TITLE, "message": "エラー： id が空欄です。", "id": "", "album": "", "info": "", "fav": 0, "bindata": 0, "picturesid": 0});
   }
   else {
+    let picturesId = await getPicturesID(id);
     let sql = `SELECT * FROM PictureAlbum WHERE id=${id}`;
     mysql.getRow(sql, function(row, fields) {
       res.render("modify_picture", {"title": PAGE_TITLE, "message": "データを取得しました。", "id": row.id, "album": row.album, "name": row.title, "path": row.path, "creator": row.creator, "mark": row.mark,
-      "info": row.info, "fav": row.fav, "bindata": row.bindata, "picturesid": row.picturesid});
+      "info": row.info, "fav": row.fav, "bindata": row.bindata, "picturesid": picturesId});
     });
   }
 }
@@ -217,6 +227,7 @@ router.get('/confirm/:id', function(req, res, next) {
   let id = req.params.id;
   confirmData(req, res);
 });
+
 
 /* エクスポート */
 module.exports = router;

@@ -5,11 +5,14 @@ var session = require('express-session');
 var fso = require('./FileSystem.js');
 var mysql = require('./MySQL.js');
 var os = require('os');
+var path_module = require('path');
 var router = express.Router();
 
 
 /* 画像ナビ表示 (移動) */
 function moveImage(res, move, dir) {
+    if (os.platform() == "win32")
+        dir = dir.replace(/\\/g, '/');
     fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files)=>{
         let last = files.length - 1;
         let n = session.navimg;
@@ -35,19 +38,21 @@ function moveImage(res, move, dir) {
         let parts = dir.split(/[\\|\/]/g);
         let title = parts[parts.length-1];
         let message = (n + 1).toString() + " / " + files.length.toString() + ": " + path;
-        res.render('showNavImage', {'title':title, 'message':message, 'path':path});
+        res.render('showNavImage', {'title':title, 'message':message, 'path':path, 'dir':dir});
     });
 }
 
 /* 画像ナビ表示 (画像指定) */
 function jumpImage(res, n, dir) {
     session.navimg = n;
+    if (os.platform() == "win32")
+        dir = dir.replace(/\\/g, '/');
     fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files)=>{
         let path = files[n];
         let parts = dir.split(/[\\|\/]/g);
         let title = parts[parts.length-1];
         let message = (n + 1).toString() + " / " + files.length.toString() + ": " + path
-        res.render('showNavImage', {'title':title, 'message':message, 'path':path});
+        res.render('showNavImage', {'title':title, 'message':message, 'path':path, 'dir':dir});
     });
 }
 
@@ -74,7 +79,7 @@ router.get('/', function(req, res, next) {
             let parts = dir.split(/[\/|\\]/g);
             let title = parts[parts.length-1]
             fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files) => {
-                let files1 = files;
+                let files1 = files.sort();
                 if (req.session.showfolder_desc) {
                     files1 = files.reverse();
                 }
@@ -97,7 +102,8 @@ router.get('/thumbs', function(req, res, next) {
         let parts = dir.split(/[\/|\\]/g);
         let title = parts[parts.length-1]
         fso.getFiles(dir, ['.jpg', '.JPG', '.png', '.gif', '.jpeg'], (files)=>{
-            res.render('showthumb', {'title':title, 'message':'', 'dir':dir, 'files':files});
+            let files1 = files.sort();
+            res.render('showthumb', {'title':title, 'message':'', 'dir':dir, 'files':files1});
         });
     }
 });

@@ -296,7 +296,7 @@ async function showResults(res, p = {}) {
     if (row != null) {
       let aid = `<a href="/modify_folder?id=${row.id}" target="_blank">${row.id}</a>`;
       let atitle = `<a href="/showfolder/?path=${row.path}" target="_blank">${row.title}</a>`;
-      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
+      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}" target="_blank">${row.creator}</a>`;
       let afav = `<a href="/pictures/countup?id=${row.id}">${row.fav}</a>`;
       let athumb;
       if (row.bindata == null || row.bindata == 0) {
