@@ -57,6 +57,17 @@
             location.href = `/pictures/mark/${v}`;
           }
         });
+
+        /* イメージの表示 */
+        $("#chkImage").change(() => {
+          let v = $("#chkImage").prop("checked");
+          $("img").each((idx, element) => {
+            let id = $(element).attr("id");
+            if (id && id.startsWith("thumb")) {
+              $(element).css("display", v ? "inline" : "none");
+            }
+          });
+        });
       });
     </script>
   </head>
@@ -92,6 +103,7 @@
           <option><%= m %></option>
         <% } %>
       </select>&nbsp;/&nbsp;
+      <label>イメージの表示 <input type="checkbox" id="chkImage" value="true" checked /></label>
       <a href="/tool.html" target="_blank"><img src="/img/tool2.png" /> ツール</a>&nbsp;/&nbsp;
       <a href="/help.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>
       <a href="/users/logout"><img src="/img/close2.png" /> ログアウト</a>

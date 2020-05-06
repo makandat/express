@@ -84,7 +84,7 @@ function showResults(req, res) {
         abin = "";
       }
       else {
-        abin = `<figure><img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" /><figcaption>${row.bindata}</figcaption><figure>`;
+        abin = `<figure><img src="/bindata/extract/${row.bindata}" id="thumb${row.bindata}" /><figcaption>${row.bindata}</figcaption><figure>`;
       }
       let aid = `<a href="/modify_album?id=${row.id}" target="_blank">${row.id}</a>`;
       albums.push([aid, hid, row.count, row.info, abin, row.groupname, dt.getDateString(row.date)]);

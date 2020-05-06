@@ -40,7 +40,9 @@
         <div>
             <% for (let row of results) { %>
                 <% let srclink = "/getimage?path=" + row[3]; %>
-                <a href="/showfolder/navinit/?path=<%= row[3] %>" target="_blank"><figure><img src="<%- srclink %>" alt="<%= row[3] %>" class="thumb" /><figcaption>id: <%= row[0] %></figcaption></figure></a>
+                <% let id = row[0]; %>
+                <% let title = row[2].slice(0, 12); %>
+                <a href="/showfolder/navinit/?path=<%= row[3] %>" target="_blank"><figure><img src="<%- srclink %>" alt="<%= row[3] %>" class="thumb" /><figcaption><%= id %>: <%= title %></figcaption></figure></a>
             <% } %>
         </div>
         <!-- フッター -->

@@ -303,7 +303,7 @@ async function showResults(res, p = {}) {
         athumb = "";
       }
       else {
-        athumb = `<figure><img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" /><figcaption>${row.bindata}</figcaption></figure>`;
+        athumb = `<figure><img src="/bindata/extract/${row.bindata}" id="thumb${row.bindata}" /><figcaption>${row.bindata}</figcaption></figure>`;
       }
       results.push([aid, atitle, acreator, row.path, row.mark, row.info, afav, row.count, athumb, row.DT]);
     }
