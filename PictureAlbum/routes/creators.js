@@ -75,7 +75,7 @@ router.get('/', function(req, res, next) {
       res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results, 'checked0':'', 'checked1':'checked'});
     }
     else {
-      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
+      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}" target="_blank">${row.creator}</a>`;
       let aid = `<a href="/creators/modify_creator?id=${row.id}">${row.id}</a>`;
       results.push([aid, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
     }
@@ -143,7 +143,7 @@ router.get('/desc', function(req, res) {
       res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results, 'checked0':checked0, 'checked1':checked1});
     }
     else {
-      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
+      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}" target="_blank">${row.creator}</a>`;
       results.push([row.id, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
     }
   });
@@ -171,7 +171,7 @@ router.get('/asc', function(req, res) {
       res.render('creators', {'title':'作者一覧', 'message':'Ctrl+F で作者の検索ができます。', 'results':results, 'checked0':checked0, 'checked1':checked1});
     }
     else {
-      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}">${row.creator}</a>`;
+      let acreator = `<a href="/pictures/selectcreator?creator=${row.creator}" target="_blank">${row.creator}</a>`;
       results.push([row.id, acreator, row.marks, row.info, row.fav, row.refcount, row.titlecount]);
     }
   });
