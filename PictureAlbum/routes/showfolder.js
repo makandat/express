@@ -72,7 +72,10 @@ router.get('/', function(req, res, next) {
         }
     }
     if (dir == undefined) {
-        res.render('showfolder', {'title':'エラー', 'message':'フォルダが指定されていません。', 'dir':'', 'files':[]});
+        res.render('showfolder', {'title':'エラー', 'message':'フォルダが指定されていません。', 'dir':'', 'files':[], 'id':0});
+    }
+    else if (! fso.exists(dir)) {
+        res.render('showfolder', {'title':'エラー', 'message':'フォルダが存在しません。', 'dir':'', 'files':[], 'id':0});
     }
     else {
         mysql.getValue(`SELECT id FROM Pictures WHERE path='${dir}'`, (id) => {
