@@ -64,11 +64,17 @@ exports.getValue = (sql, callback, conf = null) => {
          conn.end();
       }
       else {
-         let row = results[0];
-         let key = fields[0].name;
-         let value = row[key];
-         callback(value);
-         conn.end();
+         if (results[0]) {
+           let row = results[0];
+           let key = fields[0].name;
+           let value = row[key];
+           callback(value);
+           conn.end();
+         }
+         else {
+           callback(0);
+           conn.end();
+         }
       }
   });
 }
