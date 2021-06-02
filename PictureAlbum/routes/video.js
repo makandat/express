@@ -7,7 +7,7 @@ var router = express.Router();
 var mysql = require('./MySQL.js');
 var dt = require('./DateTime.js');
 var fso = require('./FileSystem.js');
-const LIMIT = 200;  // 1ページの表示数
+const LIMIT = 1000;  // 1ページの表示数
 
 const SELECT0 = "SELECT id, name, (SELECT COUNT(album) FROM Videos GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album";
 
@@ -94,7 +94,7 @@ function showVideoList(req, res) {
   let album = req.query.album;
   let sn = req.session.sn;
   let results = [];
-  let sql = "SELECT id, album, title, path, creator, series, mark, info, fav, count, bindata FROM Videos";
+  let sql = "SELECT id, album, title, path, media, series, mark, info, fav, count, bindata FROM Videos";
   if (album == undefined) {
     if (req.session.desc) {
       sql = sql + ` WHERE sn <= ${sn} ORDER BY id DESC LIMIT ${LIMIT}`;
@@ -134,7 +134,7 @@ function showVideoList(req, res) {
       }
       let atitle = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.title}</a>`;
       let apath = `<a href="/video/download?path=${row.path}" target="_blank">${row.path}</a>`;
-      results.push([aid, row.album, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, abindata]);
+      results.push([aid, row.album, atitle, apath, row.media, row.series, row.mark, row.info, afav, row.count, abindata]);
     }
   });
 }
@@ -148,7 +148,7 @@ function showVideosInAlbum(req, res) {
   mysql.getValue(`SELECT name FROM Album WHERE id=${album}`, (albumName) => {
     mysql.query(sql, (row) => {
       if (row == null) {
-        res.render('videoalbum', {'title':`(${album}) ${albumName}`, 'message':'', 'results':results});
+        res.render('videoalbum', {'title':`(${album}) ${albumName}`, 'album':`${album}`, 'message':'', 'results':results});
       }
       else {
         let aid = `<a href="/video/modify_video?id=${row.id}" target="_blank">${row.id}</a>`;
@@ -158,9 +158,24 @@ function showVideosInAlbum(req, res) {
         let aextract = `<figure><img src="/bindata/extract/${row.bindata}" alt="id=${row.bindata}" /><figcaption>${row.bindata}</figcaption></figure>`;
         if (row.bindata == "" || row.bindata == null)
           aextract = "";
-        results.push([aid, atitle, apath, row.creator, row.series, row.mark, row.info, afav, row.count, aextract]);
+        results.push([aid, atitle, apath, row.media, row.series, row.mark, row.info, afav, row.count, aextract]);
       }
     });
+  });
+}
+
+/* 指定されたアルバム内のシリーズ一覧表示 */
+function showVideoSeries(req, res) {
+  let album = req.params.album;
+  let sql = `SELECT DISTINCT series AS ser FROM Videos WHERE album = ${album} ORDER BY ser`;
+  let results = [];
+  mysql.query(sql, (row) => {
+    if (row == null) {
+      res.render('videoseries', {'title':`Album = ${album}`, 'album':album, 'message':'', 'results':results});
+    }
+    else {
+      results.push(row.ser);
+    }
   });
 }
 
@@ -169,22 +184,28 @@ function showVideosInAlbum(req, res) {
 /*  リクエストハンドラ */
 /* GET home page.  表示リセット */
 router.get('/', function(req, res, next) {
+  /*
   if (req.session.user == undefined) {
     res.redirect('/users?from=video');
   }
-  else {
+  else {*/
     req.session.desc = true;
     req.session.groupname = "ALL";
     mysql.getValue("SELECT max(sn) FROM Videos", (n) => {
       req.session.sn = n;
       showAlbum(req, res);
     });
-  }
+  //}
 });
 
 /* ビデオアルバム内容の表示 */
 router.get('/videoalbum/:album', function(req, res, next) {
   showVideosInAlbum(req, res);
+});
+
+/* ビデオアルバム内のシリーズ一覧表示 */
+router.get('/videoseries/:album', function(req, res) {
+  showVideoSeries(req, res);
 });
 
 
@@ -235,7 +256,7 @@ router.get('/find', function(req, res, next) {
       res.render('videolist', {'title':title, 'message':'', 'results':results, 'menu0':'none', 'menu1':'block'})
     }
     else {
-       results.push([row.id, row.album, row.title, row.path, row.creator, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
+       results.push([row.id, row.album, row.title, row.path, row.media, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
     }
 
   });
@@ -360,7 +381,7 @@ router.get('/last', function(req, res, next) {
 
 /* ビデオを追加 */
 async function insertVideo(req, res) {
-  let {title, album, path, creator, series, mark, info, fav, bindata} = req.body;
+  let {title, album, path, media, series, mark, info, fav, bindata} = req.body;
   if (album == "") {
     res.render('showInfo', {'title':'エラー', 'message':'アルバム番号が空欄です。', 'icon':'cancel.png', link:null});
     return;
@@ -383,9 +404,9 @@ async function insertVideo(req, res) {
   }
   title = title.replace(/'/g, "''").trim();
   path = path.replace(/'/g, "''").trim();
-  let sql = `INSERT INTO Videos VALUES(NULL, ${album}, '${title}', '${path}', '${creator}', '${series}', '${mark}', '${info}', '${fav}', 0, ${bindata}, 0, 0)`;
+  let sql = `INSERT INTO Videos VALUES(NULL, ${album}, '${title}', '${path}', '${media}', '${series}', '${mark}', '${info}', '${fav}', 0, ${bindata}, 0, 0)`;
   mysql.execute(sql, () => {
-    res.render('modify_video', {'message':title + 'を追加しました。', 'id':'', 'album':album, 'title':title, 'path':path, 'creator':creator, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
+    res.render('modify_video', {'message':title + 'を追加しました。', 'id':'', 'album':album, 'title':title, 'path':path, 'media':media, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
   });
 }
 
@@ -401,7 +422,7 @@ function checkPath(path) {
 
 /* ビデオを更新 */
 async function updateVideo(req, res) {
-  let {id, album, title, path, creator, series, mark, info, fav, bindata} = req.body;
+  let {id, album, title, path, media, series, mark, info, fav, bindata} = req.body;
   if (album == "") {
     res.render('showInfo', {'title':'エラー', 'message':'アルバム番号が空欄です。', 'icon':'cancel.png', link:null});
     return;
@@ -411,9 +432,9 @@ async function updateVideo(req, res) {
   }
   title = title.replace(/'/g, "''").trim();
   path = path.replace(/'/g, "''").trim();
-  let sql = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', creator='${creator}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id = ${id}`;
+  let sql = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', media='${media}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id = ${id}`;
   mysql.execute(sql, () => {
-    res.render('modify_video', {'message':"id = " + id + 'を更新しました。', 'id':id, 'album':album, 'title':title, 'path':path, 'creator':creator, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
+    res.render('modify_video', {'message':"id = " + id + 'を更新しました。', 'id':id, 'album':album, 'title':title, 'path':path, 'media':media, 'series':series, 'mark':mark, 'info':info, 'fav':fav, 'bindata':bindata});
   });
 }
 
@@ -421,11 +442,11 @@ async function updateVideo(req, res) {
 router.get('/modify_video', function(req, res, next) {
   if (req.query.id) {
     mysql.getRow(`SELECT * FROM Videos WHERE id=${req.query.id}`, (row) => {
-      res.render('modify_video', {'message':'', 'id':row.id, 'album':row.name, 'title':row.title, 'path':row.path, 'creator':row.creator, 'series':row.series, 'mark':row.mark, 'info':row.info, 'fav':row.fav, 'bindata':row.bindata});
+      res.render('modify_video', {'message':'', 'id':row.id, 'album':row.album, 'title':row.title, 'path':row.path, 'media':row.media, 'series':row.series, 'mark':row.mark, 'info':row.info, 'fav':row.fav, 'bindata':row.bindata});
     });
   }
   else {
-    res.render('modify_video', {'message':'', 'id':'', 'album':'', 'title':'', 'path':'', 'creator':'', 'series':'', 'mark':'', 'info':'', 'fav':'0', 'bindata':'0'});
+    res.render('modify_video', {'message':'', 'id':'', 'album':'', 'title':'', 'path':'', 'media':'', 'series':'', 'mark':'', 'info':'', 'fav':'0', 'bindata':'0'});
   }
 });
 
@@ -508,7 +529,13 @@ router.get('/nav_next', async function(req, res, next) {
   }
 });
 
+router.get('/itemlist', async (req, res) => {
 
+});
+
+router.get('/serieslist', async (req, res) => {
+
+});
 
 /* データ確認 ヘルパ関数 */
 async function confirmVideo(req, res) {
@@ -519,7 +546,7 @@ async function confirmVideo(req, res) {
     }
     else {
         mysql.getRow("SELECT * FROM Videos WHERE id=" + id, (row) => {
-            res.render('modify_video', {'message':'id = ' + id + ' が検索されました。', 'id':row.id, 'album':row.album, 'title':row.title, 'path':row.path, 'creator':row.creator, 'mark':row.mark, 'series':row.series, 'info':row.info, 'fav':row.fav, 'bindata':row.bindata});
+            res.render('modify_video', {'message':'id = ' + id + ' が検索されました。', 'id':row.id, 'album':row.album, 'title':row.title, 'path':row.path, 'media':row.media, 'mark':row.mark, 'series':row.series, 'info':row.info, 'fav':row.fav, 'bindata':row.bindata});
         });
     }
 }

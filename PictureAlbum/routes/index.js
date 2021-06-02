@@ -1,4 +1,5 @@
 /* index.js */
+/*  Ver 1.0.20  ログイン画面オプション　起動パラメータを付けるとログイン画面が表示されない。*/
 "use strict";
 var express = require('express');
 var fs = require('fs');
@@ -6,7 +7,7 @@ var router = express.Router();
 var mysql = require('./MySQL.js');
 var dt = require('./DateTime.js');
 
-const LIMIT = 200;  // 1ページの表示数
+const LIMIT = 1000;  // 1ページの表示数
 const SELECT0 = "SELECT id, name, mark, (SELECT COUNT(album) FROM PictureAlbum GROUP BY album HAVING album=id) AS count, info, bindata, groupname, `date` FROM Album";
 
 /* package.json からバージョン番号を得る。*/
@@ -136,27 +137,46 @@ function showIcons(req, res) {
 /*  リクエストハンドラ */
 /* GET home page.  表示リセット */
 router.get('/', function(req, res, next) {
-  if (req.session.user == undefined) {
-    res.redirect('/users');
+  if (process.argv.length == 2) {
+    /*
+    if (req.session.user == undefined) {
+      res.redirect('/users');
+    }
+    else { */
+      req.session.desc = false;
+      req.session.groupname = "ALL";
+      req.session.mode = "list";
+      showResults(req, res);
+    // }
   }
   else {
     req.session.desc = false;
     req.session.groupname = "ALL";
     req.session.mode = "list";
+    req.session.user = "root";
     showResults(req, res);
   }
 });
 
 /* アイコン形式で表示 */
 router.get('/icon', function(req, res, next) {
-  if (req.session.user == undefined) {
-    res.redirect('/users');
+  if (process.argv.length == 2) {
+    if (req.session.user == undefined) {
+      res.redirect('/users');
+    }
+    else {
+      req.session.desc = false;
+      req.session.groupname = "ALL";
+      req.session.mode = "icons";
+      showIcons(req, res);
+    }
   }
   else {
     req.session.desc = false;
     req.session.groupname = "ALL";
-    req.session.mode = "icons";
-    showIcons(req, res);
+    req.session.mode = "list";
+    req.session.user = "root";
+    showResults(req, res);
   }
 });
 
