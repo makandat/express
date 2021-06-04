@@ -164,18 +164,45 @@ function showVideosInAlbum(req, res) {
   });
 }
 
-/* 指定されたアルバム内のシリーズ一覧表示 */
-function showVideoSeries(req, res) {
-  let album = req.params.album;
-  let sql = `SELECT DISTINCT series AS ser FROM Videos WHERE album = ${album} ORDER BY ser`;
+/* 指定されたシリーズのビデオ一覧表示 */
+function showVideoBySeries(req, res) {
+  let series = req.query.series;
+  let sql = `SELECT * FROM Videos WHERE series='${series}'`;
   let results = [];
   mysql.query(sql, (row) => {
     if (row == null) {
-      res.render('videoseries', {'title':`Album = ${album}`, 'album':album, 'message':'', 'results':results});
+      res.render('videolist', {'title':`シリーズ：${series} `, 'album':``, 'message':'', 'menu0':'none', 'menu1':'block', 'results':results});
     }
     else {
-      results.push(row.ser);
+      let aid = `<a href="/video/modify_video?id=${row.id}" target="_blank">${row.id}</a>`;
+      let afav = `<a href="/video/increase_fav">${row.fav}</a>`;
+      let abindata = `<figure><img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" /><figcaption>${row.bindata}</figcaption><figure>`;
+      if (row.bindata == "" || row.bindata == 0) {
+        abindata = "";
+      }
+      let atitle = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.title}</a>`;
+      let apath = `<a href="/video/download?path=${row.path}" target="_blank">${row.path}</a>`;
+      results.push([aid, row.album, atitle, apath, row.media, row.series, row.mark, row.info, afav, row.count, abindata]);
     }
+  });
+}
+
+/* 指定されたアルバム内のシリーズ一覧表示 */
+function showVideoSeries(req, res) {
+  let album = req.params.album;
+  let sql0 = `SELECT name FROM album WHERE id=${album}`;
+  mysql.getValue(sql0, (albumName) => {
+    let sql = `SELECT DISTINCT series AS ser FROM Videos WHERE album = ${album} ORDER BY ser`;
+    let results = [];
+    mysql.query(sql, (row) => {
+      if (row == null) {
+        res.render('videoseries', {'title':`(${album}) ${albumName}`, 'album':album, 'message':'', 'results':results});
+      }
+      else {
+        let aser = `<a href=\"/video/videolistser?series=${row.ser}\" target=\"_blank\">${row.ser}</a>`;
+        results.push(aser);
+      }
+    });  
   });
 }
 
@@ -261,7 +288,6 @@ router.get('/find', function(req, res, next) {
       let apath = `<a href="/video/download?path=${row.path}" target="_blank">${row.path}</a>`;
       results.push([aid, row.album, atitle, apath, row.media, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
     }
-
   });
 });
 
@@ -293,6 +319,16 @@ router.get('/videolist', function(req, res, next) {
       req.session.sn = maxSN;
       showVideoList(req, res);
     });
+  }
+});
+
+/* シリーズごとのビデオ一覧表示 */
+router.get('/videolistser', function(req, res, next) {
+  if (req.query.series) {
+    showVideoBySeries(req, res);
+  }
+  else {
+    res.render('showInfo', {title:'エラー', message:'シリーズの指定がありません。', icon:'cancel.png', link:null});
   }
 });
 
