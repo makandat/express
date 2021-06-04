@@ -127,7 +127,7 @@ function showVideoList(req, res) {
     }
     else {
       let aid = `<a href="/video/modify_video?id=${row.id}" target="_blank">${row.id}</a>`;
-      let afav = `<a href="/video/increase_fav">${row.count}</a>`;
+      let afav = `<a href="/video/increase_fav">${row.fav}</a>`;
       let abindata = `<figure><img src="/bindata/extract/${row.bindata}" alt="${row.bindata}" /><figcaption>${row.bindata}</figcaption><figure>`;
       if (row.bindata == "" || row.bindata == 0) {
         abindata = "";
@@ -256,7 +256,10 @@ router.get('/find', function(req, res, next) {
       res.render('videolist', {'title':title, 'message':'', 'results':results, 'menu0':'none', 'menu1':'block'})
     }
     else {
-       results.push([row.id, row.album, row.title, row.path, row.media, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
+      let aid = `<a href="/video/modify_video?id=${row.id}" target="_blank">${row.id}</a>`;
+      let atitle = `<a href="/video/video_viewer?source=${row.path}&title=${row.title}" target="_blank">${row.title}</a>`;
+      let apath = `<a href="/video/download?path=${row.path}" target="_blank">${row.path}</a>`;
+      results.push([aid, row.album, atitle, apath, row.media, row.series, row.mark, row.info, row.fav, row.count, row.bindata]);
     }
 
   });
