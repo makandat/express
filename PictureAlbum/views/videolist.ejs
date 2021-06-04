@@ -44,7 +44,7 @@
       <a href="/video/next"><img src="/img/next.svg" /> 次へ</a>&nbsp;
       <a href="/video/last"><img src="/img/last.svg" /> 最後</a>&nbsp;/&nbsp;
       <label>id の指定 <input type="number" id="jump" size="8" /><input type="button" id="btnJump" value="移動" /></label>&nbsp;/&nbsp;
-      <label>ワード検索 <input type="text" id="findWord" size="20" />&nbsp;<input type="button" id="btnFind" value=" 検索 " /></label>
+      <label>ワード検索 <input type="text" id="findWord" size="30" />&nbsp;<input type="button" id="btnFind" value=" 検索 " /></label>
       <a href="/tool.html" target="_blank"><img src="/img/tool2.png" />ツール</a>&nbsp;/&nbsp;
       <a href="/help.html" target="_blank"><img src="/img/question2.png" />ヘルプ</a>
     </div>
@@ -53,7 +53,7 @@
     <p class="message"><%= message %></p>
     <br />
     <table>
-        <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス名</th><th>作者</th><th>シリーズ</th><th>種別</th><th>情報</th><th>お気に入り</th><th>参照回数</th><th>サムネール</th></tr>
+        <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス名</th><th>メディア</th><th>シリーズ</th><th>種別</th><th>情報</th><th>お気に入り</th><th>参照回数</th><th>サムネール</th></tr>
         <% for (let row of results) { %>
           <tr>
             <% for (let i = 0; i < row.length; i++) { %>
