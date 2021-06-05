@@ -251,9 +251,7 @@ router.get('/video_viewer', function(req, res, next) {
 router.get('/download', function(req, res, next) {
   let path = req.query.path;
   mysql.getValue(`SELECT id FROM Videos WHERE path='${path}'`, (id) => {
-    mysql.execute(`CALL increaseVideoCount(${id})`, () => {
-      res.sendFile(path);
-    });
+    res.sendFile(path);
   });
 });
 
