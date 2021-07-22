@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>その他</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue/vue.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1>その他</h1>
+        </header>
+        <article>
+            <h2>サムネール管理テーブル (BINDATA)</h2>
+            <ul>
+                <li><a href="/extra/bindatalist" target="_blank">内容一覧表示</a></li>
+                <li><a href="/extra/bindataForm" target="_blank">サムネール画像の追加と修正</a></li>
+                <li><a href="/extra/bindataQuery" target="_blank">サムネール画像の逆引き</a></li>
+            </ul>
+            <br />
+            <h2>管理テーブルのバックアップ</h2>
+            <ul>
+                <li><a href="/extra/newBackup" target="_blank">バックアップテーブルを作る</a></li>
+                <li><a href="/extra/removeBackup" target="_blank">古いバックアップテーブルを削除する</a></li>
+            </ul>
+            <br />
+            <form id="form1">
+                <h2>タイマー</h2>
+                <input type="number" v-model="hours"> 時間&nbsp;&nbsp;
+                <input type="number" v-model="munites"> 分
+                <input type="number" v-model="seconds"> 秒<br />
+                <input type="button" v-on:click="startButton_click" value=" スタート " style="margin-top:15px;" />&nbsp;
+                <input type="button" v-on:click="stopButton_click" value=" 中止 " />
+                <p class="message" v-text="elapse"></p>
+            </form>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+        <script>
+            var timer, audio;
+            const app = new Vue({
+                el: "#form1",
+                data: {
+                    hours: 0,
+                    munites: 0,
+                    seconds: 0,
+                    elapse: 0
+                },
+                methods: {
+                    startButton_click: () => {
+                        let timeout = 60 * 60 * app.hours + 60 * app.munites + app.seconds;
+                        timer = setInterval(()=>{
+                            timeout--;
+                            app.elapse = "残り：" + timeout + "秒";
+                            if (timeout == 0) {
+                                clearInterval(timer);
+                                audio = new Audio();
+                                audio.src = "/audio/1";
+                                audio.play();
+                                app.elapse = "タイムアップしました。";
+                            }
+                        }, 1000);
+                    },
+                    stopButton_click: () => {
+                        clearInterval(timer);
+                        app.elapse = "カウントを中止しました。";
+                        audio.pause();
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

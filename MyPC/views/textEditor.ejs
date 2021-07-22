@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>テキストファイルの編集</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            form {
+                padding: 4px;
+                margin-left:5%;
+            }
+            textarea {
+                box-shadow: 6px 6px gainsboro;
+                padding: 4px;
+                margin-bottom: 8px;
+            }
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>テキストファイルの編集</h1>
+            <h4><%= path %></h4>
+            <hr />
+        </header>
+        <article id="app">
+            <form id="form1" method="POST" action="/computer/textEditor">
+                <div class="form-row">
+                    <textarea id="editor" name="content" cols="150" rows="30"><%= content %></textarea>
+                </div>
+                <div class="form-row">
+                    <label style="font-size:small;">ファイルのパス名 (存在しない場合は新規作成)</label><br />
+                    <input type="text" name="path" size="150" value="<%= path %>" />
+                </div>
+                <br />
+                <div class="form-row">
+                    <input type="submit" name="read" value="  読み込む  " />
+                    <input type="submit" name="update" value="  更新する。" />
+                </div>
+            </form>
+            <p>&nbsp;</p>
+            <p class="message"><%= message %></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </article>
+    </body>
+    </html>

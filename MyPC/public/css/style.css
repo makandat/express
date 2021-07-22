@@ -1,0 +1,176 @@
+h1 {
+  text-align: center;
+  color: mediumvioletred;
+  padding: 4px;
+  margin-top: 20px;
+  font-size: 3em;
+}
+
+h2 {
+  margin-top: 30px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-bottom:6px;
+  color: orangered;
+  border-left: solid 20px crimson;
+}
+
+h3 {
+  margin-top:30px;
+  color: darkorange;
+}
+
+h4 {
+  margin-top: 10px;
+  color: indigo;
+}
+
+a:link, a:visited {
+  color: dodgerblue;
+  text-decoration: none;
+  font-family: "Meiryo UI","Meiryo";
+}
+
+body {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.blk {
+  padding: 6px;
+}
+
+table, th, td {
+  border: solid thin gray;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 2px;
+  font-size: small;
+}
+
+th {
+  background-color: linen;
+  padding: 4px;
+}
+
+.menu {
+  border: dotted thin gray;
+  padding: 3px;
+  padding-left: 8px;
+  background-color: #d9f7fc;
+}
+
+.quote {
+  margin-left: 7%;
+  padding: 6px;
+}
+
+
+.src {
+  font-size: small;
+  color: navy;
+  padding: 5px;
+  border: dotted thin gray;
+  background-color: snow;
+}
+
+.message {
+  text-align:center;
+  font-size:14pt;
+  color:magenta;
+}
+
+.comment {
+  font-size: 11pt;
+  padding: 4px;
+  text-align: center;
+  color:mediumvioletred;
+}
+
+.form_row {
+  margin-top: 5px;
+  margin-bottom: 3px;
+}
+
+.form_item {
+  font-size: 10pt;
+  color:mediumpurple;
+}
+
+input[type="text"] {
+  border-radius: 4px;
+  padding: 4px;
+}
+
+input[type="password"] {
+  border-radius: 4px;
+  padding: 4px;
+}
+
+input[type="number"] {
+  border-radius: 4px;
+  padding: 4px;
+}
+
+input[type="file"] {
+  border: solid 2px gray;
+  border-radius: 4px;
+  padding: 4px;
+  background-color: lightyellow;
+}
+
+input[type="submit"] {
+  border-radius: 6px;
+  height: 32px;
+}
+
+input[type="submit"]:hover {
+  background-color: aquamarine;
+}
+
+input[type="button"] {
+  border-radius: 6px;
+  height: 32px;
+}
+
+input[type="button"]:hover {
+  background-color: lemonchiffon;
+}
+
+select {
+  border-radius: 6px;
+  height: 30px;
+}
+
+textarea {
+  border-radius: 6px;
+  padding: 4px;
+  border-width:2px;
+}
+
+header {
+  margin-left: 3%;
+  margin-right: 3%;
+}
+
+article {
+  margin-left: 3%;
+  margin-right: 3%;
+}
+
+footer {
+  margin-top: 30px;
+  margin-bottom: 40px;
+}
+
+.footer_text {
+  text-align: center;
+  color:purple;
+}
+
+.icons {
+  flex: 1;
+  padding: 5px;
+}

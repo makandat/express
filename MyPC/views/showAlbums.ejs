@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>アルバム一覧</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <style>
+
+        </style>
+        <script>
+            $(() => {
+                $("#marks").change(() => {
+                    let v = $("#marks").val();
+                    location.href = '/showAlbums/' + v;
+                });
+            });
+
+            function getDateString(d) {
+                return (new Date(a.date).getFullYear() + "-" + new Date(a.date).getMonth() + 1 + "-" + new Date(a.date).getDate());
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>アルバム一覧</h1>
+            <p class="comment">最初にアルバムの種別を選んでください。</p>
+            <div class="menu">
+                <label class="form_item">種別 <select id="marks">
+                    <option value="0">-- Select --</option>
+                    <option value="all">すべて</option>
+                    <option value="picture">画像</option>
+                    <option value="video">動画</option>
+                    <option value="music">音楽</option>
+                    <option value="project">プロジェクト</option>
+                    <option value="document">ドキュメント</option>
+                    <option value="other">その他</option>
+                </select></label>                
+            </div>
+        </header>
+
+        <article>
+            <br />
+            <% if (result.length > 0) { %>
+                <table>
+                    <tr><th>id</th><th>名称</th><th>マーク</th><th>情報</th><th>サムネール</th><th>グループ</th><th>登録日</th></tr>
+                    <% for (let a of result) { %>
+                        <tr>
+                            <td><a href="/confirmAlbum/<%= a.id %>"><%= a.id %></a></td>
+                            <td><a href="/showAlbumContent/<%= a.id %>" target="_blank"><%= a.name %></a></td>
+                            <td><%= a.mark %></td>
+                            <td><%= a.info %></td>
+                            <% if (a.bindata > 0) { %>
+                                <td><img src="/extract/<%= a.bindata %>" /></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                            <td><%= a.groupname %></td>
+                            <td><%= a.date %></td>
+                        </tr>
+                    <% } %>
+                </table>
+            <% } %>
+    </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="message"><%= message %></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

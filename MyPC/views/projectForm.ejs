@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8" />
+        <title>プロジェクトの追加・修正</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            .form_item {
+                font-size:10pt;
+            }
+        </style>
+        <script>
+            function confirmProject() {
+                let id = document.getElementById("id").value;
+                location.href = "/projects/confirmProject/" + id;
+            }
+
+            function clearForm() {
+                document.getElementById("id").value = "";
+                document.getElementById("album").value = "0";
+                document.getElementById("title").value = "";
+                document.getElementById("version").value = "0.0.0";
+                document.getElementById("path").value = "";
+                document.getElementById("owner").value = "";
+                document.getElementById("mark").value = "";
+                document.getElementById("info").value = "";
+                document.getElementById("git").value = "";
+                document.getElementById("backup").value = "";
+                document.getElementById("release").value = "";
+                document.getElementById("bindata").value = "0";
+                let el = document.getElementsByClassName("message");
+                el[0].innerText = "クリアされました。";
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>プロジェクトの追加・修正</h1>
+            <p class="comment">id を空欄にしたときは「追加」となります。データ確認を行う場合は必ず id を設定します。</p>
+            <hr />  
+        </header>
+
+        <article>
+            <br />
+            <form id="form1" method="POST" action="/projects/projectForm">
+                <div class="form-row">
+                    <div><div class="form_item">id<div><div><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div></div>
+                    <div><div class="form_item">アルバム<div><div><input type="number" id="album" name="album" size="6" value="<%= value.album %>" /></div></div>
+                    <div><div class="form_item">タイトル<div><div><input type="text" id="title" name="title" size="80" value="<%= value.title %>" /></div></div>
+                    <div><div class="form_item">バージョン<div><div><input type="text" id="version" name="version" size="10" value="<%= value.version %>" /></div></div>
+                    <div><div class="form_item">パス<div><div><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div></div>
+                    <div><div class="form_item">所有者<div><div><input type="text" id="owner" name="owner" size="20" value="<%= value.owner %>" /></div></div>
+                    <div><div class="form_item">マーク<div><div><input type="text" id="mark" name="mark" size="20" value="<%= value.mark %>" /></div></div>
+                    <div><div class="form_item">情報 (<a href="/projects/infoView/<%= value.id %>" target="_blank">詳細表示</a>)<div><div><textarea id="info" name="info" cols="150" rows="8"><%= value.info %></textarea></div></div>
+                    <div><div class="form_item">リポジトリ(git)<div><div><input type="text" id="git" name="git" size="150" value="<%= value.git %>" /></div></div>
+                    <div><div class="form_item">バックアップ<div><div><input type="text" id="backup" name="backup" size="150" value="<%= value.backup %>" /></div></div>
+                    <div><div class="form_item">リリース日<div><div><input type="text" id="release" name="release" size="10" value="<%= value.release %>" /></div></div>
+                    <div><div class="form_item">サムネール<div><div><input type="number" id="bindata" name="bindata" size="6" value="<%= value.bindata %>" /></div></div>
+                    <div style="margin-top:15px;">
+                        <input type="submit" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
+                        <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " onclick="javascript: confirmProject()" />&nbsp;
+                        <input type="button" id="resetButton" value=" クリアする " onclick="javascript: clearForm()" />
+                    </div>
+                </div>
+            </form>
+            <br />
+            <p class="message"><%= message %></p>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

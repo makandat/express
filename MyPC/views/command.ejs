@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ファイル操作コマンド</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            textarea {
+                padding: 4px;
+                box-shadow: 5px 5px gainsboro;
+            }
+        </style>
+        <script src="/js/vue/vue.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1>ファイル操作コマンド</h1>
+            <hr />
+        </header>
+        <article id="app" style="margin-left:10%;margin-top:30px;">
+            <div class="form-row"><textarea cols="120" rows="40" v-model="history"></textarea></div>
+            <div class="form-row"><label style="font-size:small;">コマンド</label><br /> <input type="text" v-model="command" size="120" /></div>
+            <br />
+            <div class="form-row">
+                <input type="button" v-on:click="execute" value="  実行  " />
+                <input type="button" v-on:click="clear" value=" クリア " />
+                <input type="button" v-on:click="editFile" value="ファイル作成・編集" />
+            </div>
+            <br />
+            <p v-text="message" class="message"></p>
+            <br />
+            <h4>ヘルプ</h4>
+            <p style="font-size:small;">ファイルのパスはファイル一覧画面の No. をクリックしてコピー＆ペーストします。<br />
+                空白を含むパスは二重引用符で囲みます。<br />
+                パスは必ずフルパスで指定します。</p>
+            <ul style="font-size:small;">
+                <li>rm file: ファイル削除</li>
+                <li>cp srcfile destfile: ファイルコピー</li>
+                <li>mv src dest: ファイル/ディレクトリ移動 (リネーム)</li>
+                <li>md dir: ディレクトリ作成</li>
+                <li>rd dir: 空のディレクトリ削除</li>
+                <li>cm oct file/dir: モード変更</li>
+                <li>go file: コマンド実行</li>
+            </ul>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </article>
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    command: "",
+                    history: "",
+                    message: ""
+                },
+                methods: {
+                    execute: () => {
+                        fetch("/computer/command/", {method:'POST', headers:{'Content-Type': 'application/json'}, body:JSON.stringify({'command':app.command})})
+                            .then(data => data.text())
+                            .catch(err => {app.message = err.message;})
+                            .then(text => {app.history += (app.command + "\n" + text + "\n");})
+                            .catch(err => {app.message = "NG: " + err.message});
+                    },
+                    clear: () => {
+                        app.history = "";
+                    },
+                    editFile: () => {
+                        location.replace('/computer/textEditor');
+                    }
+                }
+            });
+        </script>
+    </body>
+    </html>

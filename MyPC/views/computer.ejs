@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MyPC: <%= hostname %></title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            table {
+                margin-top: 20px;
+                width: 100%;
+                border-width: 2px;
+            }
+            th {
+                text-align:center;
+            }
+            .upload_region {
+                border:solid thin gray;
+                background-color: gainsboro;
+                height:40px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+                padding: 5px;
+                text-align: center;
+                border-radius: 8px;
+            }
+            .comment {
+                margin-left:4%;
+                padding: 5px;
+                font-size: small;
+                color: darkmagenta;
+            }
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            window.onload = () => {
+                // 上へのフォルダの設定
+                let currentDir = $("#currentDir").val();
+                if (currentDir.startsWith('-')) {
+                    $("#linkUpward").attr("href", "/computer/folder/?folder=#");
+                }
+                else {
+                    let parentFolder = parentDirectory(currentDir);
+                    $("#linkUpward").attr("href", "javascript:location.replace('/computer/folder/?folder=" + parentFolder + "')");
+                }
+            }
+            // jQuery のイベントハンドラ
+            $(() => {
+                // 表示フォルダの選択イベントハンドラ
+                $("#selectFolder").change(()=>{
+                    let folder = $("#selectFolder").val();
+                    if (! folder.startsWith('--')) {
+                        location.replace("/computer/folder/?folder=" + folder);
+                    }
+                });
+            });
+
+            // パスをクリップボードへコピーする。
+            function copyPath(idx) {
+                // コピーする文章の取得
+                idx++;
+                let text = $("#no" + idx).text();
+                let textarea = $("#forcopying");
+                // テキストエリアに文章を挿入
+                textarea.text(text);
+                textarea.select();
+                /* https: でないと動作しない？ らしい。*/
+                //navigator.clipboard.writeText(text)
+                //.then(()=>{$("#copied").css("visibility", "visible");})
+                //.catch(()=>{$("#copied").css("visibility", "visible");
+                //    $("#copied").text("Error");});
+                /* 廃止されたが動作可能 */
+                document.execCommand('copy');
+                $("#copied").css("visibility", "visible");
+                /* 考えてみればローカルストレージとかにパスをコピーして使えばいいんじゃない？ */
+            }
+
+            // 親のディレクトリを得る。
+            function parentDirectory(dir) {
+                if (dir.endsWith('/')) {
+                    dir = dir.substring(0, dir.length - 1);
+                }
+                let places = dir.split('/');
+                if (dir == '/') {
+                    return "/";
+                }
+                else if (places.length == 1) {
+                    return dir;
+                }
+                else {
+                    parent = "";
+                    let n = places.length - 1;
+                    for (let i = 0; i < n; i++) {
+                        if (i == 0) {
+                            parent += places[i];
+                        }
+                        else {
+                            parent += "/" + places[i];
+                        }
+                    }
+                    return parent;
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>MyPC: <%= hostname %></h1>
+            <h4 style="text-align:center;color:blue;"><%- place %></h4>
+            <input type="hidden" id="currentDir" value="<%- currentDir %>" />
+            <div class="menu">
+                <a href="/index"><img src="/img/home.png" /> HOME</a>
+                &nbsp;|&nbsp;
+                <a href="/index"><img src="/img/refresh2.png" onclick="javascript:location.reload()"/> 表示更新</a>
+                &nbsp;|&nbsp;
+                <a id="linkUpward" href=""><img src="/img/upper.png" /> 上のフォルダへ</a>
+                表示するフォルダ&nbsp;<select id="selectFolder"><%- folders %></select>
+                &nbsp;(&nbsp;
+                <a href="/computer/orderby/name" id="orderByName"><%= orderbyname %>名前順</a>
+                &nbsp;/&nbsp;
+                <a href="/computer/orderby/time" id="orderByTime"><%= orderbytime %>時刻順</a>
+                &nbsp;)(&nbsp;
+                <a href="/computer/sortdir/asc"><%= sortdirasc %>昇順</a>
+                &nbsp;/&nbsp;
+                <a href="/computer/sortdir/desc"><%= sortdirdesc %>降順</a>
+                &nbsp;)&nbsp;
+                <a href="/computer/command" target="_blank"><img src="/img/tool2.png" /> ファイル操作ページ</a>
+                &nbsp;|&nbsp;
+                <a href="/computer/folderedit" target="_blank"><img src="/img/form.png" /> 表示フォルダの編集</a>
+                <br />
+                <form class="upload_region" enctype="multipart/form-data" method="POST" action="/computer/upload">
+                    <b>ファイルアップロード</b>　<input type="file" name="uploadFile" />&nbsp;<input type="submit" value=" アップロード " />
+                </form>
+            </div>
+        </header>
+        <article>
+            <% if (result.length > 0) { %>
+                <p class="comment">項目 No.(番号) をクリックするとパスをコピーします。</p>
+                <table style="width:100%;">
+                <tr><th>No.</th><th>属性</th><th>パス</th><th>種別</th><th>長さ</th><th>更新日時</th></tr>
+                <% for (let row of result) { %>
+                    <tr>
+                        <td style="text-align: center"><%- row[0] %></td>
+                        <td style="text-align: center"><%= row[1] %></td>
+                        <td style="text-align: left"><%- row[2] %></td>
+                        <td style="text-align: center"><%= row[3] %></td>
+                        <td style="text-align: right"><%= row[4] %></td>
+                        <td style="text-align: center"><%= row[5] %></td>
+                    </tr>
+                <% } %>
+                </table>
+            <% } %>
+        </article>
+        <footer>
+            <p class="message"><%= message %></p>
+            <p><a href="#top">TOP</a></p>
+            <label id="copied" style="visibility:hidden;" style="font-size:small;">コピーしました。</label>
+            <textarea id="forcopying" cols="60" rows="1" style="border-width:0px;padding:4px;"></textarea>
+        </footer>
+    </body>
+</html>

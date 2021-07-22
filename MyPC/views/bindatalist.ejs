@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>サムネール画像テーブル内容</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                // 検索ボタン
+                $("#findButton").click(() => {
+                    let findword = $("#find").val()
+                    if (findword) {
+                        location.href = "/extra/bindatalist?find=" + findword;
+                    }
+                    else {
+                        alert("検索ワードが空欄です。");
+                    }
+                });
+                // 指定 id への移動ボタン
+                $("#idButton").click(() => {
+                    let id = $("#directID").val();
+                    if (id) {
+                        location.href = "/extra/bindatalist?id=" + id;
+                    }
+                    else {
+                        alert("idの指定が空欄です。")
+                    }
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>サムネール画像テーブル内容</h1>
+            <div class="menu">
+                <a href="/extra/bindatalist?reset=true"><img src="/img/home.png"> 表示リセット</a>&nbsp;|&nbsp;
+                <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
+                <a href="/extra/bindataForm" target="_blank"><img src="/img/form.png" /> サムネールの追加・修正</a>&nbsp;|&nbsp;
+                <img src="/img/find2.png" /> 検索 <input type="text" id="find" size="22" /> <input type="button" id="findButton" value=" 検索 " />&nbsp;|&nbsp;
+                <img src="/img/find_go.png" /> id の指定 <input type="text" id="directID" size="5" /> <input type="button" id="idButton" value=" 移動 " />&nbsp;|&nbsp;
+                <a href="/extra/bindatalist?move=first"><img src="/img/first.svg" /> 先頭</a>&nbsp
+                <a href="/extra/bindatalist?move=prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;
+                <a href="/extra/bindatalist?move=next">次へ <img src="/img/next.svg" /></a>&nbsp;
+                <a href="/extra/bindatalist?move=last">最後 <img src="/img/last.svg" /></a>&nbsp;|&nbsp;
+                (<a href="/extra/bindatalist?sortdir=asc"><%= dirasc %>昇順</a>
+                &nbsp;/&nbsp;<a href="/extra/bindatalist?sortdir=desc"><%= dirdesc %>降順</a>)&nbsp;|&nbsp;
+            </div>
+        </header>
+        <article>
+            <p class="message"><%= message %></p>
+            <table style="width:100%;">
+                <tr><th>id</th><th>タイトル</th><th>オリジナルファイル</th><th>データタイプ</th><th>画像</th><th>情報</th><th>サイズ</th></tr>
+                <% for (let a of result) { %>
+                    <tr>
+                        <td><%= a.id %></td>
+                        <td><%= a.title %></td>
+                        <td><%= a.original %></td>
+                        <td><%= a.datatype %></td>
+                        <td><img src="/extract/<%= a.id %>" /></td>
+                        <td><%= a.info %></td>
+                        <td><%= a.size %></td>
+                    </tr>
+                <% } %>
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

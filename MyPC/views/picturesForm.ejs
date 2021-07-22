@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>画像フォルダの追加・修正</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#submitButton").click(() => {
+                    if (!$("#title").val()) {
+                        alert("タイトルが空欄です。");
+                        return;
+                    }
+                    if (!$("#path").val()) {
+                        alert("パスが空欄です。");
+                        return;
+                    }
+                    document.form1.submit();
+                });
+                $("#confirmButton").click(() => {
+                    let id = $("#id").val();
+                    location.href = "/pictures/confirmPictures/" + id;
+                });
+                $("#clearButton").click(() => {
+                    $("#id").val("");
+                    $("#album").val("0");
+                    $("#title").val("");
+                    $("#creator").val("");
+                    $("#path").val("");
+                    $("#mark").val("");
+                    $("#fav").val("0");
+                    $("#info").val("");
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1>画像フォルダの追加・修正</h1>
+        </header>
+        <article>
+            <br />
+            <form id="form1" name="form1" method="POST" action="/pictures/picturesForm">
+                <div class="form_row">
+                    <div class="form_item">id</div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">アルバム番号</div>
+                    <div class="form_item"><input type="number" id="album" name="album" size="6" value="<%= value.album %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">タイトル</div>
+                    <div class="form_item"><input type="text" id="title" name="title" size="100" value="<%= value.title %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">作者</div>
+                    <div class="form_item"><input type="text" id="creator" name="creator" size="20" value="<%= value.creator %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">パス</div>
+                    <div class="form_item"><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">マーク</div>
+                    <div class="form_item"><input type="text" id="mark" name="mark" size="10" value="<%= value.mark %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">情報</div>
+                    <div class="form_item"><input type="text" id="info" name="info" size="100" value="<%= value.info %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">好き</div>
+                    <div class="form_item"><input type="number" id="fav" name="fav" size="4" value="<%= value.fav %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">サムネール</div>
+                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="4" value="<%= value.bindata %>" /></div>
+                </div>
+                <div style="margin-top:20px;">
+                    <input type="button" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
+                    <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " />&nbsp;
+                    <input type="button" id="clearButton" name="clearButton" value=" クリア " />&nbsp;
+                </div>
+            </form>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="message"><%= message %></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

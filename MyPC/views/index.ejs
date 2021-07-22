@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/css/style.css' />
+	<style>
+	  article {
+	    display: flex;
+		padding: 10px;
+		margin-left: 1%;
+		margin-top: 40px;
+	  }
+	  figcaption {
+	    text-align:center;
+		font-size: small;
+		color: darkblue;
+	  }
+	  .iconpad {
+		padding: 5px;
+	  }
+	</style>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p style="text-align:center;color:indigo;">ようこそ！ <%= title %></p>
+	<br />
+	<div class="menu">
+		<a href="/addModifyAlbum" target="_blank">アルバムの作成・修正</a>&nbsp;|&nbsp;
+		<a href="/showAlbumGroups" target="_blank">アルバムグループ一覧</a>&nbsp;|&nbsp;
+		<a href="/showAlbums/0" target="_blank">アルバム一覧</a>&nbsp;|&nbsp;
+		管理テーブルの内容&nbsp;
+		<a href="/projects/showContent" target="_blank">プロジェクト</a>&nbsp;/&nbsp;
+		<a href="/documents/showContent" target="_blank">文書管理</a>&nbsp;/&nbsp;
+		<a href="/pictures/showContent" target="_blank">画像フォルダ</a>&nbsp;/&nbsp;
+		<a href="/videos/showContent" target="_blank">動画</a>&nbsp;/&nbsp;
+		<a href="/music/showContent" target="_blank">音楽</a>&nbsp;
+	</div>
+	<article>
+	  <figure><a href="/computer" target="_blank"><img src="/img/laptop.png" alt="コンピュータ" class="iconpad" /></a><figcaption>コンピュータ</figcaption></figure>
+	  <figure><a href="/projects" target="_blank"><img src="/img/business.png" alt="プロジェクト" class="iconpad" /></a><figcaption>プロジェクト</figcaption></figure>
+	  <figure><a href="/documents" target="_blank"><img src="/img/book.png" alt="文書" class="iconpad" /></a><figcaption>文書</figcaption></figure>
+	  <figure><a href="/pictures" target="_blank"><img src="/img/pictures.png" alt="画像"  class="iconpad" /></a><figcaption>画像</figcaption></figure>
+	  <figure><a href="/videos" target="_blank"><img src="/img/movie.png" alt="動画"  class="iconpad" /></a><figcaption>動画</figcaption></figure>
+	  <figure><a href="/music" target="_blank"><img src="/img/music.png" alt="音楽"  class="iconpad" /></a><figcaption>音楽</figcaption></figure>
+	  <figure><a href="/extra" target="_blank"><img src="/img/settings.png" alt="その他"  class="iconpad" /></a><figcaption>その他</figcaption></figure>
+	</article>
+    <br />
+	<p>&nbsp;</p>
+	<p class="footer_text">Version: <%= version %>, Release Date: <%= release_date %></p>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>プロジェクト一覧</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#marks").change(() => {
+                    let m = $("#marks").val();
+                    if (!m.startsWith('-')) {
+                        location.href = "/projects/projectlist?mark=" + $("#marks").val();
+                    }
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>プロジェクト一覧</h1>
+            <p class="comment">Ctrl+F で検索できます。</p>
+            <div class="menu">
+                <a href="javascript:location.reload()">表示更新</a>&nbsp;|&nbsp;
+                <a href="/projects/projectForm" target="_blank">プロジェクトの追加・修正</a>&nbsp;|&nbsp;
+                <a href="/addModifyAlbum?mark=project" target="_blank">アルバムの追加・修正</a>&nbsp;|&nbsp;
+                マークフィルタ： <select id="marks">
+                    <option value="0">-- マーク --</option>
+                    <% for (let m of marks) { %>
+                        <option value="<%= m %>"><%= m %></option>
+                    <% } %>
+                </select>
+            </div>
+        </header>
+        <article>
+            <p class="message"><%= message %></p>
+            <table>
+                <tr><th>id</th><th>album番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>所有者</th><th>マーク</th><th>情報</th><th>リポジトリ(github)</th><th>バックアップ</th><th>最新版リリース日</th><th>サムネール</th><th>登録日</th></tr>
+                <% for (let a of result) { %>
+                    <tr>
+                        <td><a href="/projects/confirmProject/<%= a.id %>" target="_blank"><%= a.id %></a></td>
+                        <td><%= a.album %></td>
+                        <td><a href="/projects/infoView/<%= a.id %>" target="_blank"><%= a.title %></a></td>
+                        <td><%= a.version %></td>
+                        <td><a href="/computer/folder?folder=<%= a.path %>" target="_blank"><%= a.path %></a></td>
+                        <td><%= a.owner %></td>
+                        <td><%= a.mark %></td>
+                        <td><%= a.info.length > 100 ? a.info.substring(0, 100) + " ....." : a.info %></td>
+                        <td><%= a.git %></td>
+                        <td><%= a.backup %></td>
+                        <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.release.getDate()).substring(0, 2) %></td>
+                        <td><%= a.bindata %></td>
+                        <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.date.getDate()).substring(0, 2) %></td>
+                    </tr>
+                <% } %>
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

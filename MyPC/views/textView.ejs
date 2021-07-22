@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/js/highlight/styles/github.css" />
+        <script src="/js/highlight/highlight.pack.js"></script>
+        <style>
+            .message {
+                text-align: center;
+                color: magenta;
+                padding: 5px;
+            }
+            figure {
+                text-align: center;
+                margin-top: 40px;
+                margin-bottom: 100px;
+            }
+            pre {
+                padding: 4px;
+                border: solid thin gainsboro;
+                margin-left: 2%;
+                margin-right: 2%;
+            }
+            h3{
+                text-align: center;
+            }
+            .footerlink {
+                text-align: center;
+                margin-top: 10px;
+                margin-bottom: 30px;
+            }
+        </style>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </head>
+
+    <body>
+        <h3><%= path %></h3>
+        <hr />
+        <div class="menu"><a href="/computer/getfile/?path=<%- path %>">この内容をダウンロードする。</a></div>
+        <pre><code><%= content %></code></pre>
+        <p class="footerlink"><a href="#top">TOP</a></p>
+    </body>
+    </html>

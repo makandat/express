@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- id で指定されたアルバムの内容一覧 -->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script>
+            
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1><%= title %></h1>
+            <p class="comment">このページの内容は画像、動画、音楽、プロジェクト、文書で共通な項目だけが表示されています。各カテゴリーごとの詳細表示はカテゴリーごとのページを表示してください。</p>
+        </header>
+        <article>
+            <table>
+                <tr><th>id</th><th>アルバム番号</th><th>タイトル</th><th>パス</th><th>マーク</th><th>情報</th><th>日付</th></tr>
+                <% for (let a of result) { %>
+                    <tr>
+                        <td><%= a.id %></td>
+                        <td><%= a.album %></td>
+                        <td><%= a.title %></td>
+                        <td><%= a.path %></td>
+                        <td><%= a.mark %></td>
+                        <td><%= a.info %></td>
+                        <td><%= a.date %></td>
+                    </tr>
+                <% } %>
+            </table>
+            <br />
+            <p class="message"><%= message %></p>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="message"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>プロジェクト</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            figcaption {
+                font-size:10pt;
+                color:darkviolet;
+            }
+            figure {
+                text-align: center;
+            }
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                projectAlbumsIcons();
+            });
+
+            function projectAlbumsIcons() {
+                $.getJSON('/getAlbums/project', (data) => {
+                    if (! data) {
+                        app.message = "アルバムにデータがありません。";
+                    }
+                    else {
+                        let html = "";
+                        for (let a of data) {
+                            let image = ""
+                            if (a.bindata > 0) {
+                                image = "/extract/" + a.bindata;
+                            }
+                            else {
+                                image ="/img/business64.png";
+                            }
+                            html += `<figure style='display:inline-block;'><a href="/projects/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /></a><figcaption>${a.name}</figcaption></figure>\n`;
+                        }
+                        $("#albums").html(html);
+                        $("message").text("アルバム一覧が表示されました。");
+                    }
+                });
+            }
+
+            function projectAlbumsDetail() {
+                $.getJSON('/getAlbums/project', (data) => {
+                    if (! data) {
+                        app.message = "アルバムにデータがありません。";
+                    }
+                    else {
+                        let html = "<table><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
+                        for (let a of data) {
+                            let dt = a.date.substring(0, 10);
+                            html += `<tr><td style=\"text-align:center;\"><a href="/confirmAlbum/${a.id}" target="_blank">${a.id}</a></td><td><a href="/projects/showContent/?album=${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${dt}</td></tr>\n`;
+                        }
+                        html += "</table>";
+                        $("#albums").html(html);
+                        $("#message").text("");
+                    }
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1><%= title %> アルバム一覧</h1>
+            <p class="comment">ここでいうプロジェクトとは作業や開発用フォルダです。</p>
+            <div class="menu">
+                <a href="/index"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
+                <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
+                表示 (<a href="javascript:projectAlbumsIcons()">アイコン形式</a>&nbsp;/&nbsp;
+                <a href="javascript:projectAlbumsDetail()">詳細形式</a>)&nbsp;|&nbsp;
+                <a href="/projects/showContent" target="_blank">プロジェクト一覧</a>&nbsp;|&nbsp;
+                <a href="/projects/projectForm" target="_blank">プロジェクトの追加・修正</a>&nbsp;|&nbsp;
+                <a href="/addModifyAlbum?mark=project" target="_blank">アルバムの作成・修正</a>&nbsp;|&nbsp;
+            </div>
+        </header>
+        <article id="app">
+            <p class="message" id="message"><%= message %></p>
+            <div id="albums"></div>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

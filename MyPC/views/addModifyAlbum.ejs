@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>アルバムの作成・修正</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script>
+            // フォームをポストする。
+            function postform() {
+                if (!document.getElementById('name').value) {
+                    alert("アルバム名が空欄です。");
+                    return;
+                }
+                document.form1.submit();
+            }
+
+            // すべてのコントロールをクリアする。
+            function clear() {
+                document.getElementById('id').value = "";
+                document.getElementById('name').value = "";
+                document.getElementById('mark').value = "";
+                document.getElementById('info').value = "";
+                document.getElementById('bindata').value = "0";
+                document.getElementById('groupname').value = "";
+            }
+
+            // データ確認
+            function confirm() {
+                let id = document.getElementById('id').value;
+                fetch('/getAlbum/' + id)
+                .catch(err => document.getElementById('message').value = err.message)
+                .then(data => data.json())
+                .catch(err => document.getElementById('message').value = err.message)
+                .then((values) => {
+                    document.getElementById('id').value = values.id;
+                    document.getElementById('name').value = values.name;
+                    document.getElementById('mark').value = values.mark;
+                    document.getElementById('info').value = values.info;
+                    document.getElementById('bindata').value = values.bindata;
+                    document.getElementById('groupname').value = values.groupname;
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>アルバムの作成・修正</h1>
+            <hr />    
+        </header>
+        <article>
+            <p class="comment">id が空欄の場合は新規作成となります。そうでない場合は当該 id のアルバムが修正されます。<br />id を入力して「データ確認」をクリックするとその id のデータが表示されます。</p>
+            <form id="form1" name="form1" method="POST" action="/addModifyAlbum" style="margin-top:40px;margin-left:20%;">
+                <div class="form_row">
+                    <div class="form_item">id</div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= values.id %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">名称</div>
+                    <div class="form_item"><input type="text" id="name" name="name" size="50" value="<%= values.name %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">マーク</div>
+                    <div class="form_item"><input type="text" id="mark" name="mark" size="20" value="<%= values.mark %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">情報</div>
+                    <div class="form_item"><input type="text" id="info" name="info" size="100" value="<%= values.info %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">サムネール</div>
+                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="6" value="<%= values.bindata %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">グループ名</div>
+                    <div class="form_item"><input type="text" id="groupname" name="groupname" size="20" value="<%= values.groupname %>" /></div>
+                </div>
+                <br />
+                <div class="form_row">
+                    <input type="button" name="button_postform" value=" 送信する " onclick="javascript:postform()" />&nbsp;
+                    <input type="button" name="button_confirm" value=" データ確認 " onclick="javascript:confirm()" />&nbsp;
+                    <input type="button" id="button_clear" value=" クリア " onclick="javascript:clear()" />&nbsp;
+                </div>
+                <br />
+                <p class="message"><%= message %></p>
+            </form>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

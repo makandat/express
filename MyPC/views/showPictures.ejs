@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="="utf-8" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            h3 {
+                text-align: center;
+            }
+            li.img {
+                font-size: 10pt;
+                margin-bottom: 15px;
+                color: firebrick;
+            }
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            var separator = ";";
+
+            // 画像幅修正
+            function adjustWidth() {
+            $('img').each(function() {
+                let imgwidth = $(this).prop('naturalWidth');
+                //let imgHeight = $(this).prop('naturalHeight');
+                if (imgwidth > window.innerWidth) {
+                    $(this).css('width', '95%');
+                }
+                /*
+                if (imgHeight > window.innerHeight) {
+                    $(this).css('height', '95%');
+                }
+                */
+            });
+            }
+
+            // パスリストを表示
+            function show_pathlist() {
+                var path_array = localStorage.image_pathlist.split(separator);
+                var str = "";
+                for (let i = 0; i < path_array.length; i++) {
+                if (path_array[i] != "") {
+                    str += ("<li>" + path_array[i] + "</li>\n");
+                }
+                }
+                $('.message').text('');
+                $('#pathlist').html(str);
+            }
+            
+            // パスリストをクリア
+            function clear_pathlist() {
+                localStorage.image_pathlist = "";
+                $('#pathlist').html("");
+            }
+
+            // 画像がクリックされたとき、ローカルストレージにそのパスを追加
+            $(() => {
+                var src;
+                var p;
+                var path;
+                localStorage.image_pathlist = "";
+
+                // img タグがクリックされたとき
+                $('img').click(function() {
+                    src = $(this).attr('src');
+                    p = src.split('=');
+                    path = p[1] + separator;
+                    localStorage.image_pathlist += path;
+            　  });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1><%= title %></h1>
+            <h3><%= path %></h3>
+            <p class="comment">画像をクリックすると画像リストに追加します。</p>
+            <div class="menu">
+                <a href="/pictures/showthumb?path=<%= path %>">サムネール表示</a>&nbsp|&nbsp;
+                <a href="javascript:ajustWidth()">画像幅調整</a>&nbsp|&nbsp;
+                <a href="javascript:show_pathlist()">クリックした画像パス一覧&nbsp|&nbsp;</a>
+                <a href="javascript:clear_pathlist()">画像パスをクリアする。</a>
+            </div>
+        </header>
+        <article style="margin-top:30px;">
+            <ul id="pathlist" style="margin-bottom:3px;"></ul>
+            <br />
+            <ul style="list-style-type:none;">
+                <% let i = 1 %>
+                <% for (let a of result) { %>
+                    <li class="img"><img src="/sendfile/?path=<%= a %>" /><br /><%= i %>&nbsp;<%= a %></li>
+                    <% i++ %>
+                <% } %>
+            </ul>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>表示フォルダの設定</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            form {
+                padding: 4px;
+                margin-left:5%;
+            }
+            textarea {
+                box-shadow: 6px 6px gainsboro;
+                padding: 4px;
+                margin-bottom: 8px;
+            }
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>表示フォルダの設定</h1>
+            <hr />
+        </header>
+        <article id="app">
+            <form id="form1" method="POST" action="/computer/folderedit">
+                <textarea id="editor" name="editor" cols="150" rows="30"><%= folderList %></textarea>
+                <div>
+                    <input type="submit" value="  更新する。" />
+                </div>
+            </form>
+            <p>&nbsp;</p>
+            <p class="message"><%= message %></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </article>
+    </body>
+    </html>

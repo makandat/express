@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+
+    <article>
+        <!-- 音楽プレーヤー -->
+        <h1><%= title %></h1>
+        <hr />
+        <figure style="text-align:center;margin-top:30px;">
+            <audio
+                controls
+                src="/download?path=<%= path %>">
+            </audio>
+        </figure>
+    </article>
+
+    <footer>
+        <p class="message"><%= message %></p>
+    </footer>
+</html>

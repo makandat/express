@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>文書一覧</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#marks").change(() => {
+                    let m = $("#marks").val();
+                    if (!m.startsWith('-')) {
+                        location.href = "/documents/documentlist?mark=" + $("#marks").val();
+                    }
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>文書一覧</h1>
+            <p class="comment">Ctrl+F で検索できます。</p>
+            <div class="menu">
+                <a href="javascript:location.reload()">表示更新</a>&nbsp;|&nbsp;
+                <a href="/documents/documentForm">文書の追加・修正</a>&nbsp;|&nbsp;
+                マークフィルタ： <select id="marks">
+                    <option value="0">-- マーク --</option>
+                    <% for (let m of marks) { %>
+                        <option value="<%= m %>"><%= m %></option>
+                    <% } %>
+                </select>
+            </div>
+        </header>
+        <article>
+            <p class="message"><%= message %></p>
+            <table style="width:100%;">
+                <tr><th>id</th><th>書棚(album)番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>作者</th><th>マーク</th><th>情報</th><th>バックアップ</th><th>最新版リリース日</th><th>サムネール</th><th>登録日</th></tr>
+                <% for (let a of result) { %>
+                    <tr>
+                        <td><%= a.id %></td>
+                        <td><%= a.album %></td>
+                        <td><a href="/objectView?path=<%= a.path %>&title=<%= a.title %>" target="_blank"><%= a.title %></a></td>
+                        <td><%= a.revision %></td>
+                        <td><a href="/download?path=<%= a.path %>"><%= a.path %></a></td>
+                        <td><%= a.writer %></td>
+                        <td><%= a.mark %></td>
+                        <td><%= a.info %></td>
+                        <td><%= a.backup %></td>
+                        <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.release.getDate()).substring(0, 2) %></td>
+                        <td><%= a.bindata %></td>
+                        <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.date.getDate()).substring(0, 2) %></td>
+                    </tr>
+                <% } %>
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

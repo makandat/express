@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>プレイリストの作成・更新</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            table {
+                margin-left: 4%;
+                margin-right: 4%;
+                width: 100%;
+            }
+        </style>
+        <script>
+            function clear() {
+                document.getElementById("id").value = "";
+                document.getElementById("title").value = "";
+                document.getElementById("items").value = "";
+                document.getElementById("info").value = "";
+                document.getElementById("message").innerText = "クリアされました。";
+            }
+
+            async function convert() {
+                let items = document.getElementById("items").value.split("\\n");
+                for (let i = 0; i < items.length; i++) {
+                    if (/\d+/.test(items[i])) {
+                        // 項目が数の場合
+                        let promise = await fetch(`/music/confirmMusic/${items[i]}`);
+                        let result = await promise();
+                        items[i] = result.path;
+                    }
+                }
+                document.getElementById("items").value = items.join("\n");
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>プレイリストの作成・更新</h1>
+        </header>
+
+        <article>
+            <form method="POST" id="form1" action="/addModifyPlaylist">
+                <div class="form_row">
+                    <div class="form_item">id</div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">タイトル</div>
+                    <div class="form_item"><input type="text" id="title" name="title" size="60" value="<%= value.title %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">情報</div>
+                    <div class="form_item"><input type="text" id="info" name="info" size="100" value="<%= value.info %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">曲目 (Music テーブルの id を入力するとパスに変換できます。)</div>
+                    <div class="form_item"><textarea id="items" name="items" cols="150" rows="15" style="box-shadow: 5px 6px gainsboro"><%= value.items %></textarea></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <input type="submit" name="submit" value=" 送信する " />&nbsp;
+                    <input type="submit" name="confirm" value=" データ確認 " />&nbsp;
+                    <input type="button" value=" 曲目を id からパスに変換 " onclick="javascript:convert()" />&nbsp;
+                    <input type="button" value=" クリア " onclick="javascript:clear()" />&nbsp;
+                </div>
+            </form>
+            <br />
+            <% if (result) { %>
+                <h3>プレイリスト一覧</h3>
+                <p class="comment">曲目をクリックするとプレイリストの内容が見やすい形式で表示されます。</p>
+                <table>
+                    <tr><th>id</th><th>タイトル</th><th>曲目</th><th>情報</th><th>作成日</th></tr>
+                    <% for (let a of result) { %>
+                        <tr><td><%= a.id %></td><td><%= a.title %></td><td><a href="/music/showPlaylist/<%= a.id %>" target="_blank"><%= a.items.substring(0, 100) + "..." %></a></td><td><%= a.info %></td><td><%= a.date %></td></tr>
+                    <% } %>
+                </table>
+            <% } %>
+        </article>
+        <footer>
+            <p class="message"><%= message %></p>
+        </footer>
+    </body>
+</html>

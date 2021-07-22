@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>サムネール画像情報の追加・更新</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#confirmButton").click(() => {
+                    let id = $("#id").val();
+                    if (id) {
+                        location.href = "/extra/confirmBINDATA/" + id;
+                    }
+                    else {
+                        alert("id が空欄です。")
+                    }
+                });
+                $("#clearButton").click(() => {
+                    $('input[type="text"]').val("");
+                    $("#id").val("");
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>サムネール画像情報の追加・更新</h1>
+            <p class="comment">id が空欄の場合は新規追加、そうでない場合は更新となります。<br />
+                サムネールにする画像ファイルはローカル側（アップロードするファイル) またはサーバ側の画像ファイルのどちらか片方を指定します。<br /> 
+                両方指定した場合はアップロードしたファイルを使用します。
+            </p>
+        </header>
+        <article>
+            <form method="POST" enctype="multipart/form-data" action="/extra/bindataForm">
+                <div class="form_row">
+                    <div class="form_item">id</div>
+                    <div class="form_item"><input type="number" id="id" name="id" value="<%= value.id %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">タイトル</div>
+                    <div class="form_item"><input type="text" id="title" name="title" size="80" value="<%= value.title %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">データタイプ (例) ".jpg"</div>
+                    <div class="form_item"><input type="text" id="datatype" name="datatype" size="10" value="<%= value.datatype %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">オリジナルファイルのパス名 (更新時かつ画像データの更新をしない場合のみ有効)</div>
+                    <div class="form_item"><input type="text" id="original" name="original" size="150"  value="<%= value.original %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">サムネールにする画像ファイル (サーバ側のファイルを使う場合)</div>
+                    <div class="form_item"><input type="text" id="dataFileServer" name="dataFileServer" size="150" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">サムネールにする画像ファイル (クライアント側のファイルをアップロードする場合)</div>
+                    <div class="form_item"><input type="file" id="dataFileClient" name="dataFileClient" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">情報</div>
+                    <div class="form_item"><input type="text" id="info" name="info" size="100" value="<%= value.info %>" /></div>
+                </div>
+                <div class="form_row" style="margin-top:10px;">
+                    <div class="form_item"></div>
+                    <div class="form_item">
+                        <input type="submit" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
+                        <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " />&nbsp;
+                        <input type="button" id="clearButton" name="clearButton" value=" クリア " />&nbsp;
+                    </div>
+                </div>
+            </form>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="message"><%= message %></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

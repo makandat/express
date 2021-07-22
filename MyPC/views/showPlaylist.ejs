@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- プレイリストの詳細を表示する。-->
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            ol {
+                margin-top: 32px;
+                margin-bottom: 16px;
+                font-size: 11pt;
+                color:deepskyblue;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1><%= title %></h1>
+            <hr />
+        </header>
+        <article>
+            <ol>
+                <% for (let path of result) { %>
+                    <% if (path) { %>
+                        <li><%= path %></li>
+                    <% } %>
+                <% } %>
+            </ol>
+            <br />
+            <p class="message"><%= message %></p>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p style="text-align:center;"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#orderby").change(() => {
+                    location.href = "/music/showContent?orderby=" + $("#orderby").val();
+                });
+                $("#findButton").click(() => {
+                    let val = $("#find").val();
+                    if (val) {
+                        location.href = "/music/showContent?search=" + val;
+                    }
+                    else {
+                        alert("検索文字が空欄です。");
+                    }
+                });
+                $("#idButton").click(() => {
+                    let val = $("#directID").val();
+                    if (val)  {
+                        location.href = "/music/showContent?start=" + val;
+                    }
+                    else {
+                        alert("移動先 id が空欄です。");
+                    }
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1><%= title %></h1>
+            <div class="menu">
+                <a href="/music/showContent?reset=true"><img src="/img/home.png"> 表示リセット</a>&nbsp;|&nbsp;
+                <a href="javascript:location.reload()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
+                <a href="/music/musicForm/"><img src="/img/form.png" /> 音楽の追加・修正</a>&nbsp;|&nbsp;
+                <a href="/music/musicPlForm/"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
+                <img src="/img/find2.png" /> 検索 <input type="text" id="find" size="22" /> <input type="button" id="findButton" value=" 検索 " />&nbsp;|&nbsp;
+                <img src="/img/find_go.png" /> id の指定 <input type="text" id="directID" size="5" /> <input type="button" id="idButton" value=" 移動 " />&nbsp;|&nbsp;
+                <a href="/music/showContent?move=first"><img src="/img/first.svg" /> 先頭</a>&nbsp
+                <a href="/music/showContent?move=prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;
+                <a href="/music/showContent?move=next">次へ <img src="/img/next.svg" /></a>&nbsp;
+                <a href="/music/showContent?move=last">最後 <img src="/img/last.svg" /></a>&nbsp;|&nbsp;
+                (<a href="/music/showContent?sortdir=asc"><%= dirasc %>昇順</a>&nbsp;/&nbsp;<a href="/music/showContent?sortdir=desc"><%= dirdesc %>降順</a>&nbsp;
+                <select id="orderby" style="display:none;">
+                    <option value="id">id</option>
+                    <option value="title">タイトル</option>
+                    <option value="date">日付</option>
+                </select>)
+            </div>
+        </header>
+        <article>
+            <h4>
+                <% if (albumName) { %>
+                    アルバム: <%= albumName %>
+                <% } %>
+            </h4>
+            <br />
+            <p>検索ワード：<%= search %></p>
+            <table>
+                <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス</th><th>アーティスト</th><th>マーク</th><th>情報</th><th>好き</th><th>カウント</th><th>サムネール</th><th>登録日</th></tr>
+                <% for (let row of result) { %>
+                    <a>
+                        <td><a href="/music/confirmMusic/<%= row.id %>" target="_blank"><%= row.id %></a></td>
+                        <td><%= row.album %></td>
+                        <td><a href="/music/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
+                        <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
+                        <td><%= row.artist %></td>
+                        <td><%= row.mark %></td>
+                        <td><%= row.info %></td>
+                        <td><a href="/music/favorite/<%= row.id %>"><%= row.fav %></a></td>
+                        <td><%= row.count %></td>
+                        <% if (row.bindata > 0) { %>
+                            <td><img src="/extract/<%= row.bindata %>" /></td>
+                        <% } else { %>
+                            <td></td>
+                        <% } %>
+                        <td><%= row.date.getFullYear() + "-" + row.date.getMonth() + 1 + "-" + row.date.getDate() %></td>
+                    </tr>
+                <% } %>
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>
