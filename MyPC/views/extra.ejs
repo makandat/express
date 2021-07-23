@@ -25,8 +25,32 @@
                 <li><a href="/extra/removeBackup" target="_blank">古いバックアップテーブルを削除する</a></li>
             </ul>
             <br />
-            <form id="form1">
-                <h2>タイマー</h2>
+            <h2>管理テーブルのデータの削除</h2>
+            <p class="comment">(注意) 削除後のデータは復活できません。</p>
+            <form id="deleteRecordForm">
+                <div class="form_row">
+                    <div class="form_item">テーブルの選択</div>
+                    <div>
+                        <label><input type="radio" v-model="deleteTable" value="Albums" /> Albums</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="Projects" /> Projects</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="Documents" /> Documents</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="Music" /> Music</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="BINDATA" /> BINDATA</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" value="Playlists" /> Playlists</label>&nbsp;
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">削除する id</div>
+                    <div class="form_item"><input type="number" v-model="deleteId" />&nbsp;<input type="button" value=" 削除する " v-on:click="deleteRecord_Click" /></div>
+                </div>
+                <br />
+                <p class="message" v-text="deleteRecordMessage"></p>
+            </form>
+            <br />
+            <h2>タイマー</h2>
+            <form id="timerForm">
                 <input type="number" v-model="hours"> 時間&nbsp;&nbsp;
                 <input type="number" v-model="munites"> 分
                 <input type="number" v-model="seconds"> 秒<br />
@@ -43,8 +67,8 @@
         </footer>
         <script>
             var timer, audio;
-            const app = new Vue({
-                el: "#form1",
+            const appTimer = new Vue({
+                el: "#timerForm",
                 data: {
                     hours: 0,
                     munites: 0,
@@ -53,23 +77,62 @@
                 },
                 methods: {
                     startButton_click: () => {
-                        let timeout = 60 * 60 * app.hours + 60 * app.munites + app.seconds;
+                        let timeout = 60 * 60 * appTimer.hours + 60 * appTimer.munites + appTimer.seconds;
                         timer = setInterval(()=>{
                             timeout--;
-                            app.elapse = "残り：" + timeout + "秒";
+                            appTimer.elapse = "残り：" + timeout + "秒";
                             if (timeout == 0) {
                                 clearInterval(timer);
                                 audio = new Audio();
                                 audio.src = "/audio/1";
                                 audio.play();
-                                app.elapse = "タイムアップしました。";
+                                appTimer.elapse = "タイムアップしました。";
                             }
                         }, 1000);
                     },
                     stopButton_click: () => {
                         clearInterval(timer);
-                        app.elapse = "カウントを中止しました。";
+                        appTimer.elapse = "カウントを中止しました。";
                         audio.pause();
+                    }
+                }
+            });
+
+            const appDelete = new Vue({
+                el: "#deleteRecordForm",
+                data: {
+                    deleteTable: null,
+                    deleteId: 0,
+                    deleteRecordMessage: ""
+                },
+                methods: {
+                    deleteRecord_Click: async () => {
+                        if (!appDelete.deleteTable) {
+                            alert("対象テーブルが指定されていません。");
+                            return;
+                        }
+                        if (!(appDelete.deleteId && appDelete.deleteId > 0)) {
+                            alert("対象 id が指定されていません。");
+                            return;
+                        }
+                        if (confirm(appDelete.deleteTable + "の id " + appDelete.deleteId + " を削除します。")) {
+                            let url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
+                            fetch(url)
+                            .then(data=>data.text())
+                            .catch(err=>appDelete.deleteRecordMessage = err.message)
+                            .then(text=>appDelete.deleteRecordMessage = text)
+                            .catch(err=>appDelete.deleteRecordMessage = err.message);
+
+                            if (await deleteId(appDelete.deleteTable, appDelete.deleteId)) {
+                                appDelete.deleteRecordMessage = "削除されました。";
+                            }
+                            else {
+                                appDelete.deleteRecordMessage = "エラーを検出。";
+                            }
+                        }
+                        else {
+                            appDelete.deleteRecordMessage = "削除は取り消されました。";
+                        }
                     }
                 }
             });

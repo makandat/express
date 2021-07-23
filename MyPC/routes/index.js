@@ -356,10 +356,10 @@ router.get("/sendfile", (req, res) => {
 // 音声ファイルをダウンロード
 router.get('/audio/:id', (req, res) => {
   let id = parseInt(req.params.id);
-  let audiofolder = path.join(__dirname, 'public/audio').replace(/\\/g, "/");
+  let audioFolder = path.join(path.dirname(__dirname), "public/audio").replace(/\\/g, "/");
   switch (id) {
     case 1:
-      res.sendFile(audiofolder + "/asa01.wav");
+      res.sendFile(audioFolder + "/asa01.wav");
       /*
       let filePath = audiofolder + "/asa01.wav";
       var stat = fs.statSync(filePath);
@@ -429,6 +429,21 @@ function getTableName(mark) {
   }
   return tableName;
 }
+
+// 指定されたテーブルの指定された id のレコードを削除する。
+router.get("/deleteId", (req, res) => {
+  let tableName = req.query.tableName;
+  let id = req.query.id;
+  let sql = `DELETE FROM ${tableName} WHERE id=${id}`;
+  mysql.execute(sql, (err) => {
+    if (err) {
+      res.json("NG: " + err.message);
+    }
+    else {
+      res.json("OK: 削除成功");
+    }
+  });
+});
 
 
 // ルータをエクスポート

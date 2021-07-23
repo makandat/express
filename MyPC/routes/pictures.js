@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
     session.pictures_search = null;
     session.pictures_start = 1;
     session.pictures_end = ENDLIMIT;
-    res.render('pictures', {title:"Pictures " + os.hostname(), message:""});
+    res.render('pictures', {title:"画像管理 " + os.hostname(), message:""});
 });
 
 // Pictures 項目一覧表示

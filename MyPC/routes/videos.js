@@ -105,10 +105,6 @@ async function makeSQL(req) {
             session.videos_end = ENDLIMIT;
         }
     }
-    else {
-        session.videos_start = 1;
-        session.videos_end = ENDLIMIT;
-    }
     // 検索文字列
     if (req.query.search) {
         session.videos_search = req.query.search;
