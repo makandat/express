@@ -76,7 +76,9 @@ router.get('/showContent', async (req, res) => {
     let sql = await makeSQL(req);
     console.log(sql);
     let result = await mysql.query_p(sql);
-    session.pictures_end = result[result.length - 1].id;
+    if (result.length > 0) {
+        session.pictures_end = result[result.length - 1].id;
+    }
     // 結果を返す。
     res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
 });

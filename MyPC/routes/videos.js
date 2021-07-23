@@ -72,7 +72,9 @@ router.get('/showContent', async (req, res) => {
     let sql = await makeSQL(req);
     console.log(sql);
     let result = await mysql.query_p(sql);
-    session.videos_end = result[result.length - 1].id;
+    if (result.length > 0) {
+        session.videos_end = result[result.length - 1].id;
+    }
     // 結果を返す。
     res.render('videolist', {"title":title, "albumName":albumName, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});
 });

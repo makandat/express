@@ -1,4 +1,6 @@
-CREATE TABLE `Pictures` (
+CREATE DATABASE IF NOT EXISTS `user` DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user.Pictures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
@@ -20,10 +22,10 @@ CREATE TABLE `Pictures` (
   KEY `pictures_mark` (`mark`),
   KEY `pictures_date` (`date`),
   KEY `pictures_sn` (`sn`)
-) ENGINE=InnoDB AUTO_INCREMENT=21036 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `videos` (
+CREATE TABLE IF NOT EXISTS `user.Videos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(8) DEFAULT 0,
   `title` varchar(400) NOT NULL,
@@ -42,10 +44,10 @@ CREATE TABLE `videos` (
   KEY `videos_title` (`title`),
   KEY `videos_series` (`series`),
   KEY `videos_info` (`info`)
-) ENGINE=InnoDB AUTO_INCREMENT=7024 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `Music` (
+CREATE TABLE IF NOT EXISTS `user.Music` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT NULL,
   `title` varchar(100) NOT NULL,
@@ -62,50 +64,50 @@ CREATE TABLE `Music` (
   UNIQUE KEY `path` (`path`),
   KEY `music_title` (`title`),
   KEY `music_path` (`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
 
-CREATE TABLE `Projects` (
+CREATE TABLE IF NOT EXISTS `user.Projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
   `version` varchar(10) DEFAULT NULL,
-  `path` text NOT NULL,
+  `path` varchar(400) NOT NULL,
   `owner` varchar(50) DEFAULT NULL,
   `mark` varchar(20) DEFAULT NULL,
-  `info` text DEFAULT NULL,
-  `git` text DEFAULT NULL,
-  `backup` text DEFAULT NULL,
+  `info` varchar(200) DEFAULT NULL,
+  `git` varchar(400) DEFAULT NULL,
+  `backup` varchar(400) DEFAULT NULL,
   `release` date DEFAULT NULL,
   `bindata` int(11) DEFAULT 0,
   `date` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `title` (`title`),
-  UNIQUE KEY `path` (`path`) USING HASH
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `path` (`path`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `Documents` (
+CREATE TABLE IF NOT EXISTS `user.Documents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
   `revision` varchar(10) DEFAULT NULL,
-  `path` text NOT NULL,
+  `path` varchar(400) NOT NULL,
   `writer` varchar(50) DEFAULT NULL,
   `mark` varchar(20) DEFAULT NULL,
-  `info` text DEFAULT NULL,
-  `backup` text DEFAULT NULL,
+  `info` varchar(200) DEFAULT NULL,
+  `backup` varchar(400) DEFAULT NULL,
   `release` date DEFAULT NULL,
   `bindata` int(11) DEFAULT 0,
   `date` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `title` (`title`),
-  UNIQUE KEY `path` (`path`) USING HASH
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `path` (`path`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `Album` (
+CREATE TABLE IF NOT EXISTS `user.Album` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `mark` varchar(10) DEFAULT NULL,
@@ -116,20 +118,20 @@ CREATE TABLE `Album` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `album_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `Playlists` (
+CREATE TABLE IF NOT EXISTS `user.Playlists` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
   `items` text DEFAULT NULL,
   `info` varchar(100) DEFAULT NULL,
   `date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `BINDATA` (
+CREATE TABLE IF NOT EXISTS `user.BINDATA` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(50) NOT NULL,
   `original` varchar(400) DEFAULT NULL,
@@ -140,4 +142,4 @@ CREATE TABLE `BINDATA` (
   `sn` int(11) DEFAULT NULL,
   `date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1623 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

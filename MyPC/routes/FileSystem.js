@@ -1,11 +1,9 @@
-/* FileSystem.js v1.1 */
+/* FileSystem.js v1.2 */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-if (os.platform() != 'win32') {
-  const { resolve } = require('path/posix');
-}
+
 
 
 /* (ローカル関数) ext が配列 exts の要素に含まれていれば true、そうでなければ false を返す。*/
