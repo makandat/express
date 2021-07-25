@@ -19,19 +19,19 @@
             var separator = ";";
 
             // 画像幅修正
-            function adjustWidth() {
-            $('img').each(function() {
-                let imgwidth = $(this).prop('naturalWidth');
-                //let imgHeight = $(this).prop('naturalHeight');
-                if (imgwidth > window.innerWidth) {
-                    $(this).css('width', '95%');
-                }
-                /*
-                if (imgHeight > window.innerHeight) {
-                    $(this).css('height', '95%');
-                }
-                */
-            });
+            function ajustWidth() {
+                $('img').each(function() {
+                    let imgwidth = $(this).prop('naturalWidth');
+                    //let imgHeight = $(this).prop('naturalHeight');
+                    if (imgwidth > window.innerWidth) {
+                        $(this).css('width', '95%');
+                    }
+                    /*
+                    if (imgHeight > window.innerHeight) {
+                        $(this).css('height', '95%');
+                    }
+                    */
+                });
             }
 
             // パスリストを表示

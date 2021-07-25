@@ -3,7 +3,8 @@
 const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
-const { LengthRequired } = require('http-errors');
+const recursive = require('recursive-readdir');
+const fso = require('./FileSystem.js');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
 const mysql = require('./MySQL.js');
@@ -424,6 +425,223 @@ router.post("/removeBackupTables", async (req, res) => {
     }
 });
 
+// 一括データ挿入
+router.get("/bulkInsert", async (req, res) => {
+    let folder = req.query.folder.replace(/\\/g, "/");
+    let bulkTable = req.query.bulkTable;
+    let sql;
+    switch (bulkTable) {
+        case "Pictures":
+            sql = "INSERT INTO Pictures VALUES";
+            let dirs = await fso.getDirectories_p(folder);
+            for (let dir of dirs) {
+                let dirs2 = await fso.getDirectories_p(dir);
+                for (let dir2 of dirs2) {
+                    dir2 = dir2.replace(/\\/g, "/");
+                    let parts = dir2.split("/");
+                    let title = parts[parts.length - 1];
+                    let creator = parts[parts.length - 2];
+                    let path = dir2.replace(/'/g, "''");
+                    sql += `(NULL, 0, '${title}', '${creator}', '${path}', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
+                }
+            }
+            sql = sql.substring(0, sql.length - 1);
+            mysql.execute(sql, (err) => {
+                if (err) {
+                    res.send(err.message);
+                }
+                else {
+                    res.send("Pictures テーブルへのデータ追加が完了しました。(" + folder + ")");
+                }
+            });
+            break;
+        case "Videos":
+            recursive(folder, (files) => {
+                sql = "INSERT INTO Videos VALUES";
+                for (let p of files) {
+                    let ext = fso.getExtension(p);
+                    if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.mov' || ext == '.mpg') {
+                        let fileName = fso.getFileName(p);
+                        let title = fileName.split(".")[0];
+                        let path = p.replace(/\\/g, "/").replace(/'/g, "''");
+                        let parts = path.split("/");
+                        let series = parts[parts.length - 2];
+                        sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', '${series}', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
+                    }
+                    sql = sql.substring(0, sql.length - 1);
+                    mysql.execute(sql, (err) => {
+                        if (err) {
+                            res.send(err.message);
+                        }
+                        else {
+                            res.send("Videos テーブルへのデータ追加が完了しました。(" + folder + ")");
+                        }
+                    });
+                }
+            });
+            break;
+        case "Music":
+            sql = "INSERT INTO Music VALUES";
+            recursive(folder, (files) => {
+                for (let p of files) {
+                    let ext = fso.getExtension(p);
+                    if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.mov' || ext == '.mpg') {
+                        let fileName = fso.getFileName(p);
+                        let title = fileName.split(".")[0];
+                        let path = p.replace(/\\/g, "/").replace(/'/g, "''");
+                        let parts = path.split("/");
+                        let series = parts[parts.length - 2];
+                        sql += `(NULL, 0, '${title}', '${path}', 'ARTIST', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
+                    }
+                    sql = sql.substring(0, sql.length - 1);
+                    mysql.execute(sql, (err) => {
+                        if (err) {
+                            res.send(err.message);
+                        }
+                        else {
+                            res.send("Music テーブルへのデータ追加が完了しました。(" + folder + ")");
+                        }
+                    });
+                }
+            });
+            break;
+        default:
+            break;
+    }
+});
+
+// 一括データチェック
+router.get("/bulkCheck", async (req, res) => {
+    let folder = req.query.folder;
+    let bulkTable = req.query.bulkTable;
+    let nopath = [];
+    switch (bulkTable) {
+        case "Pictures":
+            let dirs = await fso.getDirectories_p(folder);
+            for (let dir of dirs) {
+                let dirs2 = await fso.getDirectories_p(dir);
+                for (let dir2 of dirs2) {
+                    dir2 = dir2.replace(/\\/g, "/").replace(/'/g, "''");
+                    let sql = `SELECT COUNT(id) FROM ${bulkTable} WHERE path='${dir2}'`;
+                    let n = await mysql.getValue_p(sql);
+                    if (n == 0) {
+                        nopath.push(dir2);
+                    }    
+                }
+            }
+            res.json(nopath);
+            break;
+        case "Music":
+            break;
+        case "Videos":
+            break;
+        default:
+            break;
+    }
+});
+
+// マーク一覧 (Marks)
+router.get("/marksTable", (req, res) => {
+    let result = [];
+    let sql = "SELECT id, mark, tablename, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Marks";
+    let tablename = req.query.table;
+    if (tablename) {
+        if (tablename == "1") {
+            // すべて
+            tablename = "";
+        }
+        else {
+            // 指定されたテーブルのみ
+            sql += ` WHERE tablename='${tablename}'`;
+        }
+    }
+    sql += " ORDER BY tablename";
+    mysql.query(sql, (row) => {
+        if (row) {
+            result.push(row);
+        }
+        else {
+            res.render("marksTable", {message:"テーブル指定：" + tablename, result:result});
+        }
+    });
+});
+
+// マークの追加・修正フォーム (GET)
+router.get("/marksForm", (req, res) => {
+    let value = {
+        id:null,
+        mark:"",
+        tablename:"",
+        info:""
+    };
+    if (req.query.id) {
+        let sql = "SELECT id, mark, tablename, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Marks WHERE id=" + req.query.id;
+        mysql.getRow(sql, (err, row) => {
+            if (err) {
+                res.render("marksForm", {message:err.message, value:value});
+            }
+            else {
+                value.id = req.query.id;
+                value.mark = row.mark;
+                value.tablename = row.tablename;
+                value.info = row.info;
+                value.date = row.date;
+                res.render("marksForm", {message:"", value:value});
+            }
+        });
+    }
+});
+
+// マークの追加・修正フォーム (GET)
+router.post("/marksForm", (req, res) => {
+    let id = req.body.id;
+    let value = {
+        id: id ? id: "",
+        mark: req.body.mark ? req.body.mark : "",
+        tablename: req.body.tablename ? req.body.tablename : "",
+        info: req.body.info ? req.body.info : ""
+    };
+
+    let sql = null;
+    let message = "";
+    if (id) {
+        // 更新
+        sql = `UPDATE Marks SET mark='${value.mark}', tablename='${value.tablename}', info='${value.info}' WHERE id = ${id}`;
+        message = "id:" + id + " が更新されました。";
+    }
+    else {
+        // 挿入
+        sql = `INSERT INTO Marks VALUES(NULL, '${value.mark}', '${value.tablename}', '${value.info}', CURRENT_DATE())`;
+        message = "mark:" + value.mark + " が追加されました。";
+    }
+    mysql.execute(sql, (err) => {
+        if (err) {
+            res.render("marksForm", {message:err.message, value:value});
+        }
+        else {
+            res.render("marksForm", {message:message, value:value});
+        }
+    });
+});
+
+// テーブルに登録された path の存在チェック
+router.get('/checkPathTable', (req, res) => {
+    let tablename = req.query.tablename;
+    let idFrom = req.query.idFrom ? req.query.idFrom : 0;
+    let idTo = req.query.idTo ? req.query.idTo : 10000000;
+    let sql = `SELECT * FROM ${tablename} WHERE id BETWEEN ${idFrom} AND ${idTo}`;
+    let result = [];
+    mysql.query(sql, (row) => {
+        if (row) {
+            if (!fso.exists(row.path)) {
+                result.push(row.path);
+            }
+        }
+        else {
+            res.json(result);
+        }
+    });
+});
 
 // エクスポート
 module.exports = router;

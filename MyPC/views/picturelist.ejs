@@ -49,8 +49,10 @@
                 <img src="/img/find_go.png" /> id の指定 <input type="text" id="directID" size="5" /> <input type="button" id="idButton" value=" 移動 " />&nbsp;|&nbsp;
                 <img src="/img/info2.png" /> マークの指定 <select id="marks">
                     <option value="0">-- Select --</option>
-                    <% for (m of marks) { %>
-                        <option value="<%= m.mark %>"><%= m.mark %></option>
+                    <% if (marks) { %>
+                        <% for (let m of marks) { %>
+                            <option value="<%= m.mark %>"><%= m.mark %></option>
+                        <% } %>
                     <% } %>
                 </select>&nbsp;|&nbsp;
                 <a href="/pictures/showContent?move=first"><img src="/img/first.svg" /> 先頭</a>&nbsp
@@ -82,7 +84,7 @@
                 <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>作者</th><th>パス</th><th>マーク</th><th>情報</th><th>好き</th><th>カウント</th><th>サムネール</th><th>登録日</th></tr>
                 <% for (let row of result) { %>
                     <a>
-                        <td><a href="/pictures/confirmPicture/<%= row.id %>" target="_blank"><%= row.id %></a></td>
+                        <td><a href="/pictures/confirmPictures/<%= row.id %>" target="_blank"><%= row.id %></a></td>
                         <td><%= row.album %></td>
                         <td><a href="/pictures/showPictures/?path=<%= row.path %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><%= row.creator %></td>
@@ -96,7 +98,7 @@
                         <% } else { %>
                             <td></td>
                         <% } %>
-                        <td><%= row.date.getFullYear() + "-" + row.date.getMonth() + 1 + "-" + row.date.getDate() %></td>
+                        <td><%= row.date %></td>
                     </tr>
                 <% } %>
             </table>

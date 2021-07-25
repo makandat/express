@@ -45,14 +45,14 @@ router.get('/showContent', async (req, res) => {
         title += ` (アルバム=${album})`;
         session.videos_orderby = "id";
         session.videos_sortdir = "asc";
-        session.videos_search = "";
+        session.videos_search = null;
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " AND mark='video'");
     }
     if (req.query.reset) {
         session.videos_album = 0;
         session.videos_orderby = "id";
         session.videos_sortdir = "asc";
-        session.videos_search = "";
+        session.videos_search = null;
     }
     if (req.query.sortdir) {
         session.videos_sortdir = req.query.sortdir;
@@ -66,7 +66,7 @@ router.get('/showContent', async (req, res) => {
     else {
         session.videos_sortdir = "asc";
         dirasc = "●";
-        dirdesc = "";    
+        dirdesc = "";
     }
     // クエリーを行う。
     let sql = await makeSQL(req);
@@ -143,13 +143,13 @@ async function makeSQL(req) {
             if (session.videos_sortdir == "asc") {
                 // 昇順
                 session.videos_start = lastid;
-                session.videos_end = ENDLIMIT;    
+                session.videos_end = ENDLIMIT;
             }
             else {
                 // 降順
                 let minId = await mysql.getValue_p("SELECT MIN(id) FROM Videos");
                 session.videos_start = minId;
-                session.videos_end = minId;    
+                session.videos_end = minId;
             }
         }
         else {
@@ -173,7 +173,7 @@ async function makeSQL(req) {
                             break;
                         }
                         i++;
-                    }    
+                    }
                 }
                 else {
                     session.videos_start = lastid;
@@ -197,7 +197,7 @@ async function makeSQL(req) {
                             break;
                         }
                         i++;
-                    }    
+                    }
                 }
                 else {
                     session.videos_start = 1;
@@ -287,8 +287,20 @@ async function makeSQL(req) {
 }
 
 // サーチワードからSQLの条件に変換する。
-function getCriteria(search) {
-    return `INSTR(title, '${search}') OR INSTR(path, '${search}') OR INSTR(info, '${search}')`;
+function getCriteria(search, mark) {
+    let criteria = "";
+    let needAnd = false;
+    if (search) {
+        criteria += `INSTR(title, '${search}') OR INSTR(path, '${search}') OR INSTR(info, '${search}')`;
+        needAnd = true;
+    }
+    if (mark) {
+        if (needAnd) {
+            criteria += " AND ";
+        }
+        criteria += `mark='${mark}'`;
+    }
+    return criteria;
 }
 
 // 「好き」の付いた画像フォルダ一覧
@@ -420,7 +432,7 @@ router.get('/videosForm', (req, res) => {
             marks.push(row.mark);
         }
         else {
-            res.render('videosForm', {message:"", marks:marks, value:value});   
+            res.render('videosForm', {message:"", marks:marks, value:value});
         }
     });
 });
@@ -450,7 +462,7 @@ router.get('/confirmVideos/:id', (req, res) => {
                     marks.push(row.mark);
                 }
                 else {
-                    res.render('videosForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value});   
+                    res.render('videosForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value});
                 }
             });
         }
@@ -467,8 +479,8 @@ router.get('/confirmVideos/:id', (req, res) => {
                 fav: 0,
                 bindata: 0
             };
-            res.render('videosForm', {message:"エラー： データがありません。", marks:[], value:value});    
-        }    
+            res.render('videosForm', {message:"エラー： データがありません。", marks:[], value:value});
+        }
     });
 });
 
@@ -533,7 +545,7 @@ router.post('/videosForm', (req, res) => {
                     }
                     else {
                         res.render('videosForm', {message:`${title} が追加されました。`, marks:marks, value:value});
-                    }  
+                    }
                 });
             }
         }
@@ -579,7 +591,7 @@ router.get("/albumForm", (req, res) => {
         bindata: 0,
         groupname: ""
       };
-      res.render('addModifyAlbum', {message:"", values:values});    
+      res.render('addModifyAlbum', {message:"", values:values});
 });
 
 // アルバムの作成 (POST)
@@ -616,7 +628,7 @@ router.post("/albumForm", (req, res) => {
             res.render('addModifyAlbum', {message:values.name + "が作成されました。", values:values});
           }
         });
-    }    
+    }
 });
 
 

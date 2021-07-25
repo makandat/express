@@ -27,20 +27,41 @@ router.get('/showContent', async (req, res) => {
     if (album == undefined) {
         album = 0;
     }
+    let ms = await mysql.query_p("SELECT DISTINCT mark FROM Music");
+    let marks = [];
+    for (let m of ms) {
+        marks.push(m.mark);
+    }
+    let fav = req.query.fav;
+    if (fav) {
+        const FAVSQL = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music WHERE fav > 0 ORDER BY fav DESC";
+        mysql.query(FAVSQL, (row) => {
+            let result = [];
+            if (row) {
+                result.push(row);
+            }
+            else {
+                res.render('musiclist', {"title":"好きな" + title, "albumName":"", "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:"", dirdesc:"●", search:""});
+            }
+        });
+        return;
+    }
     let albumName = "";
     if (album > 0) {
         title += ` (アルバム=${album})`;
         session.music_orderby = "id";
         session.music_sortdir = "asc";
-        session.music_search = "";
+        session.music_search = null;
         session.music_start = 1;
+        session.music_mark = null;
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " AND mark='music'");
     }
     if (req.query.reset) {
         session.music_album = 0;
         session.music_orderby = "id";
         session.music_sortdir = "asc";
-        session.music_search = "";
+        session.music_search = null;
+        session.music_mark = null;
         session.music_start = 1;
     }
     if (req.query.sortdir) {
@@ -62,10 +83,10 @@ router.get('/showContent', async (req, res) => {
             }
             else {
                 dirasc = "●";
-                dirdesc = "";    
+                dirdesc = "";
                 session.music_start = 1;
             }
-            res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});
+            res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});
         }
     });
 });
@@ -78,12 +99,13 @@ router.get('/musicForm', (req, res) => {
         title: "",
         path: "",
         artist: "",
+        media: "",
         mark: "",
         info: "",
         fav: 0,
         bindata: 0
     };
-    res.render('formMusic', {message:"", value:value});   
+    res.render('formMusic', {message:"", value:value});
 });
 
 // Music 項目の確認 (GET)
@@ -98,12 +120,13 @@ router.get('/confirmMusic/:id', (req, res) => {
                 title: row.title,
                 path: row.path,
                 artist: row.artist,
+                media: row.media,
                 mark: row.mark,
                 info: row.info,
                 fav: row.fav,
                 bindata: row.bindata
             };
-            res.render('formMusic', {message:`id: ${id} が検索されました。`, value:value});    
+            res.render('formMusic', {message:`id: ${id} が検索されました。`, value:value});
         }
         else {
             let value = {
@@ -112,13 +135,14 @@ router.get('/confirmMusic/:id', (req, res) => {
                 title: "",
                 path: "",
                 artist: "",
+                media: "",
                 mark: "",
                 info: "",
                 fav: 0,
                 bindata: 0
             };
-            res.render('formMusic', {message:"エラー： データがありません。", value:value});    
-        }    
+            res.render('formMusic', {message:"エラー： データがありません。", value:value});
+        }
     });
 });
 
@@ -132,6 +156,7 @@ router.post('/musicForm', async (req, res) => {
     let title = req.body.title.replace("'", "''");
     let path = req.body.path.replace(/\\/g, "/").replace("'", "''");
     let artist = req.body.artist.replace("'", "''");
+    let media = req.body.media;
     let mark = req.body.mark;
     let info = req.body.info.replace("'", "''");
     let fav = req.body.fav;
@@ -142,6 +167,7 @@ router.post('/musicForm', async (req, res) => {
         title: req.body.title,
         path: req.body.path,
         artist: req.body.artist,
+        media: req.body.media,
         mark: req.body.mark,
         info: req.body.info,
         fav: req.body.fav,
@@ -150,14 +176,14 @@ router.post('/musicForm', async (req, res) => {
 
     if (id) {
         //  更新
-        let update = `UPDATE Music SET album=${album}, title='${title}', path='${path}', artist='${artist}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
+        let update = `UPDATE Music SET album=${album}, title='${title}', path='${path}', artist='${artist}', media='${media}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
         mysql.execute_p(update)
         .catch(err => res.render('formMusic', {message:err.message, value:value}))
         .then(data => res.render('formMusic', {message:`${title} が更新されました。`, value:value}));
     }
     else {
         // 追加
-        let insert = `INSERT INTO Music(album, title, path, artist, mark, info, fav, bindata, date) VALUES(${album}, '${title}', '${path}', '${artist}', '${mark}', '${info}', ${fav}, ${bindata}, CURRENT_DATE())`;
+        let insert = `INSERT INTO Music(album, title, path, artist, mark, info, fav, bindata, date) VALUES(${album}, '${title}', '${path}', '${artist}', '${media}', '${mark}', '${info}', ${fav}, ${bindata}, CURRENT_DATE())`;
         mysql.execute_p(insert)
         .catch(err => res.render('formMusic', {message:err.message, value:value}))
         .then(data => res.render('formMusic', {message:`${title} が追加されました。`, value:value}));
@@ -272,13 +298,13 @@ async function makeSQL(req) {
             if (session.music_sortdir == "asc") {
                 // 昇順
                 session.music_start = lastid;
-                session.music_end = ENDLIMIT;    
+                session.music_end = ENDLIMIT;
             }
             else {
                 // 降順
                 let minId = await mysql.getValue_p("SELECT MIN(id) FROM Music");
                 session.music_start = minId;
-                session.music_end = minId;    
+                session.music_end = minId;
             }
         }
         else {
@@ -302,7 +328,7 @@ async function makeSQL(req) {
                             break;
                         }
                         i++;
-                    }    
+                    }
                 }
                 else {
                     session.music_start = lastid;
@@ -326,7 +352,7 @@ async function makeSQL(req) {
                             break;
                         }
                         i++;
-                    }    
+                    }
                 }
                 else {
                     session.music_start = 1;
@@ -354,7 +380,7 @@ async function makeSQL(req) {
     }
 
     // SQL 文作成
-    let sql = "SELECT * FROM Music";
+    let sql = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music";
     let needWhere = true;
     let needAnd = true;
     if (session.music_album > 0) {
@@ -432,8 +458,20 @@ async function countup(id) {
 };
 
 // サーチワードからSQLの条件に変換する。
-function getCriteria(search) {
-    return `INSTR(title, '${search}') OR INSTR(path, '${search}') OR INSTR(info, '${search}')`;
+function getCriteria(search, mark) {
+    let criteria = "";
+    let needAnd = false;
+    if (search) {
+        criteria += `INSTR(title, '${search}') OR INSTR(path, '${search}') OR INSTR(info, '${search}')`;
+        needAnd = true;
+    }
+    if (mark) {
+        if (needAnd) {
+            criteria += " AND ";
+        }
+        criteria += `mark='${mark}'`;
+    }
+    return criteria;
 }
 
 

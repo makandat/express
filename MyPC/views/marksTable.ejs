@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>レコード識別マーク一覧</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                $("#tableName").change(() => {
+                    let tablename = $("#tableName").val();
+                    if (tablename == "0") {
+                        return;
+                    }
+                    location.href = "/extra/marksTable?table=" + tablename;
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>レコード識別マーク一覧</h1>
+            <p class="comment">このデータは直接、MyPC で使われていません。<br />マークはユーザが Album を除き自由に設定できますが、スペルなどを間違えると期待通りに動作しないため Makrs テーブルに書いておくことができます。</p>
+            <div class="menu">
+                <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 最新の状態を表示</a>&nbsp;|&nbsp;
+                <label>適用テーブルの指定 <select id="tableName">
+                    <option value="0">-- Select --</option>
+                    <option value="1">すべて</option>
+                    <option value="Album">アルバム</option>
+                    <option value="Pictures">画像フォルダ</option>
+                    <option value="Videos">動画</option>
+                    <option value="Music">音楽</option>
+                    <option value="Projects">プロジェクト</option>
+                    <option value="Documents">文書</option>
+                </select></label>&nbsp;|&nbsp;
+                <a href="/extra/marksForm" target="_blank"><img src="/img/form.png" />マーク情報の追加・修正</a>
+            </div>
+        </header>
+        <article>
+            <p class="message"><%= message %></p>
+            <br />
+            <table style="width:100%;">
+                <tr><th>id</th><th>マーク</th><th>適用テーブル</th><th>情報</th><th>登録日</th></tr>
+                <% for (let row of result) { %>
+                    <td><%= row.id %></td>
+                    <td><%= row.mark %></td>
+                    <td><%= row.tablename %></td>
+                    <td><%= row.info %></td>
+                    <td><%= row.date %></td>
+                <% } %>
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

@@ -25,6 +25,11 @@
                 <li><a href="/extra/removeBackup" target="_blank">古いバックアップテーブルを削除する</a></li>
             </ul>
             <br />
+            <h2>レコード識別マーク一覧</h2>
+            <ul>
+                <li><a href="/extra/marksTable" target="_blank">識別マーク一覧 (marks テーブル)</a></li>
+            </ul>
+            <br />
             <h2>管理テーブルのデータの削除</h2>
             <p class="comment">(注意) 削除後のデータは復活できません。</p>
             <form id="deleteRecordForm">
@@ -49,6 +54,57 @@
                 <p class="message" v-text="deleteRecordMessage"></p>
             </form>
             <br />
+            <h2>データ一括登録とチェック</h2>
+            <form id="bulkDataForm">
+                <div class="form_row">
+                    <div class="form_item">テーブルの選択</div>
+                    <div>
+                        <label><input type="radio" v-model="bulkTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="bulkTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="bulkTable" value="Music" /> Music</label>&nbsp;
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">対象フォルダ</div>
+                    <div class="form_item"><input type="text" v-model="folder" size="100" /></div>
+                </div>
+                <div class="form_row" style="margin-top:12px;">
+                    <input type="button" v-on:click="checkButton_Click" value=" 一括チェック " />&nbsp;
+                    <input type="button" v-on:click="insertButton_Click" value=" 一括登録 " />
+                </div>
+                <br />
+                <p class="message" v-text="message"></p>
+                <ul style="font-size:10pt;" v-html="result"></ul>
+            </form>
+            <br />
+            <h2>パスの存在チェック</h2>
+            <form id="checkPathForm" name="checkPathForm">
+                <div class="form_row">
+                    <div class="form_item">テーブルの選択</div>
+                    <div>
+                        <label><input type="radio" v-model="checkTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="checkTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="checkTable" value="Music" /> Music</label>&nbsp;
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">
+                        チェックする id の範囲 (省略時はすべて)
+                    </div>
+                    <div class="form_item">
+                        <input type="text" name="fromId" v-model="fromId" size="6" /> から <input type="text" name="toId" v-model="toId" size="6" /> まで
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">
+                        <input type="button" v-on:click="checkTable_Click" value=" チェックする " />
+                    </div>
+                </div>
+                <br />
+                <p class="message" v-text="message"></p>
+                <ul style="font-size:10pt;" v-html="result"></ul>
+            </form>
+            <br />
             <h2>タイマー</h2>
             <form id="timerForm">
                 <input type="number" v-model="hours"> 時間&nbsp;&nbsp;
@@ -66,6 +122,7 @@
             <p>&nbsp;</p>
         </footer>
         <script>
+            // タイマー
             var timer, audio;
             const appTimer = new Vue({
                 el: "#timerForm",
@@ -98,6 +155,7 @@
                 }
             });
 
+            // データの削除
             const appDelete = new Vue({
                 el: "#deleteRecordForm",
                 data: {
@@ -132,6 +190,90 @@
                         }
                         else {
                             appDelete.deleteRecordMessage = "削除は取り消されました。";
+                        }
+                    }
+                }
+            });
+
+            // データの一括登録とチェック
+            const bulkDataForm = new Vue({
+                el: "#bulkDataForm",
+                data: {
+                    folder: "",
+                    bulkTable: "",
+                    result: "",
+                    message: ""
+                },
+                computed: {
+                    folder1: () => { return bulkDataForm.folder.replace(/\\/g, "/");}
+                },
+                methods: {
+                    checkButton_Click: () => {  // 一括チェック
+                        fetch("/extra/bulkCheck?folder=" + bulkDataForm.folder1 + "&bulkTable=" + bulkDataForm.bulkTable)
+                        .then(res=>res.json())
+                        .then(arr => {
+                            let html = "";
+                            for (let a of arr) {
+                                html += ("<li>" + a + "</li>")
+                            }
+                            if (html == "") {
+                                bulkDataForm.message = "";
+                                bulkDataForm.result = "";
+                            }
+                            else {
+                                bulkDataForm.message = "未登録画像フォルダ";
+                                bulkDataForm.result = html;
+                            }
+                        })
+                        .catch(err=>{bulkDataForm.message = err.message;});
+                    },
+                    insertButton_Click: () => {  // 一括挿入
+                        fetch("/extra/bulkInsert?folder=" + bulkDataForm.folder1 + "&bulkTable=" + bulkDataForm.bulkTable)
+                        .then(res=>res.text())
+                        .then(text=>{bulkDataForm.message = text;})
+                        .catch(err=>{bulkDataForm.message = err.message;});
+                    }
+                }
+            });
+
+            // テーブルの path フィールドの存在チェック
+            const checkPathForm = new Vue({
+                el: "#checkPathForm",
+                data: {
+                    checkTable: "Pictures",
+                    idFrom: "",
+                    idTo: "",
+                    message: "",
+                    result:""
+                },
+                methods: {
+                    checkTable_Click: () => {
+                        if (checkPathForm.idFrom && checkPathForm.idTo) {
+                            fetch(`/extra/checkPathTable?tablename=${checkPathForm.checkTable}&idFrom=${checkPathForm.idFrom}&idTo=${checkPathForm.idTo}`)
+                            .then(response => response.json())
+                            .then(json => checkPathForm.message = json)
+                            .catch(err => checkPathForm.message = err.message);
+                        }
+                        else {
+                            fetch(`/extra/checkPathTable?tablename=${checkPathForm.checkTable}`)
+                            .then(response => response.json())
+                            .then(arr => {
+                                let html = "";
+                                for (let a of arr) {
+                                    html += "<li>";
+                                    html += a;
+                                    html += "</li>\n";
+                                }
+                                if (html == "") {
+                                    checkPathForm.message = "存在しないパスは０件でした。";
+                                    checkPathForm.result = html;
+                                }
+                                else {
+                                    checkPathForm.message = "存在しないパス一覧";
+                                    checkPathForm.result = html;
+                                }
+                            })
+                            .catch(err => checkPathForm.message = err.message);
                         }
                     }
                 }

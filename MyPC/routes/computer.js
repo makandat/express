@@ -4,8 +4,12 @@ const express = require('express');
 const session = require('express-session');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
+const unzipper = require('unzipper');
+const zipdir = require('zip-dir');
+const tempnam = require('tempnam');
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 const child_process = require('child_process');
 const fso = require('./FileSystem.js');
 const com = require("./Common.js");
@@ -84,6 +88,7 @@ function showItems(dir, res, message = "") {
     else {
         let resultFiles = [];
         let resultDirs = [];
+        let resultSymLinks = [];
         let i = 1;
         fso.getDirectories(dir, (dirs) => {
             let row = [];
@@ -108,7 +113,7 @@ function showItems(dir, res, message = "") {
                     try {
                         d = d.replace(/\\/g, '/') + "/";
                         row.push(`<a href="javascript:copyPath(${i - 1})">${i}</a>`);
-                        row.push(fso.getAttrSync(d, true));
+                        row.push(fso.getAttrSync(d, true, "d"));
                         row.push(`<a href="/computer/folder/?folder=${d}" id="no${i}">${d}</a>`);
                         row.push("d");
                         row.push("-");
@@ -125,10 +130,11 @@ function showItems(dir, res, message = "") {
                     // ファイル
                     try {
                         let row = [];
+                        let i = 0;
                         for (let f of files) {
                             f = f.replace(/\\/g, '/');
                             row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
-                            row.push(fso.getAttrSync(f, true));
+                            row.push(fso.getAttrSync(f, true, "-"));
                             row.push(`<a href="/computer/download/?file=${f}" target="_blank" id="no${i + 1}">${f}</a>`);
                             row.push("f");
                             row.push(insertCommas(fso.getSizeSync(f)));
@@ -141,36 +147,60 @@ function showItems(dir, res, message = "") {
                     catch (err) {
                         row = [];
                     }
-                    let result = [];
-                    if (session.orderby == "name" && session.sortdir =="asc") {
-                        // 標準の場合、そのままサブディレクトリとファイルを一緒にする。
-                        result = resultDirs.concat(resultFiles);
-                    }
-                    else {
-                        // サブディレクトリを並べ替え
-                        resultDirs = sortRows(resultDirs, session.sortdir, session.orderby);
-                        // ファイルを並べ替え
-                        resultFiles = sortRows(resultFiles, session.sortdir, session.orderby);   
-                        // サブディレクトリとファイルを一緒にする。
-                        result = resultDirs.concat(resultFiles);
-                        if (result.length == 0) {
-                            message = "フォルダ内に項目がありません。";
+                    fso.getSymLinks(dir, (symlinks) => {
+                        // Symbolic リンク
+                        try {
+                            let row = [];
+                            let i = 0;
+                            for (let f of symlinks) {
+                                f = f.replace(/\\/g, '/');
+                                row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
+                                row.push(fso.getAttrSync(f, true, "l"));
+                                row.push(`<a href="/computer/download/?file=${f}" target="_blank" id="no${i + 1}">${f}</a>`);
+                                row.push("l");
+                                row.push(insertCommas(fso.getSizeSync(f)));
+                                row.push(fso.getDateTimeSync(f, true));
+                                resultSymLinks.push(row);
+                                row = [];
+                                i++;
+                            }    
                         }
-                    }
-                    res.render('computer', 
-                      {
-                        "folders": folderList(),
-                        "result": result,
-                        "place": embedHyperlinks(dir),
-                        "currentDir":dir,
-                        "hostname": os.hostname(),
-                        "orderbyname": session.orderby == "name" ? "●" : "",
-                        "orderbytime": session.orderby == "time" ? "●" : "",
-                        "sortdirasc": session.sortdir == "asc" ? "●" : "",
-                        "sortdirdesc": session.sortdir == "desc" ? "●" : "",
-                        "message": message
-                      }                     
-                    );
+                        catch (err) {
+                            row = [];
+                        }
+                        let result = [];
+                        if (session.orderby == "name" && session.sortdir =="asc") {
+                            // 標準の場合、そのままサブディレクトリとファイルを一緒にする。
+                            result = resultDirs.concat(resultFiles).concat(resultSymLinks);
+                        }
+                        else {
+                            // サブディレクトリを並べ替え
+                            resultDirs = sortRows(resultDirs, session.sortdir, session.orderby);
+                            // ファイルを並べ替え
+                            resultFiles = sortRows(resultFiles, session.sortdir, session.orderby);   
+                            // シンボリックリンクを並べ替え
+                            resultSymLinks = sortRows(resultSymLinks, session.sortdir, session.orderby);   
+                            // サブディレクトリとファイルを一緒にする。
+                            result = resultDirs.concat(resultFiles).concat(resultSymLinks);
+                            if (result.length == 0) {
+                                message = "フォルダ内に項目がありません。";
+                            }
+                        }
+                        res.render('computer', 
+                          {
+                            "folders": folderList(),
+                            "result": result,
+                            "place": embedHyperlinks(dir),
+                            "currentDir":dir,
+                            "hostname": os.hostname(),
+                            "orderbyname": session.orderby == "name" ? "●" : "",
+                            "orderbytime": session.orderby == "time" ? "●" : "",
+                            "sortdirasc": session.sortdir == "asc" ? "●" : "",
+                            "sortdirdesc": session.sortdir == "desc" ? "●" : "",
+                            "message": message
+                          }                     
+                        );
+                    });
                 });    
             }
         });
@@ -615,6 +645,52 @@ function execCommand(cmdtokens, res) {
         });    
     }
 }
+
+// 圧縮ファイルフォーム (GET)
+router.get("/zipfile", (req, res) => {
+    res.render("zipfile", {message:"", folder:""});
+});
+
+// 圧縮ファイルフォーム (POST)
+router.post("/zipfile", upload.single('uploadFile'), async (req, res) => {
+    let ope = req.body.ope;  // 圧縮か解凍か
+    let folder = req.body.folder.replace(/\\/g, "/");  // 圧縮するフォルダまたは解凍先のフォルダ
+    if (!folder) {
+        res.render("zipfile", {message:"エラー：フォルダの指定がありません。", folder:""});
+        return;
+    }
+    if (ope == "inflate") {
+        // アップロードされたファイルを解凍する。
+        let path = req.file.path;
+        let target = folder + "/" + req.file.originalname;
+        fs.copyFile(path, target, fs.constants.COPYFILE_EXCL, () => {
+            // 解凍する。
+            fs.createReadStream(target).pipe(unzipper.Extract({path: folder}));
+            // 不要になった圧縮ファイルを削除
+            fs.unlinkSync(path);
+            res.render("zipfile", {message:`${req.file.originalname} を ${folder} に解凍しました。`, folder:folder});
+        });
+    }
+    else if (ope == "deflate") {
+        // フォルダを圧縮してダウンロードする。
+        let buffer = await zipdir(folder);
+        zipdir(folder, (err, buffer) => {
+            let temp;
+            let tmpdir = (path.dirname(__dirname) + "/tmp").replace(/\\/g, "/");
+            tempnam.tempnam(tmpdir, "mypc_", (err, fileName) => {
+                let zipFile = fileName + ".zip";
+                fs.writeFile(zipFile, buffer, () => {
+                    res.render("zipfile", {message:`OK: <a href="/download?path=${zipFile}">ダウンロード</a>`, folder:""});
+                });
+            });
+        });
+    }
+    else {
+        // ラジオボタンがどちらもチェックされていない場合
+        res.render("zipfile", {message:"エラー：操作の指定がありません。", folder:""});
+    }
+});
+
 
 //  ~~~~~~~~~~~~~~~~~~~~~~~
 //  ルータをエクスポートする。

@@ -1,4 +1,4 @@
-/* FileSystem.js v1.2 */
+/* FileSystem.js v1.3 */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -12,7 +12,6 @@ function testExtension(ext, exts) {
     if (exts[i] == ext)
       return true;
   }
-
   return false;
 }
 
@@ -45,6 +44,7 @@ exports.getFiles = async (dir, exts, callback) => {
     }
   });
 }
+
 
 /* フォルダ内のファイル一覧を得る。*/
 /*  dir は対象のディレクトリ */
@@ -105,6 +105,40 @@ exports.getDirectories_p = async (dir) => {
   });
 }
 
+/* フォルダ内のシンボリックリンク一覧を得る。*/
+/*  dir は対象のディレクトリ */
+exports.getSymLinks = (dir, callback) => {
+  let dirs = [];
+  fs.readdir(dir, {'withFileTypes': true}, (err, items) => {
+    if (err) {
+      callback(err.message);
+    }
+    else {
+      for (let item of items) {
+        if (item.isSymbolicLink()) {
+          dirs.push(path.join(dir, item.name));
+        }
+      }
+      callback(dirs); 
+    }
+  });
+}
+
+/* フォルダ内のシンボリックリンク一覧を得る。(Promiseバージョン) */
+/*  dir は対象のディレクトリ */
+exports.getSymLinks_p = async (dir) => {
+  let prom_items = await fs.promises.readdir(dir, {'withFileTypes': true});
+  return new Promise((resolve, reject) => {
+    let dirs = [];
+    for (let item of prom_items) {
+      if (item.isSymbolicLink()) {
+        dirs.push(path.join(dir, item.name));
+      }
+    }
+    resolve(dirs);
+  });
+}
+
 /* パスがディレクトリか判別する。*/
 /*   callback はブール値を受け取るコールバック関数 */
 exports.isDir = async (path, callback) => {
@@ -116,32 +150,38 @@ exports.isDir = async (path, callback) => {
 exports.isDirSync = (path) => {
   let st = fs.statSync(path);
   return st.isDirectory();
-}
+};
 
 /* パスがファイルか判別する。*/
 /*   callback はブール値を受け取るコールバック関数 */
 exports.isFile = async (path, callback) => {
   let prom_stat = await fs.promises.stat(path);
   callback(prom_stat.isFile());
-}
+};
 
 /* 同期・パスがファイルか判別する。*/
 exports.isFileSync = (path) => {
   let st = fs.statSync(path);
   return st.isFile();
-}
+};
 
 /* パスがSymbolicリンクか判別する。　*/
 exports.isLink = async (path, callback) => {
   let prom_stat = await fs.promises.lstat(path);
   callback(prom_stat.isSymbolicLink());  
-}
+};
 
 /* 同期・パスがSymbolicリンクか判別する。　*/
 exports.isLinkSync = (path) => {
   let st = fs.lstatSync(path);
   return st.isSymbolicLink();
-}
+};
+
+/* Symbolic リンクのリンク先を得る。*/
+exports.getLinkValue = async (path) => {
+  let link = await fs.fsPromises.readlink(path);
+  return link;
+};
 
 /* 同期・パスが存在するか判別する。*/
 exports.exists = (path) => {
@@ -153,20 +193,20 @@ exports.exists = (path) => {
     b = false
   }
   return b;
-}
+};
 
 /* ファイルサイズを得る。*/
 /*   callback はファイルサイズ(BigInt)を受け取るコールバック関数 */
 exports.getSize = async (path, callback) => {
   let prom_stat = await fs.promises.stat(path, true);
   callback(prom_stat.size);    
-}
+};
 
 /* 同期・ファイルサイズ(BigInt)を得る。*/
 exports.getSizeSync = (path) => {
   let st = fs.statSync(path, true);
   return st.size;
-}
+};
 
 /* ファイル・ディレクトリの更新日時を得る。*/
 /*   callback は更新日時を受け取るコールバック関数 */
@@ -182,7 +222,7 @@ exports.getDateTime = async (path, callback, optstr = false) => {
   else {
     callback(time);
   }
-}
+};
 
 /* 同期・ファイル・ディレクトリの更新日時を得る。*/
 /*   optstr は false なら Date 型で、true なら String で結果を返す。*/
@@ -197,33 +237,45 @@ exports.getDateTimeSync = (path, optstr = false) => {
   else {
     return time;
   }
-}
+};
 
 /* ファイルの属性を得る。　*/
 /* optstr が true なら UNIX 形式の文字列としてファイル属性を返す。そうでなければ数として返す。*/
 exports.getAttr = async (path, callback, optstr = false) => {
-  let prom_stat = await fs.promises.stat(path);
-  if (optstr) {
-    callback(translateMode(prom_stat.mode));
+  let st = await fs.promises.lstat(path);
+  if (st.isSymbolicLink()) {
+    st = await fs.promises.lstat(path);
   }
   else {
-    callback(prom_stat.mode);
+    st = await fs.promises.stat(path);
   }
-}
+  if (optstr) {
+    callback(translateMode(st.mode));
+  }
+  else {
+    callback(st.mode);
+  }
+};
 
 /* 同期・ファイルの属性を得る。　*/
-exports.getAttrSync = (path, optstr = false) => {
-  let st = fs.statSync(path);
+exports.getAttrSync = (path, optstr = false, pre = "") => {
+  let st = fs.lstatSync(path);
+  if (st.isSymbolicLink()) {
+    st = fs.lstatSync(path);
+  }
+  else {
+    st = fs.statSync(path);
+  }
   if (optstr) {
-    return translateMode(st.mode);
+    return translateMode(st.mode, pre);
   }
   else {
     return st.mode;
   }
-}
+};
 
 /* ファイル属性を UNIX 風の文字列で表す。*/
-let translateMode = (mode) => {
+let translateMode = (mode, pre="") => {
   let strmode = "";
   if (mode & 0o1) {
     strmode = "x" + strmode;
@@ -279,37 +331,32 @@ let translateMode = (mode) => {
   else {
     strmode = "-" + strmode;
   }
-  if (mode & 0o1000) {
-    strmode = "d" + strmode;
-  }
-  else {
-    strmode = "-" + strmode;
-  }
+  strmode = pre + strmode;
   
   return strmode;
-}
+};
 
 /* パスの拡張子を得る。同期関数 */
 exports.getExtension = (p) =>{
   return path.extname(p);
-}
+};
 
 /* パスのディレクトリ部分を得る。同期関数 */
 exports.getDirectory = (p) => {
   return path.dirname(p);
-}
+};
 
 /* パスのファイル部分を得る。同期関数 */
 exports.getFileName = (p) => {
   return path.basename(p);
-}
+};
 
 /* ホームディレクトリ 同期関数 */
 exports.getHome = () => {
   return os.homedir();
-}
+};
 
 /* 一時ディレクトリ 同期関数 */
 exports.getTemp = () => {
   return os.tmpdir();
-}
+};

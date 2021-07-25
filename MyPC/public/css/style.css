@@ -11,8 +11,7 @@ h2 {
   padding-top: 10px;
   padding-left: 10px;
   padding-bottom:6px;
-  color: orangered;
-  border-left: solid 20px crimson;
+  color: crimson;
 }
 
 h3 {
@@ -96,7 +95,7 @@ th {
 
 .form_item {
   font-size: 10pt;
-  color:mediumpurple;
+  color:rgb(89, 30, 207);
 }
 
 input[type="text"] {

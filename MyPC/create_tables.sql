@@ -1,6 +1,9 @@
+-- データベース (user)
 CREATE DATABASE IF NOT EXISTS `user` DEFAULT CHARSET=utf8;
+use user
 
-CREATE TABLE IF NOT EXISTS `user.Pictures` (
+-- 画像フォルダ (Pictures)
+CREATE TABLE IF NOT EXISTS `Pictures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
@@ -8,11 +11,11 @@ CREATE TABLE IF NOT EXISTS `user.Pictures` (
   `path` varchar(500) NOT NULL,
   `mark` varchar(10) DEFAULT NULL,
   `info` varchar(100) DEFAULT NULL,
-  `fav` char(1) DEFAULT '0',
+  `fav` int(8) DEFAULT 0,
   `count` int(8) DEFAULT 0,
   `bindata` int(11) DEFAULT 0,
   `date` date DEFAULT NULL,
-  `sn` int(11) DEFAULT NULL,
+  `sn` int(11) DEFAULT NULL COMMENT '使用しない',
   PRIMARY KEY (`id`),
   UNIQUE KEY `PATH` (`path`),
   KEY `pictures_title` (`title`),
@@ -22,10 +25,10 @@ CREATE TABLE IF NOT EXISTS `user.Pictures` (
   KEY `pictures_mark` (`mark`),
   KEY `pictures_date` (`date`),
   KEY `pictures_sn` (`sn`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21043 DEFAULT CHARSET=utf8;
 
-
-CREATE TABLE IF NOT EXISTS `user.Videos` (
+-- 動画 (Videos)
+CREATE TABLE IF NOT EXISTS `Videos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(8) DEFAULT 0,
   `title` varchar(400) NOT NULL,
@@ -38,24 +41,24 @@ CREATE TABLE IF NOT EXISTS `user.Videos` (
   `count` int(8) DEFAULT 0,
   `bindata` int(11) DEFAULT 0,
   `date` date DEFAULT NULL,
-  `sn` int(11) DEFAULT NULL,
+  `sn` int(11) DEFAULT NULL COMMENT '使用しない',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `path` (`path`),
-  KEY `videos_title` (`title`),
-  KEY `videos_series` (`series`),
-  KEY `videos_info` (`info`)
+  KEY `info` (`info`),
+  KEY `videos_path` (`path`),
+  KEY `videos_title` (`title`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-
-CREATE TABLE IF NOT EXISTS `user.Music` (
+-- 音楽 (Music)
+CREATE TABLE `Music` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT NULL,
   `title` varchar(100) NOT NULL,
   `path` varchar(400) NOT NULL,
   `artist` varchar(50) DEFAULT NULL,
+  `media` varchar(50) DEFAULT NULL,
   `mark` varchar(16) DEFAULT NULL,
   `info` varchar(100) DEFAULT NULL,
-  `fav` char(1) DEFAULT '0',
+  `fav` int(8) DEFAULT 0,
   `count` int(8) DEFAULT 0,
   `bindata` int(11) DEFAULT 0,
   `date` date DEFAULT NULL,
@@ -64,11 +67,11 @@ CREATE TABLE IF NOT EXISTS `user.Music` (
   UNIQUE KEY `path` (`path`),
   KEY `music_title` (`title`),
   KEY `music_path` (`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 
 
-
-CREATE TABLE IF NOT EXISTS `user.Projects` (
+-- プロジェクト (Projects)
+CREATE TABLE IF NOT EXISTS `Projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
@@ -87,8 +90,8 @@ CREATE TABLE IF NOT EXISTS `user.Projects` (
   UNIQUE KEY `path` (`path`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-
-CREATE TABLE IF NOT EXISTS `user.Documents` (
+-- 文書 (Documents)
+CREATE TABLE IF NOT EXISTS `Documents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
@@ -106,8 +109,8 @@ CREATE TABLE IF NOT EXISTS `user.Documents` (
   UNIQUE KEY `path` (`path`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-
-CREATE TABLE IF NOT EXISTS `user.Album` (
+-- アルバム (Album)
+CREATE TABLE IF NOT EXISTS `Album` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `mark` varchar(10) DEFAULT NULL,
@@ -120,8 +123,8 @@ CREATE TABLE IF NOT EXISTS `user.Album` (
   KEY `album_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-
-CREATE TABLE IF NOT EXISTS `user.Playlists` (
+-- プレイリスト
+CREATE TABLE IF NOT EXISTS `Playlists` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
   `items` text DEFAULT NULL,
@@ -131,7 +134,8 @@ CREATE TABLE IF NOT EXISTS `user.Playlists` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE IF NOT EXISTS `user.BINDATA` (
+-- サムネール画像等の格納用テーブル (BINDATA)
+CREATE TABLE IF NOT EXISTS `BINDATA` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(50) NOT NULL,
   `original` varchar(400) DEFAULT NULL,
@@ -143,3 +147,13 @@ CREATE TABLE IF NOT EXISTS `user.BINDATA` (
   `date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- レコード識別マーク定義 (Marks)
+CREATE TABLE `Marks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mark` varchar(20) NOT NULL,
+  `tablename` varchar(20) NOT NULL,
+  `info` varchar(150) NOT NULL,
+  `date` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

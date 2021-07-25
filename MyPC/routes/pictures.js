@@ -45,16 +45,16 @@ router.get('/showContent', async (req, res) => {
         title += ` (アルバム=${album})`;
         session.pictures_orderby = "id";
         session.pictures_sortdir = "asc";
-        session.pictures_search = "";
-        session.pictures_mark = "";
+        session.pictures_search = null;
+        session.pictures_mark = null;
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " mark='picture'");
     }
     if (req.query.reset) {
         session.pictures_album = 0;
         session.pictures_orderby = "id";
         session.pictures_sortdir = "asc";
-        session.pictures_search = "";
-        session.pictures_mark = "";
+        session.pictures_search = null;
+        session.pictures_mark = null;
     }
     if (req.query.sortdir) {
         session.pictures_sortdir = req.query.sortdir;
@@ -68,13 +68,13 @@ router.get('/showContent', async (req, res) => {
     else {
         session.pictures_sortdir = "asc";
         dirasc = "●";
-        dirdesc = "";    
+        dirdesc = "";
     }
     // マーク一覧を得る。
     let marks = await mysql.query_p("SELECT DISTINCT mark FROM Pictures");
     // クエリーを行う。
     let sql = await makeSQL(req);
-    console.log(sql);
+    //console.log(sql);
     let result = await mysql.query_p(sql);
     if (result.length > 0) {
         session.pictures_end = result[result.length - 1].id;
@@ -106,7 +106,7 @@ router.get("/showNavImage", async (req, res) => {
         session.pictures_navdir = fso.getDirectory(path);
         [session.pictures_nav, session.pictures_nfiles] = await getNavIndex(session.pictures_navdir, path);
         let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${session.pictures_navdir}'`);
-        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:"", path:path});    
+        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:"", path:path});
     }
     else if (req.query.nav) {
         switch (req.query.nav) {
@@ -157,11 +157,11 @@ async function getNavIndex(dir, path) {
 
 // 「好き」の付いた画像フォルダ一覧
 function showFavlist(res) {
-    let sql = "SELECT * FROM Pictures WHERE fav > 0 ORDER BY fav DESC";
+    let sql = "SELECT id, album, title, creator, path, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures WHERE fav > 0 ORDER BY fav DESC";
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('picturelist', {"title":"好きな画像フォルダ一覧", "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('picturelist', {"title":"好きな画像フォルダ一覧", "albumName":"N/A", "result": result, "message": "", "marks":[], "mark":"", "dirasc":"", "dirdesc":"", "search":""});
             return;
         }
         else {
@@ -172,11 +172,11 @@ function showFavlist(res) {
 
 // 作者ごとの画像フォルダ一覧
 function showWithCreator(creator, res) {
-    let sql = `SELECT * FROM Pictures WHERE creator = '${creator}'`;
+    let sql = "SELECT id, album, title, creator, path, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures WHERE creator = '" + creator + "'";
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('picturelist', {"title":creator + "の画像フォルダ一覧", "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('picturelist', {"title":creator + "の画像フォルダ一覧", "albumName":"N/A", "result": result, "marks":[], "mark":"", "message":"", dirasc:"", dirdesc:"", search:""});
             return;
         }
         else {
@@ -201,7 +201,12 @@ router.get("/showPictures", async (req, res) => {
     for (let i = 0; i < files.length; i++) {
         result.push(files[i].replace(/\\/g, '/'));
     }
-    res.render("showPictures", {title:title, path:path, message:"", result:result});
+    // id を得る。
+    mysql.getValue(`SELECT id FROM Pictures WHERE path='${path}'`, (id) =>{
+        res.render("showPictures", {title:title, path:path, message:"", result:result});
+        // 参照回数を増やす。
+        countup(id, res);
+    });
 });
 
 // pictures 項目の追加・修正 (GET)
@@ -217,7 +222,7 @@ router.get('/picturesForm', (req, res) => {
         fav: 0,
         bindata: 0
     };
-    res.render('picturesForm', {message:"", value:value});   
+    res.render('picturesForm', {message:"", value:value});
 });
 
 // pictures 項目の確認 (GET)
@@ -237,7 +242,7 @@ router.get('/confirmPictures/:id', (req, res) => {
                 fav: row.fav,
                 bindata: row.bindata
             };
-            res.render('picturesForm', {message:`id: ${id} が検索されました。`, value:value});    
+            res.render('picturesForm', {message:`id: ${id} が検索されました。`, value:value});
         }
         else {
             let value = {
@@ -251,8 +256,8 @@ router.get('/confirmPictures/:id', (req, res) => {
                 fav: 0,
                 bindata: 0
             };
-            res.render('picturesForm', {message:"エラー： データがありません。", value:value});    
-        }    
+            res.render('picturesForm', {message:"エラー： データがありません。", value:value});
+        }
     });
 });
 
@@ -289,25 +294,25 @@ router.post('/picturesForm', (req, res) => {
     if (id) {
         //  更新
         let update = `UPDATE Pictures SET album=${album}, title='${title}', path='${path}', creator='${creator}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
-        mysql.execute(update, (c) => {
-            if (c) {
-                res.render('picturesForm', {message:`${title} が更新されました。`, value:value});
+        mysql.execute(update, (err) => {
+            if (err) {
+                res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
             }
             else {
-                res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
+                res.render('picturesForm', {message:`${title} が更新されました。`, value:value});
             }
         });
     }
     else {
         // 追加
         let insert = `INSERT INTO Pictures(id, album, title, path, creator, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${creator}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
-        mysql.execute(insert, (c) => {
-            if (c) {
+        mysql.execute(insert, (err) => {
+            if (err) {
                 res.render('showInfo', {'title':'エラー', 'message':insert, 'icon':'cancel.png', 'link':null});
             }
             else {
                 res.render('picturesForm', {message:`${title} が追加されました。`, value:value});
-            }  
+            }
         });
     }
 });
@@ -389,13 +394,13 @@ async function makeSQL(req) {
             if (session.pictures_sortdir == "asc") {
                 // 昇順
                 session.pictures_start = lastid;
-                session.pictures_end = ENDLIMIT;    
+                session.pictures_end = ENDLIMIT;
             }
             else {
                 // 降順
                 let minId = await mysql.getValue_p("SELECT MIN(id) FROM Pictures");
                 session.pictures_start = minId;
-                session.pictures_end = minId;    
+                session.pictures_end = minId;
             }
         }
         else {
@@ -419,7 +424,7 @@ async function makeSQL(req) {
                             break;
                         }
                         i++;
-                    }    
+                    }
                 }
                 else {
                     session.pictures_start = lastid;
@@ -443,7 +448,7 @@ async function makeSQL(req) {
                             break;
                         }
                         i++;
-                    }    
+                    }
                 }
                 else {
                     session.pictures_start = 1;
@@ -471,7 +476,7 @@ async function makeSQL(req) {
     }
 
     // SQL 文作成
-    let sql = "SELECT * FROM Pictures";
+    let sql = "SELECT id, `album`, title, creator, `path`, `mark`, `info`, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
     let needWhere = true;
     let needAnd = true;
     if (session.pictures_album > 0) {
@@ -533,20 +538,20 @@ async function makeSQL(req) {
 }
 
 // 指定された id の fav を ＋１する。
-router.get('/favorite/:id', async (req, res) => {
+router.get('/favorite/:id', (req, res) => {
     let id = req.params.id;
-    let fav = await mysql.getValue_p("SELECT fav FROM Pictures WHERE id = " + id);
-    fav++;
-    await mysql.execute_p(`UPDATE Pictures SET fav=${fav} WHERE id=${id}`);
-    //res.send(fav);
+    mysql.execute(`CALL user.favup(1, ${id})`, (err) => {
+        res.status(200).send(0);
+    });
 });
 
 // 指定された id の count を ＋１する。
-async function countup(id) {
-    let count = await mysql.getValue_p("SELECT count FROM Pictures WHERE id = " + id);
-    count++;
-    await mysql.execute_p(`UPDATE Pictures SET count=${count} WHERE id=${id}`);
-};
+function countup(id, res) {
+    mysql.execute(`CALL user.countup(1, ${id})`, (err) => {
+        // res.render と競合するので不要。
+        //res.status(200).send(0);
+    });
+}
 
 // サーチワードからSQLの条件に変換する。
 function getCriteria(search, mark) {
