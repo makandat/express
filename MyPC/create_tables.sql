@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `Pictures` (
   `title` varchar(100) NOT NULL,
   `creator` varchar(50) NOT NULL,
   `path` varchar(500) NOT NULL,
+  `media` varchar(50) DEFAULT NULL,
   `mark` varchar(10) DEFAULT NULL,
   `info` varchar(100) DEFAULT NULL,
   `fav` int(8) DEFAULT 0,

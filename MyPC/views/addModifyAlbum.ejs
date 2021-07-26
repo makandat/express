@@ -84,6 +84,21 @@
                 <br />
                 <p class="message"><%= message %></p>
             </form>
+            <p style="margin-left:10%;">「マーク」は任意の文字列を指定できますが、標準として次のように決められています。</p>
+            <ul style="margin-left:10%;font-size:11pt;color:darkviolet;">
+                <li>picture: 画像フォルダ</li>
+                <li>video: 動画</li>
+                <li>music: 音楽</li>
+                <li>project: プロジェクト</li>
+                <li>document: 文書</li>
+            </ul>
+            <br />
+            <h4 style="margin-left:10%;">既存のグループ名</h4>
+            <ul style="margin-left:10%;font-size:11pt;color:rgb(27, 53, 122);">
+                <% for (let gn of groupnames) { %>
+                    <li><%= gn %></li>
+                <% } %>
+            </ul>
         </article>
         <footer>
             <p>&nbsp;</p>

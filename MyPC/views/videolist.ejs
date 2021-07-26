@@ -69,11 +69,11 @@
                 <% for (let row of result) { %>
                     <a>
                         <td><a href="/videos/confirmVideo/<%= row.id %>" target="_blank"><%= row.id %></a></td>
-                        <td><%= row.album %></td>
+                        <td><a href="/videos/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>
                         <td><a href="/videos/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
                         <td><%= row.media %></td>
-                        <td><%= row.series %></td>
+                        <td><a href="/videos/showContent?series=<%= row.series %>" target="_blank"><%= row.series %></a></td>
                         <td><%= row.mark %></td>
                         <td><%= row.info %></td>
                         <td><a href="/videos/favorite/<%= row.id %>"><%= row.fav %></a></td>
@@ -84,7 +84,7 @@
                             <td></td>
                         <% } %>
                         <% if (row.date) { %>
-                            <td><%= row.date.getFullYear() + "-" + ("0" + (row.date.getMonth() + 1)).substring(0, 2) + "-" + ("0" + row.date.getDate()).substring(0, 2) %></td>
+                            <td><%= row.date %></td>
                         <% } else { %>
                             <td></td>
                         <% } %>

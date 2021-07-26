@@ -47,7 +47,7 @@ router.get('/showContent', async (req, res) => {
         session.pictures_sortdir = "asc";
         session.pictures_search = null;
         session.pictures_mark = null;
-        albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " mark='picture'");
+        albumName = await mysql.getValue_p(`SELECT name FROM Album WHERE id = ${album} AND mark='picture'`);
     }
     if (req.query.reset) {
         session.pictures_album = 0;
@@ -55,6 +55,8 @@ router.get('/showContent', async (req, res) => {
         session.pictures_sortdir = "asc";
         session.pictures_search = null;
         session.pictures_mark = null;
+        session.pictures_start = 1;
+        session.pictures_end = ENDLIMIT;
     }
     if (req.query.sortdir) {
         session.pictures_sortdir = req.query.sortdir;
@@ -196,7 +198,7 @@ router.get("/getCreatorInfo", async (req, res) => {
 router.get("/showPictures", async (req, res) => {
     let path = req.query.path;
     let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
-    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif"]);
+    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF"]);
     let result = [];
     for (let i = 0; i < files.length; i++) {
         result.push(files[i].replace(/\\/g, '/'));
@@ -222,7 +224,16 @@ router.get('/picturesForm', (req, res) => {
         fav: 0,
         bindata: 0
     };
-    res.render('picturesForm', {message:"", value:value});
+    // マーク一覧を得る。
+    let marks = [];
+    mysql.query("SELECT DISTINCT mark FROM Pictures", (row) => {
+        if (row) {
+            marks.push(row.mark);
+        }
+        else {
+            res.render('picturesForm', {message:"", marks:marks, value:value});
+        }
+    });
 });
 
 // pictures 項目の確認 (GET)
@@ -236,13 +247,23 @@ router.get('/confirmPictures/:id', (req, res) => {
                 album: row.album,
                 title: row.title,
                 path: row.path,
-                artist: row.artist,
+                creator: row.creator,
+                media: row.media,
                 mark: row.mark,
                 info: row.info,
                 fav: row.fav,
                 bindata: row.bindata
             };
-            res.render('picturesForm', {message:`id: ${id} が検索されました。`, value:value});
+            // マーク一覧を得る。
+            let marks = [];
+            mysql.query("SELECT DISTINCT mark FROM Pictures", (row) => {
+                if (row) {
+                    marks.push(row.mark);
+                }
+                else {
+                    res.render('picturesForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value});
+                }
+            });
         }
         else {
             let value = {
@@ -250,13 +271,14 @@ router.get('/confirmPictures/:id', (req, res) => {
                 album: 0,
                 title: "",
                 path: "",
-                artist: "",
+                creator: "",
+                media: "",
                 mark: "",
                 info: "",
                 fav: 0,
                 bindata: 0
             };
-            res.render('picturesForm', {message:"エラー： データがありません。", value:value});
+            res.render('picturesForm', {message:"エラー： データがありません。", marks:[], value:value});
         }
     });
 });
@@ -271,6 +293,7 @@ router.post('/picturesForm', (req, res) => {
     let title = req.body.title.replace("'", "''");
     let path = req.body.path.replace(/\\/g, "/").replace("'", "''");
     let creator = req.body.creator.replace("'", "''");
+    let media = req.body.media;
     let mark = req.body.mark;
     let info = req.body.info.replace("'", "''");
     let fav = req.body.fav;
@@ -281,37 +304,56 @@ router.post('/picturesForm', (req, res) => {
         title: title,
         path: path,
         creator: creator,
+        media:media,
         mark: mark,
         info: info,
         fav: fav,
         bindata: bindata
     };
     if (!fso.isDirSync(path)) {
-        res.render('picturesForm', {message:path + " が存在しません。", value:value});
+        res.render('picturesForm', {message:path + " が存在しません。", marks:[], value:value});
         return;
     }
 
     if (id) {
         //  更新
-        let update = `UPDATE Pictures SET album=${album}, title='${title}', path='${path}', creator='${creator}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
+        let update = `UPDATE Pictures SET album=${album}, title='${title}', path='${path}', creator='${creator}', media='${media}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
         mysql.execute(update, (err) => {
             if (err) {
                 res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
             }
             else {
-                res.render('picturesForm', {message:`${title} が更新されました。`, value:value});
+                // マーク一覧を得る。
+                let marks = [];
+                mysql.query("SELECT DISTINCT mark FROM Pictures", (row) => {
+                    if (row) {
+                        marks.push(row.mark);
+                    }
+                    else {
+                        res.render('picturesForm', {message:`${title} が更新されました。`, marks:marks, value:value});
+                    }
+                });
             }
         });
     }
     else {
         // 追加
-        let insert = `INSERT INTO Pictures(id, album, title, path, creator, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${creator}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
+        let insert = `INSERT INTO Pictures(id, album, title, path, media, creator, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${media}', '${creator}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
         mysql.execute(insert, (err) => {
             if (err) {
                 res.render('showInfo', {'title':'エラー', 'message':insert, 'icon':'cancel.png', 'link':null});
             }
             else {
-                res.render('picturesForm', {message:`${title} が追加されました。`, value:value});
+                // マーク一覧を得る。
+                let marks = [];
+                mysql.query("SELECT DISTINCT mark FROM Pictures", (row) => {
+                    if (row) {
+                        marks.push(row.mark);
+                    }
+                    else {
+                        res.render('picturesForm', {message:`${title} が追加されました。`, marks:marks, value:value});
+                    }
+                });
             }
         });
     }
@@ -476,7 +518,7 @@ async function makeSQL(req) {
     }
 
     // SQL 文作成
-    let sql = "SELECT id, `album`, title, creator, `path`, `mark`, `info`, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
+    let sql = "SELECT id, `album`, title, creator, `path`, `media`, `mark`, `info`, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
     let needWhere = true;
     let needAnd = true;
     if (session.pictures_album > 0) {

@@ -116,35 +116,43 @@ router.get('/showAlbums/:mark', async (req, res) => {
   let groupname = req.query.groupname;
   let message = "";
   let sql = "SELECT * FROM Album";
+  let markName = "";
   switch (mark) {
     case "0":
       if (groupname) {
         let result = await mysql.query_p(`SELECT * FROM Album WHERE groupname='${groupname}'`);
-        res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, result:result});
+        res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result});
       }
       else {
-        res.render('showAlbums', {message:"", result:[]});
+        res.render('showAlbums', {message:"", mark:"", result:[]});
       }
       return;
     case "all":
+      markName = "すべて";
       break;
     case "picture":
+      markName = "画像フォルダ";
       sql += " WHERE mark = 'picture'";
       break;
     case "video":
+      markName = "動画";
       sql += " WHERE mark = 'video'";
       break;
     case "music":
+      markName = "音楽";
       sql += " WHERE mark = 'music'";
       break;
     case "project":
+      markName = "プロジェクト";
       sql += " WHERE mark = 'project'";
       break;
     case "document":
+      markName = "文書";
       sql += " WHERE mark = 'document'";
       break;
     default: // other
-      sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+    markName = "その他";
+    sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
       break;
   }
   let result = await mysql.query_p(sql);
@@ -156,7 +164,7 @@ router.get('/showAlbums/:mark', async (req, res) => {
       result[i].date = dto.getDateString(result[i].date);
     }
   }
-  res.render('showAlbums', {message:message, result:result});
+  res.render('showAlbums', {message:message, result:result, mark:markName});
 });
 
 // アルバムグループ一覧の表示
@@ -184,11 +192,26 @@ router.get('/addModifyAlbum', (req, res) => {
     bindata: 0,
     groupname: ""
   };
-  res.render('addModifyAlbum', {message:"", values:values});
+  let groups = [];
+  let sql = "";
+  if (values.mark == "") {
+    sql = "SELECT DISTINCT groupname FROM album ORDER BY groupname";
+  }
+  else {
+    sql = `SELECT DISTINCT groupname FROM album WHERE mark='${values.mark}' ORDER BY groupname`;
+  }
+  mysql.query(sql, (row) => {
+    if (row) {
+      groups.push(row.groupname);
+    }
+    else {
+      res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});
+    }
+  });
 });
 
 // アルバムの作成・修正 (POST)
-router.post('/addModifyAlbum', (req, res) => {
+router.post('/addModifyAlbum', async (req, res) => {
   let values = {
     id: req.body.id,
     name: req.body.name.replace(/'/g,"''"),
@@ -197,15 +220,17 @@ router.post('/addModifyAlbum', (req, res) => {
     bindata: req.body.bindata,
     groupname: req.body.groupname
   };
+  // グループ名一覧を得る。
+  let groups = await mysql.query_p(`SELECT DISTINCT groupname FROM album where mark='${values.mark}' ORDER BY groupname`);
   if (values.id) {
     // 更新
-    let update = `UPDATE Album SET name=${values.name}, mark='${values.mark}', info='${values.info}', bindata=${values.bindata}, groupname='${values.groupname}' WHERE id = ${values.id}`;
+    let update = `UPDATE Album SET name='${values.name}', mark='${values.mark}', info='${values.info}', bindata=${values.bindata}, groupname='${values.groupname}' WHERE id = ${values.id}`;
     mysql.execute(update, (err) => {
       if (err) {
-        res.render('addModifyAlbum', {message:err.message, values:values});
+        res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
       }
       else {
-        res.render('addModifyAlbum', {message:values.name + "が更新されました。", values:values});
+        res.render('addModifyAlbum', {message:"\"" + values.name + "\" が更新されました。", values:values, groupnames:groups});
       }
     });
   }
@@ -215,10 +240,10 @@ router.post('/addModifyAlbum', (req, res) => {
     let insert = `INSERT INTO Album VALUES(NULL, '${values.name}', '${values.mark}', '${values.info}', ${values.bindata}, '${values.groupname}', '${today}')`;
     mysql.execute(insert, (err) => {
       if (err) {
-        res.render('addModifyAlbum', {message:err.message, values:values});
+        res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
       }
       else {
-        res.render('addModifyAlbum', {message:values.name + "が作成されました。", values:values});
+        res.render('addModifyAlbum', {message:"\"" + values.name + "\" が作成されました。", values:values, groupnames:groups});
       }
     });
   }

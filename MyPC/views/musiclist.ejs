@@ -77,10 +77,10 @@
                 <% for (let row of result) { %>
                     <a>
                         <td><a href="/music/confirmMusic/<%= row.id %>" target="_blank"><%= row.id %></a></td>
-                        <td><%= row.album %></td>
+                        <td><a href="/music/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>
                         <td><a href="/music/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
-                        <td><%= row.artist %></td>
+                        <td><a href="/music/showContent?artist=<%= row.artist %>" target="_blank"><%= row.artist %></a></td>
                         <td><%= row.media %></td>
                         <td><%= row.mark %></td>
                         <td><%= row.info %></td>

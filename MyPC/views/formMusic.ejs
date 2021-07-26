@@ -61,6 +61,12 @@
             </form>
             <br />
             <p class="message"><%= message %></p>
+            <h4>登録されているマーク一覧</h4>
+            <ul>
+                <% for (let m of marks) { %>
+                    <li><%= m %></li>
+                <% } %>
+            </ul>
         </article>
         <footer>
             <p>&nbsp;</p>

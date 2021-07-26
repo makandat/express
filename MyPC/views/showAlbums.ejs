@@ -24,7 +24,7 @@
 
     <body>
         <header>
-            <h1>アルバム一覧</h1>
+            <h1><%= mark %> アルバム一覧</h1>
             <p class="comment">最初にアルバムの種別を選んでください。</p>
             <div class="menu">
                 <label class="form_item">種別 <select id="marks">
@@ -36,7 +36,8 @@
                     <option value="project">プロジェクト</option>
                     <option value="document">ドキュメント</option>
                     <option value="other">その他</option>
-                </select></label>                
+                </select></label>&nbsp;|&nbsp;
+                <a href="/addModifyAlbum" target="_blank">アルバムの作成・修正</a>              
             </div>
         </header>
 

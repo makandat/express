@@ -30,6 +30,7 @@
                 <li><a href="/extra/marksTable" target="_blank">識別マーク一覧 (marks テーブル)</a></li>
             </ul>
             <br />
+            <!-- 管理テーブルのデータの削除 (deleteRecordForm) -->
             <h2>管理テーブルのデータの削除</h2>
             <p class="comment">(注意) 削除後のデータは復活できません。</p>
             <form id="deleteRecordForm">
@@ -54,6 +55,7 @@
                 <p class="message" v-text="deleteRecordMessage"></p>
             </form>
             <br />
+            <!-- データ一括登録とチェック (bulkDataForm) -->
             <h2>データ一括登録とチェック</h2>
             <form id="bulkDataForm">
                 <div class="form_row">
@@ -77,6 +79,7 @@
                 <ul style="font-size:10pt;" v-html="result"></ul>
             </form>
             <br />
+            <!-- パスの存在チェック (checkPathForm) -->
             <h2>パスの存在チェック</h2>
             <form id="checkPathForm" name="checkPathForm">
                 <div class="form_row">
@@ -105,6 +108,35 @@
                 <ul style="font-size:10pt;" v-html="result"></ul>
             </form>
             <br />
+            <!-- ファイルリストからの一括データ登録 (insertFileList) -->
+            <h2>ファイルリストからの一括データ登録</h2>
+            <form id="insertFileList" name="formInsertFileList">
+                <div class="form_row">
+                    <div class="form_item">登録先のテーブル</div>
+                    <div class="form_item">
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Pictures" size="10" checked /> Pictures </label>
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Videos" size="10" /> Videos </label>
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Music" size="10" /> Music</label>
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">ファイルリスト</div>
+                    <div class="form_item"><textarea name="fileList" v-model="fileList" cols="150" rows="12"></textarea></div>
+                </div>
+                <div class="form_row" style="margin-bottom:10px;">
+                    <div class="form_item">マーク</div>
+                    <div class="form_item"><input type="text" v-model="mark" name="mark" size="20" /></div>
+                </div>
+                <div class="form_row" style="margin-bottom:10px;">
+                    <div class="form_item"></div>
+                    <div class="form_item"><input type="button" v-on:click="submitFileList_Click" value=" 送信する " /></div>
+                </div>
+                <div class="form_row">
+                    <p class="message" v-text="message"></p>
+                </div>
+            </form>
+            <br />
+            <!--  タイマー (timerForm) -->
             <h2>タイマー</h2>
             <form id="timerForm">
                 <input type="number" v-model="hours"> 時間&nbsp;&nbsp;
@@ -275,6 +307,38 @@
                             })
                             .catch(err => checkPathForm.message = err.message);
                         }
+                    }
+                }
+            });
+
+            // ファイルリストからの一括登録
+            const insertFileList = new Vue({
+                el: "#insertFileList",
+                data: {
+                    tableName: "Pictures",
+                    fileList: "",
+                    mark: "",
+                    message: ""
+                },
+                methods : {
+                    submitFileList_Click: () => {
+                        insertFileList.message = "";
+                        /*
+                        let form = document.querySelector("#formInsertFileList");
+                        let formdata = new FormData(form);
+                        
+                        let formdata = new FormData();
+                        formdata.append("tableName", insertFileList.tableName);
+                        formdata.append("fileList", insertFileList.fileList);
+                        formdata.append("mark", insertFileList.mark);
+                        */
+                        let data = {"tableName":insertFileList.tableName, "mark":insertFileList.mark, "fileList":insertFileList.fileList};
+                        fetch("/extra/insertFileList", {method:"POST", headers:{'Content-Type': 'application/json'}, body:JSON.stringify(data)})
+                        .then(res => res.json())
+                        .then(data => {
+                            insertFileList.message = "データ登録が完了しました。" + data;
+                        })
+                        .catch(err => insertFileList.message = err.message);
                     }
                 }
             });

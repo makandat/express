@@ -28,6 +28,7 @@
                     $("#title").val("");
                     $("#creator").val("");
                     $("#path").val("");
+                    $("#media").val("");
                     $("#mark").val("");
                     $("#fav").val("0");
                     $("#info").val("");
@@ -63,6 +64,10 @@
                     <div class="form_item"><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div>
                 </div>
                 <div class="form_row">
+                    <div class="form_item">メディア</div>
+                    <div class="form_item"><input type="text" id="media" name="media" size="20" value="<%= value.media %>" /></div>
+                </div>
+                <div class="form_row">
                     <div class="form_item">マーク</div>
                     <div class="form_item"><input type="text" id="mark" name="mark" size="10" value="<%= value.mark %>" /></div>
                 </div>
@@ -84,10 +89,17 @@
                     <input type="button" id="clearButton" name="clearButton" value=" クリア " />&nbsp;
                 </div>
             </form>
+            <p class="message"><%= message %></p>
+            <br />
+            <h4>登録されているマーク一覧</h4>
+            <ul style="font-size:10pt;">
+                <% for (let m of marks) { %>
+                    <li><%= m %></li>
+                <% } %>
+            </ul>
         </article>
         <footer>
             <p>&nbsp;</p>
-            <p class="message"><%= message %></p>
             <p>&nbsp;</p>
             <p>&nbsp;</p>
         </footer>

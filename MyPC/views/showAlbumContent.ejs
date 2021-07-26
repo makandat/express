@@ -13,9 +13,19 @@
     <body>
         <header>
             <h1><%= title %></h1>
-            <p class="comment">このページの内容は画像、動画、音楽、プロジェクト、文書で共通な項目だけが表示されています。各カテゴリーごとの詳細表示はカテゴリーごとのページを表示してください。</p>
+            <p class="comment">このページの内容は画像、動画、音楽、プロジェクト、文書で共通な項目だけが表示されています。各カテゴリーごとの詳細表示は下のメニューからカテゴリーごとのページを表示してください。</p>
+
+            <div class="menu">
+                <a href="/addModifyAlbum" target="_blank">アルバムの作成・修正</a>&nbsp|&nbsp;
+                <a href="/projects">プロジェクト</a>&nbsp;/&nbsp;
+                <a href="/documents">文書</a>&nbsp;/&nbsp;
+                <a href="/pictures">画像フォルダ</a>&nbsp;/&nbsp;
+                <a href="/videos">動画</a>&nbsp;/&nbsp;
+                <a href="/music">音楽</a>
+            </div>
         </header>
         <article>
+            <br />
             <table>
                 <tr><th>id</th><th>アルバム番号</th><th>タイトル</th><th>パス</th><th>マーク</th><th>情報</th><th>日付</th></tr>
                 <% for (let a of result) { %>
@@ -26,7 +36,7 @@
                         <td><%= a.path %></td>
                         <td><%= a.mark %></td>
                         <td><%= a.info %></td>
-                        <td><%= a.date %></td>
+                        <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).slice(-2) + "-" + ("0" + a.date.getDate()).slice(-2) %></td>
                     </tr>
                 <% } %>
             </table>
