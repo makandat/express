@@ -39,7 +39,9 @@
                 <a href="/videos/showContent?reset=true"><img src="/img/home.png"> 表示リセット</a>&nbsp;|&nbsp;
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/videos/videosForm/"><img src="/img/form.png" /> 動画の追加・修正</a>&nbsp;|&nbsp;
+                <!-- 
                 <a href="/videos/playlistForm/"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
+                -->
                 <a href="/videos/series/"><img src="/img/list2.png" /> シリーズ一覧</a>&nbsp;|&nbsp;
                 <img src="/img/find2.png" /> 検索 <input type="text" id="find" size="22" /> <input type="button" id="findButton" value=" 検索 " />&nbsp;|&nbsp;
                 <img src="/img/find_go.png" /> id の指定 <input type="text" id="directID" size="5" /> <input type="button" id="idButton" value=" 移動 " />&nbsp;|&nbsp;
@@ -68,8 +70,12 @@
                 <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス</th><th>メディア</th><th>シリーズ</th><th>マーク</th><th>情報</th><th>好き</th><th>カウント</th><th>サムネール</th><th>登録日</th></tr>
                 <% for (let row of result) { %>
                     <a>
-                        <td><a href="/videos/confirmVideo/<%= row.id %>" target="_blank"><%= row.id %></a></td>
-                        <td><a href="/videos/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>
+                        <td><a href="/videos/confirmVideos/<%= row.id %>" target="_blank"><%= row.id %></a></td>
+                        <% if (row.album > 0) { %>
+                            <td><a href="/videos/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>
+                        <% } else { %>
+                            <td><%= row.album %></td>        
+                        <% } %>
                         <td><a href="/videos/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
                         <td><%= row.media %></td>

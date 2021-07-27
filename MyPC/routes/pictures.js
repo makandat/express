@@ -241,7 +241,7 @@ router.get('/confirmPictures/:id', (req, res) => {
     let id = req.params.id;
     let sql = "SELECT * FROM Pictures WHERE id = " + id;
     mysql.getRow(sql, (err, row) => {
-        if (!err) {
+        if (row) {
             let value = {
                 id: id,
                 album: row.album,

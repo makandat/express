@@ -53,6 +53,9 @@ router.get('/showContent', async (req, res) => {
         session.videos_orderby = "id";
         session.videos_sortdir = "asc";
         session.videos_search = null;
+        session.videos_mark = null;
+        session.videos_start = 1;
+        session.videos_end = ENDLIMIT;
     }
     if (req.query.sortdir) {
         session.videos_sortdir = req.query.sortdir;
@@ -225,7 +228,7 @@ async function makeSQL(req) {
     }
 
     // SQL 文作成
-    let sql = "SELECT * FROM Videos";
+    let sql = "SELECT id, album, title, path, media, series, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Videos";
     let needWhere = true;
     let needAnd = true;
     if (session.videos_album > 0) {
@@ -305,7 +308,7 @@ function getCriteria(search, mark) {
 
 // 「好き」の付いた画像フォルダ一覧
 function showFavlist(res) {
-    let sql = "SELECT * FROM Videos WHERE fav > 0 ORDER BY fav DESC";
+    let sql = "SELECT id, album, title, path, media, series, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Videos WHERE fav > 0 ORDER BY fav DESC";
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
@@ -320,7 +323,7 @@ function showFavlist(res) {
 
 // シリーズごとの動画一覧
 function showWithSeries(series, res) {
-    let sql = `SELECT * FROM Videos WHERE series = '${series}'`;
+    let sql = `SELECT id, album, title, path, media, series, mark, info, fav, count, bindata, DATE_FORMAT(date, '%Y-%m-%d') AS date  FROM Videos WHERE series = '${series}'`;
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
@@ -442,7 +445,7 @@ router.get('/confirmVideos/:id', (req, res) => {
     let id = req.params.id;
     let sql = "SELECT * FROM Videos WHERE id = " + id;
     mysql.getRow(sql, (err, row) => {
-        if (!err) {
+        if (row) {
             let value = {
                 id: id,
                 album: row.album,
@@ -529,10 +532,10 @@ router.post('/videosForm', (req, res) => {
                 let update = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', media='${media}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
                 mysql.execute(update, (c) => {
                     if (c) {
-                        res.render('videosForm', {message:`${title} が更新されました。`, marks:marks, value:value});
+                        res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
                     }
                     else {
-                        res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
+                        res.render('videosForm', {message:`${title} が更新されました。`, marks:marks, value:value});
                     }
                 });
             }

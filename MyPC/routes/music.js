@@ -63,6 +63,7 @@ router.get('/showContent', async (req, res) => {
         session.music_search = null;
         session.music_mark = null;
         session.music_start = 1;
+        session.music_end = ENDLIMIT;
     }
     if (req.query.sortdir) {
         session.videos_sortdir = req.query.sortdir;
@@ -105,7 +106,16 @@ router.get('/musicForm', (req, res) => {
         fav: 0,
         bindata: 0
     };
-    res.render('formMusic', {message:"", value:value});
+    // マーク一覧を得る。
+    mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
+        let marks = [];
+        if (row) {
+            marks.push(row.mark);
+        }
+        else {
+            res.render('formMusic', {message:"", value:value, marks:marks});
+        }
+    });
 });
 
 // Music 項目の確認 (GET)
@@ -113,7 +123,7 @@ router.get('/confirmMusic/:id', (req, res) => {
     let id = req.params.id;
     let sql = "SELECT * FROM Music WHERE id = " + id;
     mysql.getRow(sql, (err, row) => {
-        if (!err) {
+        if (row) {
             let value = {
                 id: id,
                 album: row.album,
@@ -126,7 +136,16 @@ router.get('/confirmMusic/:id', (req, res) => {
                 fav: row.fav,
                 bindata: row.bindata
             };
-            res.render('formMusic', {message:`id: ${id} が検索されました。`, value:value});
+            // マーク一覧を得る。
+            mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
+                let marks = [];
+                if (row) {
+                    marks.push(row.mark);
+                }
+                else {
+                    res.render('formMusic', {message:`id: ${id} が検索されました。`, value:value, marks:marks});
+                }
+            });
         }
         else {
             let value = {
@@ -141,7 +160,7 @@ router.get('/confirmMusic/:id', (req, res) => {
                 fav: 0,
                 bindata: 0
             };
-            res.render('formMusic', {message:"エラー： データがありません。", value:value});
+            res.render('formMusic', {message:"エラー： データがありません。", marks:[], value:value});
         }
     });
 });

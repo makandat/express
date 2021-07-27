@@ -117,14 +117,15 @@ router.get('/showAlbums/:mark', async (req, res) => {
   let message = "";
   let sql = "SELECT * FROM Album";
   let markName = "";
+  let groupnames = await mysql.query_p("SELECT DISTINCT groupname FROM Album");
   switch (mark) {
     case "0":
       if (groupname) {
         let result = await mysql.query_p(`SELECT * FROM Album WHERE groupname='${groupname}'`);
-        res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result});
+        res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result, groupnames:groupnames});
       }
       else {
-        res.render('showAlbums', {message:"", mark:"", result:[]});
+        res.render('showAlbums', {message:"", mark:"", groupnames:groupnames, result:[]});
       }
       return;
     case "all":
@@ -164,7 +165,7 @@ router.get('/showAlbums/:mark', async (req, res) => {
       result[i].date = dto.getDateString(result[i].date);
     }
   }
-  res.render('showAlbums', {message:message, result:result, mark:markName});
+  res.render('showAlbums', {message:message, result:result, mark:markName, groupnames:groupnames});
 });
 
 // アルバムグループ一覧の表示
@@ -250,7 +251,7 @@ router.post('/addModifyAlbum', async (req, res) => {
 });
 
 // アルバムのデータ確認
-router.get('/confirmAlbum/:id', (req, res) => {
+router.get('/confirmAlbum/:id', async (req, res) => {
   let id = req.params.id;
   let values = {
     id:"",
@@ -260,12 +261,10 @@ router.get('/confirmAlbum/:id', (req, res) => {
     bindata:0,
     groupname:""
   };
+  let groups = await mysql.query_p(`SELECT DISTINCT groupname FROM album where mark='${values.mark}' ORDER BY groupname`);
   let message = "";
   mysql.getRow("SELECT * FROM Album WHERE id=" + id, (err, row) => {
-    if (err) {
-      message = err.message;
-    }
-    else {
+    if (row) {
       values.id = row.id;
       values.name = row.name;
       values.mark = row.mark;
@@ -273,7 +272,10 @@ router.get('/confirmAlbum/:id', (req, res) => {
       values.bindata = row.bindata;
       values.groupname = row.groupname;
     }
-    res.render("addModifyAlbum", {message:message, values:values});
+    else {
+      message = err.message;
+    }
+    res.render("addModifyAlbum", {message:message, values:values, groupnames:groups});
   });
 });
 

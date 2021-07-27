@@ -17,7 +17,6 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
-    "recursive-readdir": "^2.2.2",
     "serve-favicon": "^2.5.0",
     "tempnam": "^1.1.2",
     "unzipper": "^0.10.11",

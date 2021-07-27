@@ -3,7 +3,7 @@
 const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
-const recursive = require('recursive-readdir');
+//const recursive = require('recursive-readdir');
 const fso = require('./FileSystem.js');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
@@ -432,7 +432,7 @@ router.get("/bulkInsert", async (req, res) => {
     let sql;
     switch (bulkTable) {
         case "Pictures":
-            sql = "INSERT INTO Pictures VALUES";
+            sql = "INSERT INTO Pictures(id, album, title, creator, path, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
             let dirs = await fso.getDirectories_p(folder);
             for (let dir of dirs) {
                 let dirs2 = await fso.getDirectories_p(dir);
@@ -442,7 +442,7 @@ router.get("/bulkInsert", async (req, res) => {
                     let title = parts[parts.length - 1];
                     let creator = parts[parts.length - 2];
                     let path = dir2.replace(/'/g, "''");
-                    sql += `(NULL, 0, '${title}', '${creator}', '${path}', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
+                    sql += `(NULL, 0, '${title}', '${creator}', '${path}', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
                 }
             }
             sql = sql.substring(0, sql.length - 1);
@@ -456,52 +456,58 @@ router.get("/bulkInsert", async (req, res) => {
             });
             break;
         case "Videos":
-            recursive(folder, (files) => {
-                sql = "INSERT INTO Videos VALUES";
-                for (let p of files) {
-                    let ext = fso.getExtension(p);
-                    if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.mov' || ext == '.mpg') {
-                        let fileName = fso.getFileName(p);
-                        let title = fileName.split(".")[0];
-                        let path = p.replace(/\\/g, "/").replace(/'/g, "''");
-                        let parts = path.split("/");
-                        let series = parts[parts.length - 2];
-                        sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', '${series}', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
-                    }
-                    sql = sql.substring(0, sql.length - 1);
-                    mysql.execute(sql, (err) => {
-                        if (err) {
-                            res.send(err.message);
-                        }
-                        else {
-                            res.send("Videos テーブルへのデータ追加が完了しました。(" + folder + ")");
-                        }
-                    });
+            let files = await readdirRecursively(folder);
+            if (!files) {
+                res.send("ファイルが見つかりません。");
+                return;
+            }
+            sql = "INSERT INTO Videos(id, album, title, path, media, series, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
+            for (let p of files) {
+                let ext = fso.getExtension(p);
+                if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.mov' || ext == '.mpg') {
+                    let fileName = fso.getFileName(p);
+                    let title = fileName.split(".")[0];
+                    let path = p.replace(/\\/g, "/").replace(/'/g, "''");
+                    let parts = path.split("/");
+                    let series = parts[parts.length - 2];
+                    sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', '${series}', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
+                }
+            }
+            sql = sql.substring(0, sql.length - 1);
+            mysql.execute(sql, (err) => {
+                if (err) {
+                    res.send(err.message);
+                }
+                else {
+                    res.send("Videos テーブルへのデータ追加が完了しました。(" + folder + ")");
                 }
             });
             break;
         case "Music":
-            sql = "INSERT INTO Music VALUES";
-            recursive(folder, (files) => {
-                for (let p of files) {
-                    let ext = fso.getExtension(p);
-                    if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.mov' || ext == '.mpg') {
-                        let fileName = fso.getFileName(p);
-                        let title = fileName.split(".")[0];
-                        let path = p.replace(/\\/g, "/").replace(/'/g, "''");
-                        let parts = path.split("/");
-                        let series = parts[parts.length - 2];
-                        sql += `(NULL, 0, '${title}', '${path}', 'ARTIST', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
-                    }
-                    sql = sql.substring(0, sql.length - 1);
-                    mysql.execute(sql, (err) => {
-                        if (err) {
-                            res.send(err.message);
-                        }
-                        else {
-                            res.send("Music テーブルへのデータ追加が完了しました。(" + folder + ")");
-                        }
-                    });
+            let files2 = await readdirRecursively(folder);
+            if (!files2) {
+                res.send("ファイルが見つかりません。");
+                return;
+            }
+            sql = "INSERT INTO Music(id, album, title, path, artist, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
+            for (let p of files) {
+                let ext = fso.getExtension(p);
+                if (ext == '.mp3' || ext == '.m4a' || ext == '.flac') {
+                    let fileName = fso.getFileName(p);
+                    let title = fileName.split(".")[0];
+                    let path = p.replace(/\\/g, "/").replace(/'/g, "''");
+                    let parts = path.split("/");
+                    let artist = parts[parts.length - 2];
+                    sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', '${artist}', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
+                }
+            }
+            sql = sql.substring(0, sql.length - 1);
+            mysql.execute(sql, (err) => {
+                if (err) {
+                    res.send(err.message);
+                }
+                else {
+                    res.send("Music テーブルへのデータ追加が完了しました。(" + folder + ")");
                 }
             });
             break;
@@ -509,6 +515,24 @@ router.get("/bulkInsert", async (req, res) => {
             break;
     }
 });
+
+// 再帰的にディレクトリをスキャンする。
+async function readdirRecursively(dir, files=[]) {
+    let dirents = await fs.promises.readdir(dir, {encoding: 'utf8', withFileTypes: true});
+    let dirs = [];
+    for (let dirent of dirents) {
+        if (dirent.isDirectory()) {
+            dirs.push(`${dir}/${dirent.name}`);
+        }
+        if (dirent.isFile()) {
+            files.push(`${dir}/${dirent.name}`);
+        }
+    }
+    for (let d of dirs) {
+        files = await readdirRecursively(d, files);
+    }
+    return Promise.resolve(files);    
+}
 
 // 一括データチェック
 router.get("/bulkCheck", async (req, res) => {
@@ -642,6 +666,56 @@ router.get('/checkPathTable', (req, res) => {
         }
     });
 });
+
+// ファイルリストからの一括登録
+router.post('/insertFileList', (req, res) => {
+    let tableName = req.body.tableName;
+    let fileList = req.body.fileList;
+    let mark = req.body.mark ? req.body.mark : "MARK";
+    let sql = "INSERT INTO ";
+    switch (tableName) {
+        case "Pictures":
+            sql += "Pictures(id, album, title, creator, path, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
+            break;
+        case "Videos":
+            sql += "Videos(id, album, title, path, media, series, mark, info, fav, `count`, bindata, `date`, sn) VALUES";
+            break;
+        case "Music":
+            sql += "Music(id, album, title, path, artist, media, mark, info, fav, `count`, bindata, `date`, sn) VALUES";
+            break;
+        default:
+            break;
+    }
+    let files = fileList.split(/\n/g);
+    for (let path of files) {
+        path = path.trim().replace(/\\/g, "/").replace(/'/g, "''");
+        let title = fso.getFileName(path).split(".")[0];
+        switch (tableName) {
+            case "Pictures":
+                sql += `(NULL, 0, '${title}', 'CREATOR', '${path}', 'MEDIA', '${mark}', '', 0, 0, 0, CURRENT_DATE(), 0), `;
+                break;
+            case "Videos":
+                sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', 'SERIES', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0), `;
+                break;
+            case "Music":
+                sql += `(NULL, 0, '${title}', '${path}', 'ARTIST', 'MEDIA', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0), `;
+                break;
+            default:
+                break;
+        }
+    }
+    sql = sql.substring(0, sql.length - 2);
+    mysql.execute(sql, (err) => {
+        if (err) {
+            res.json(err.message);
+        }
+        else {
+            res.json(tableName + "," + mark);
+        }
+    });
+});
+
+
 
 // エクスポート
 module.exports = router;
