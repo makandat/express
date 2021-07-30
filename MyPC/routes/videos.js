@@ -342,6 +342,7 @@ router.get("/playForm/:id", async (req, res) => {
     let title = await mysql.getValue_p(`SELECT title FROM Videos WHERE id=${id}`);
     title = `(${id}) ` + title;
     let path = await mysql.getValue_p(`SELECT path FROM Videos WHERE id = ${id}`);
+    countup(id);
     res.render('videoPlayForm', {source:path, message:"再生中： " + path, title:title});
 });
 
@@ -439,6 +440,24 @@ router.get('/videosForm', (req, res) => {
         }
     });
 });
+
+// 指定された id の fav を ＋１する。
+router.get('/favorite/:id', (req, res) => {
+    let id = req.params.id;
+    mysql.execute(`CALL user.favup(2, ${id})`, (err) => {
+        // res.render と競合するので不要。
+        //res.status(200).send(0);
+    });
+});
+
+// 指定された id の count を ＋１する。
+function countup(id, res) {
+    mysql.execute(`CALL user.countup(2, ${id})`, (err) => {
+        // res.render と競合するので不要。
+        //res.status(200).send(0);
+    });
+}
+
 
 // videos 項目の確認 (GET)
 router.get('/confirmVideos/:id', (req, res) => {
@@ -559,15 +578,16 @@ router.post('/videosForm', (req, res) => {
 router.get("/series", (req, res) => {
     let mark = req.query.mark;
     let result = [];
-    let sql = "SELECT DISTINCT series FROM Videos";
+    let sql = "SELECT series, COUNT(series) AS seriecount, SUM(`count`) AS sumplayback, SUM(fav) AS sumfav FROM Videos";
     if (mark) {
         if (mark != "0") {
             sql += ` WHERE mark='${mark}'`;
         }
     }
-    mysql.query(sql, (x) => {
-        if (x) {
-            result.push(x.series);
+    sql += " GROUP BY series ORDER BY series";
+    mysql.query(sql, (row) => {
+        if (row) {
+            result.push(row);
         }
         else {
             // マーク一覧を得る。

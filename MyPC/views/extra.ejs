@@ -4,7 +4,12 @@
         <title>その他</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="/css/style.css" />
-        <script src="/js/vue/vue.js"></script>
+        <script src="/js/vue.js"></script>
+        <style>
+            form {
+                margin-left:5%;
+            }
+        </style>
     </head>
 
     <body>
@@ -32,38 +37,107 @@
             <br />
             <!-- 管理テーブルのデータの削除 (deleteRecordForm) -->
             <h2>管理テーブルのデータの削除</h2>
-            <p class="comment">(注意) 削除後のデータは復活できません。</p>
             <form id="deleteRecordForm">
+                <p class="comment" style="text-align:left;">(注意) 削除後のデータは復活できません。</p>
                 <div class="form_row">
                     <div class="form_item">テーブルの選択</div>
-                    <div>
-                        <label><input type="radio" v-model="deleteTable" value="Album" /> Album</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="Projects" /> Projects</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="Documents" /> Documents</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="Pictures" /> Pictures</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="Videos" /> Videos</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="Music" /> Music</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="BINDATA" /> BINDATA</label>&nbsp;
-                        <label><input type="radio" v-model="deleteTable" value="Playlists" /> Playlists</label>&nbsp;
+                    <div class="form_item" style="color:black">
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Album" /> Album</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Projects" /> Projects</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Documents" /> Documents</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Music" /> Music</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="BINDATA" /> BINDATA</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Playlists" /> Playlists</label>&nbsp;
                     </div>
                 </div>
                 <div class="form_row">
-                    <div class="form_item">削除する id</div>
-                    <div class="form_item"><input type="number" v-model="deleteId" />&nbsp;<input type="button" value=" 削除する " v-on:click="deleteRecord_Click" /></div>
+                    <div class="form_item">削除する id またはパス (数字のみなら id とみなします。パスは Projects, Documents, Pictures, Videos, Music のみ指定可能)</div>
+                    <div class="form_item">
+                        <input type="text" v-model="deleteId" size="100" />&nbsp;
+                        <input type="button" value=" 削除する " v-on:click="deleteRecord_Click" style="color:red;" />
+                    </div>
                 </div>
                 <br />
                 <p class="message" v-text="deleteRecordMessage"></p>
             </form>
             <br />
+            <!-- 管理テーブルのデータの一括削除　-->
+            <h2>管理テーブルのデータの一括削除</h2>
+            <form id="deleteBatchForm">
+                <p class="comment" style="text-align:left;">(注意) 削除後のデータは復活できません。</p>
+                <div class="form_row">
+                    <div class="form_item">テーブルの選択</div>
+                    <div class="form_item" style="color:black">
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Album" /> Album</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Projects" /> Projects</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Documents" /> Documents</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Music" /> Music</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="BINDATA" /> BINDATA</label>&nbsp;
+                        <label><input type="radio" v-model="dropTable" name="dropTable" value="Playlists" /> Playlists</label>&nbsp;
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">削除する id の範囲</div>
+                    <div class="form_item"><input type="text" v-model="idFrom" size="6" /> から <input type="text" v-model="idTo" size="6" /> まで</div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item" style="margin-top:14px;"></div>
+                    <div class="form_item">
+                        <input type="button" v-on:click="confirmButton_Click" value=" 確認する "  v-show="!modeDelete" />
+                        <input type="button" v-on:click="deleteButton_Click" value=" 削除する " v-show="modeDelete" style="color:red;" />
+                        <input type="button" v-on:click="cancelButton_Click" value=" キャンセル " />
+                    </div>
+                </div>
+                <br />
+                <div class="message" v-text="message"></div>
+            </form>
+            <br />
+            <!-- 管理テーブルのレコードのパス (path) の一括変更　-->
+            <h2>管理テーブルのレコードのパス (path) の一括変更</h2>
+            <form id="replaceBatchForm">
+                <p class="comment" style="text-align:left;">(注意) 変更後のデータは復活できません。</p>
+                <div class="form_row">
+                    <div class="form_item">テーブルの選択</div>
+                    <div class="form_item" style="color:black">
+                        <label><input type="radio" v-model="replaceTable" name="replaceTable" value="Projects" /> Projects</label>&nbsp;
+                        <label><input type="radio" v-model="replaceTable" name="replaceTable" value="Documents" /> Documents</label>&nbsp;
+                        <label><input type="radio" v-model="replaceTable" name="replaceTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="replaceTable" name="replaceTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="replaceTable" name="replaceTable" value="Music" /> Music</label>&nbsp;
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">置換前の path の部分文字列</div>
+                    <div class="form_item"><input type="text" v-model="before" size="50" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">置換後の path の部分文字列</div>
+                    <div class="form_item"><input type="text" v-model="after" size="50" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item" style="margin-top:14px;"></div>
+                    <div class="form_item">
+                        <input type="button" v-on:click="confirmButton" value=" 確認する " v-show="!replaceVisible" />
+                        <input type="button" v-on:click="replaceButton" value=" 変更する " v-show="replaceVisible" />
+                        <input type="button" v-on:click="cancelButton" value=" キャンセル " />
+                    </div>
+                </div>
+                <br />
+                <div class="message" v-text="message"></div>
+            </form>
             <!-- データ一括登録とチェック (bulkDataForm) -->
             <h2>データ一括登録とチェック</h2>
             <form id="bulkDataForm">
                 <div class="form_row">
                     <div class="form_item">テーブルの選択</div>
-                    <div>
-                        <label><input type="radio" v-model="bulkTable" value="Pictures" /> Pictures</label>&nbsp;
-                        <label><input type="radio" v-model="bulkTable" value="Videos" /> Videos</label>&nbsp;
-                        <label><input type="radio" v-model="bulkTable" value="Music" /> Music</label>&nbsp;
+                    <div class="form_item" style="color:black">
+                        <label><input type="radio" v-model="bulkTable" name="bulkTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="bulkTable" name="bulkTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="bulkTable" name="bulkTable" value="Music" /> Music</label>&nbsp;
                     </div>
                 </div>
                 <div class="form_row">
@@ -72,7 +146,7 @@
                 </div>
                 <div class="form_row" style="margin-top:12px;">
                     <input type="button" v-on:click="checkButton_Click" value=" 一括チェック " />&nbsp;
-                    <input type="button" v-on:click="insertButton_Click" value=" 一括登録 " />
+                    <input type="button" v-on:click="insertButton_Click" value=" 一括登録 " style="color:red" />
                 </div>
                 <br />
                 <p class="message" v-text="message"></p>
@@ -84,10 +158,10 @@
             <form id="checkPathForm" name="checkPathForm">
                 <div class="form_row">
                     <div class="form_item">テーブルの選択</div>
-                    <div>
-                        <label><input type="radio" v-model="checkTable" value="Pictures" /> Pictures</label>&nbsp;
-                        <label><input type="radio" v-model="checkTable" value="Videos" /> Videos</label>&nbsp;
-                        <label><input type="radio" v-model="checkTable" value="Music" /> Music</label>&nbsp;
+                    <div class="form_item" style="color:black">
+                        <label><input type="radio" v-model="checkTable" name="checkTable" value="Pictures" /> Pictures</label>&nbsp;
+                        <label><input type="radio" v-model="checkTable" name="checkTable" value="Videos" /> Videos</label>&nbsp;
+                        <label><input type="radio" v-model="checkTable" name="checkTable" value="Music" /> Music</label>&nbsp;
                     </div>
                 </div>
                 <div class="form_row">
@@ -114,7 +188,7 @@
                 <div class="form_row">
                     <div class="form_item">登録先のテーブル</div>
                     <div class="form_item">
-                        <label><input type="radio" v-model="tableName" name="tableName" value="Pictures" size="10" checked /> Pictures </label>
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Pictures" size="10" /> Pictures </label>
                         <label><input type="radio" v-model="tableName" name="tableName" value="Videos" size="10" /> Videos </label>
                         <label><input type="radio" v-model="tableName" name="tableName" value="Music" size="10" /> Music</label>
                     </div>
@@ -205,11 +279,16 @@
                             alert("対象 id が指定されていません。");
                             return;
                         }
-                        if (confirm(appDelete.deleteTable + "の id " + appDelete.deleteId + " を削除します。")) {
-                            let url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
+                        if (confirm(appDelete.deleteTable + "の id (or path) " + appDelete.deleteId + " を削除します。")) {
+                            let url = "";
+                            if (/\\d+/.test(appDelete.deleteId)) {
+                                url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
+                            }
+                            else {
+                                url = `/deletePath?tableName=${appDelete.deleteTable}&path=${appDelete.deleteId}`;
+                            }
                             fetch(url)
-                            .then(data=>data.text())
-                            .catch(err=>appDelete.deleteRecordMessage = err.message)
+                            .then(resp => resp.text())
                             .then(text=>appDelete.deleteRecordMessage = text)
                             .catch(err=>appDelete.deleteRecordMessage = err.message);
 
@@ -245,16 +324,23 @@
                         .then(res=>res.json())
                         .then(arr => {
                             let html = "";
-                            for (let a of arr) {
-                                html += ("<li>" + a + "</li>")
-                            }
-                            if (html == "") {
+                            if (arr.length == 0) {
                                 bulkDataForm.message = "";
-                                bulkDataForm.result = "";
+                                html = "<li style='font-size:14pt;color:magenta;'>未登録項目はありません。</li>";
+                                bulkDataForm.result = html;
                             }
                             else {
-                                bulkDataForm.message = "未登録画像フォルダ";
-                                bulkDataForm.result = html;
+                                for (let a of arr) {
+                                html += ("<li>" + a + "</li>")
+                                }
+                                if (html == "") {
+                                    bulkDataForm.message = "";
+                                    bulkDataForm.result = "";
+                                }
+                                else {
+                                    bulkDataForm.message = "未登録画像フォルダ / 動画・音楽ファイル";
+                                    bulkDataForm.result = html;
+                                }
                             }
                         })
                         .catch(err=>{bulkDataForm.message = err.message;});
@@ -323,15 +409,6 @@
                 methods : {
                     submitFileList_Click: () => {
                         insertFileList.message = "";
-                        /*
-                        let form = document.querySelector("#formInsertFileList");
-                        let formdata = new FormData(form);
-                        
-                        let formdata = new FormData();
-                        formdata.append("tableName", insertFileList.tableName);
-                        formdata.append("fileList", insertFileList.fileList);
-                        formdata.append("mark", insertFileList.mark);
-                        */
                         let data = {"tableName":insertFileList.tableName, "mark":insertFileList.mark, "fileList":insertFileList.fileList};
                         fetch("/extra/insertFileList", {method:"POST", headers:{'Content-Type': 'application/json'}, body:JSON.stringify(data)})
                         .then(res => res.json())
@@ -339,6 +416,86 @@
                             insertFileList.message = "データ登録が完了しました。" + data;
                         })
                         .catch(err => insertFileList.message = err.message);
+                    }
+                }
+            });
+
+            // 管理テーブルのデータの一括削除
+            const deleteBatchForm = new Vue({
+                el: "#deleteBatchForm",
+                data: {
+                    dropTable: null,
+                    idFrom: 0,
+                    idTo: 0,
+                    message: "",
+                    modeDelete: false
+                },
+                methods: {
+                    confirmButton_Click: async () => {
+                        if (parseInt(deleteBatchForm.idTo) <= parseInt(deleteBatchForm.idFrom)) {
+                            alert("id の範囲が不正です。");
+                            return;
+                        }
+                        if (!deleteBatchForm.dropTable) {
+                            alert("テーブルの指定がありません。");
+                            return;
+                        }
+                        let resp = (await fetch(`/extra/deleteBatch?confirm=1&table=${deleteBatchForm.dropTable}&idFrom=${deleteBatchForm.idFrom}&idTo=${deleteBatchForm.idTo}`)).text();
+                        await resp.then(text => deleteBatchForm.message = text);
+                        deleteBatchForm.modeDelete = true;
+                    },
+                    deleteButton_Click: async () => {
+                        if (parseInt(deleteBatchForm.idTo) < parseInt(deleteBatchForm.idFrom)) {
+                            alert("id の範囲が不正です。");
+                            return;
+                        }
+                        let url = `/extra/deleteBatch?table=${deleteBatchForm.dropTable}&idFrom=${deleteBatchForm.idFrom}&idTo=${deleteBatchForm.idTo}`;
+                        let resp = (await fetch(url)).text();
+                        resp.then(text => deleteBatchForm.message = text);
+                        deleteBatchForm.modeDelete = false;
+                    },
+                    cancelButton_Click: () => {
+                        deleteBatchForm.idFrom = "";
+                        deleteBatchForm.idTo = "";
+                        deleteBatchForm.message = "";
+                    }
+                },
+            });
+
+            // 管理テーブルのレコードのパス (path) の一括変更
+            const replaceBatchForm = new Vue({
+                el: "#replaceBatchForm",
+                data: {
+                    replaceTable: null,
+                    before: "",
+                    after: "",
+                    message: "",
+                    replaceVisible: false
+                },
+                methods: {
+                    confirmButton: async () => {
+                        let url = `/extra/replacePathBatch?confirm=1&table=${replaceBatchForm.replaceTable}&before=${replaceBatchForm.before}&after=${replaceBatchForm.after}`;
+                        let resp = (await fetch(url)).text();
+                        resp.then(text => {
+                            replaceBatchForm.message = text;
+                            replaceBatchForm.replaceVisible = true;
+                        });
+                        
+                    },
+                    replaceButton: async () => {
+                        let url = `/extra/replacePathBatch?table=${replaceBatchForm.replaceTable}&before=${replaceBatchForm.before}&after=${replaceBatchForm.after}`;
+                        let resp = (await fetch(url)).text();
+                        resp.then(text => {
+                            replaceBatchForm.message = text
+                            replaceBatchForm.replaceVisible = false;
+                        });
+                    },
+                    cancelButton: async () => {
+                        replaceBatchForm.replaceTable = null;
+                        replaceBatchForm.before = "";
+                        replaceBatchForm.after = "";
+                        replaceBatchForm.message = "";
+                        replaceBatchForm.replaceBatchForm = false;
                     }
                 }
             });

@@ -3,7 +3,6 @@
 const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
-//const recursive = require('recursive-readdir');
 const fso = require('./FileSystem.js');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
@@ -431,7 +430,7 @@ router.get("/bulkInsert", async (req, res) => {
     let bulkTable = req.query.bulkTable;
     let sql;
     switch (bulkTable) {
-        case "Pictures":
+        case "Pictures": {
             sql = "INSERT INTO Pictures(id, album, title, creator, path, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
             let dirs = await fso.getDirectories_p(folder);
             for (let dir of dirs) {
@@ -440,7 +439,7 @@ router.get("/bulkInsert", async (req, res) => {
                     dir2 = dir2.replace(/\\/g, "/");
                     let parts = dir2.split("/");
                     let title = parts[parts.length - 1];
-                    let creator = parts[parts.length - 2];
+                    let creator = parts[parts.length - 2].slice(0, 49);
                     let path = dir2.replace(/'/g, "''");
                     sql += `(NULL, 0, '${title}', '${creator}', '${path}', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
                 }
@@ -454,8 +453,9 @@ router.get("/bulkInsert", async (req, res) => {
                     res.send("Pictures テーブルへのデータ追加が完了しました。(" + folder + ")");
                 }
             });
-            break;
-        case "Videos":
+        }
+        break;
+        case "Videos": {
             let files = await readdirRecursively(folder);
             if (!files) {
                 res.send("ファイルが見つかりません。");
@@ -482,23 +482,24 @@ router.get("/bulkInsert", async (req, res) => {
                     res.send("Videos テーブルへのデータ追加が完了しました。(" + folder + ")");
                 }
             });
-            break;
-        case "Music":
-            let files2 = await readdirRecursively(folder);
-            if (!files2) {
+        }
+        break;
+        case "Music": {
+            let files = await readdirRecursively(folder);
+            if (!files) {
                 res.send("ファイルが見つかりません。");
                 return;
             }
-            sql = "INSERT INTO Music(id, album, title, path, artist, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
+            sql = "INSERT INTO Music(id, album, title, path, artist, media, mark, info, fav, `count`, bindata, `date`, sn) VALUES";
             for (let p of files) {
                 let ext = fso.getExtension(p);
                 if (ext == '.mp3' || ext == '.m4a' || ext == '.flac') {
                     let fileName = fso.getFileName(p);
-                    let title = fileName.split(".")[0];
+                    let title = fileName.split(".")[0].slice(0, 99);
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
                     let parts = path.split("/");
-                    let artist = parts[parts.length - 2];
-                    sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', '${artist}', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
+                    let artist = parts[parts.length - 2].slice(0, 49);
+                    sql += `(NULL, 0, '${title}', '${path}', '${artist}', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
                 }
             }
             sql = sql.substring(0, sql.length - 1);
@@ -510,7 +511,8 @@ router.get("/bulkInsert", async (req, res) => {
                     res.send("Music テーブルへのデータ追加が完了しました。(" + folder + ")");
                 }
             });
-            break;
+        }
+        break;
         default:
             break;
     }
@@ -540,7 +542,7 @@ router.get("/bulkCheck", async (req, res) => {
     let bulkTable = req.query.bulkTable;
     let nopath = [];
     switch (bulkTable) {
-        case "Pictures":
+        case "Pictures": {
             let dirs = await fso.getDirectories_p(folder);
             for (let dir of dirs) {
                 let dirs2 = await fso.getDirectories_p(dir);
@@ -554,11 +556,44 @@ router.get("/bulkCheck", async (req, res) => {
                 }
             }
             res.json(nopath);
-            break;
-        case "Music":
-            break;
-        case "Videos":
-            break;
+        }
+        break;
+        case "Music": {
+            let files = await readdirRecursively(folder);
+            let sql = "";
+            for (let p of files) {
+                let ext = fso.getExtension(p);
+                if (!(ext == ".mp3" || ext == ".m4a" || ext == ".flac")) {
+                    continue;
+                }
+                let p1 = p.replace(/\\/g, "/").replace(/'/g, "''");
+                sql = `SELECT COUNT(id) FROM Music WHERE path = '${p1}'`;
+                let n = await mysql.getValue_p(sql);
+                if (n == 0) {
+                    nopath.push(p);
+                }
+            }
+            res.json(nopath);
+        }
+        break;
+        case "Videos": {
+            let files = await readdirRecursively(folder);
+            let sql = "";
+            for (let p of files) {
+                let ext = fso.getExtension(p);
+                if (!(ext == ".mp4" || ext == ".avi" || ext == ".mov" || ext == ".mkv" || ext == ".mpg")) {
+                    continue;
+                }
+                let p1 = p.replace(/\\/g, "/").replace(/'/g, "''");
+                sql = `SELECT COUNT(id) FROM Videos WHERE path = '${p1}'`;
+                let n = await mysql.getValue_p(sql);
+                if (n == 0) {
+                    nopath.push(p);
+                }
+            }
+            res.json(nopath);
+        }
+        break;
         default:
             break;
     }
@@ -715,7 +750,66 @@ router.post('/insertFileList', (req, res) => {
     });
 });
 
+// テーブルレコードの一括削除
+router.get("/deleteBatch", async (req, res) => {
+    let confirm = req.query.confirm;
+    let tableName = req.query.table;
+    let idFrom = req.query.idFrom;
+    let idTo = req.query.idTo;
+    
+    if (confirm) {
+        let sql = `SELECT title FROM ${tableName} WHERE id=${idFrom}`;
+        let title = await mysql.getValue_p(sql);
+        sql = `SELECT COUNT(id) FROM ${tableName} WHERE id BETWEEN ${idFrom} AND ${idTo}`;
+        let n = await mysql.getValue_p(sql);
+        if (title) {
+            let msg = `"${title}" から ${n} 件のデータが削除されます。`;
+            res.send(msg);            
+        }
+        else {
+            res.send("${n} 件のデータが削除されます。");            
+        }
+    }
+    else {
+        let sql = `DELETE FROM ${tableName} WHERE id BETWEEN ${idFrom} AND ${idTo}`;
+        mysql.execute(sql, (err) => {
+            if (err) {
+                res.send("エラー：" + err.message);
+            }
+            else {
+                res.send(`テーブル ${tableName} の id ${idFrom} から ${idTo} までのデータが削除されました。`);
+            }
+        });
+    }
+});
 
+
+// 管理テーブルのレコードのパス (path) の一括変更
+router.get("/replacePathBatch", async (req, res) => {
+    let confirm = req.query.confirm;
+    let tableName = req.query.table;
+    let before = req.query.before.replace(/\\/g, "/").replace(/'/g, "''");
+    let after = req.query.after.replace(/\\/g, "/").replace(/'/g, "''");
+
+    if (confirm) {
+        let sql = `SELECT COUNT(id) FROM ${tableName} WHERE INSTR(path, '${before}')`;
+        let n = await mysql.getValue_p(sql);
+        let msg = `テーブル ${tableName} の path が ${n} 件更新されます。`;
+        res.send(msg);
+    }
+    else {
+        let sql = `UPDATE ${tableName} SET path = REPLACE(path, '${before}', '${after}')`;
+        mysql.execute(sql, (err) => {
+            if (err) {
+                res.send("エラー：" + err.message);
+            }
+            else {
+                let msg = `テーブル ${tableName} の path が更新されました。`;
+                res.send(msg);
+            }
+        });
+    }
+});
 
 // エクスポート
 module.exports = router;

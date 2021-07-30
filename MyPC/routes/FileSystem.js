@@ -1,4 +1,4 @@
-/* FileSystem.js v1.3 */
+/* FileSystem.js v1.4 */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -37,10 +37,10 @@ exports.getFiles = async (dir, exts, callback) => {
         else {
           if (item.isFile() && testExtension(ext, exts)) {
             files.push(path.join(dir, item.name));
-          }  
+          }
         }
       }
-      callback(files);    
+      callback(files);
     }
   });
 }
@@ -63,10 +63,10 @@ exports.getFiles_p = async (dir, exts) => {
       else {
         if (item.isFile() && testExtension(ext, exts)) {
           files.push(path.join(dir, item.name));
-        }  
+        }
       }
     }
-    resolve(files);  
+    resolve(files);
   });
 }
 
@@ -85,7 +85,7 @@ exports.getDirectories = (dir, callback) => {
           dirs.push(path.join(dir, item.name));
         }
       }
-      callback(dirs); 
+      callback(dirs);
     }
   });
 }
@@ -119,7 +119,7 @@ exports.getSymLinks = (dir, callback) => {
           dirs.push(path.join(dir, item.name));
         }
       }
-      callback(dirs); 
+      callback(dirs);
     }
   });
 }
@@ -137,6 +137,24 @@ exports.getSymLinks_p = async (dir) => {
     }
     resolve(dirs);
   });
+}
+
+/* 再帰的にディレクトリをスキャンする。*/
+exports.readdirRecursively = async (dir, files=[]) => {
+  let dirents = await fs.promises.readdir(dir, {encoding: 'utf8', withFileTypes: true});
+  let dirs = [];
+  for (let dirent of dirents) {
+      if (dirent.isDirectory()) {
+          dirs.push(`${dir}/${dirent.name}`);
+      }
+      if (dirent.isFile()) {
+          files.push(`${dir}/${dirent.name}`);
+      }
+  }
+  for (let d of dirs) {
+      files = await readdirRecursively(d, files);
+  }
+  return Promise.resolve(files);
 }
 
 /* パスがディレクトリか判別する。*/
@@ -168,7 +186,7 @@ exports.isFileSync = (path) => {
 /* パスがSymbolicリンクか判別する。　*/
 exports.isLink = async (path, callback) => {
   let prom_stat = await fs.promises.lstat(path);
-  callback(prom_stat.isSymbolicLink());  
+  callback(prom_stat.isSymbolicLink());
 };
 
 /* 同期・パスがSymbolicリンクか判別する。　*/
@@ -199,7 +217,7 @@ exports.exists = (path) => {
 /*   callback はファイルサイズ(BigInt)を受け取るコールバック関数 */
 exports.getSize = async (path, callback) => {
   let prom_stat = await fs.promises.stat(path, true);
-  callback(prom_stat.size);    
+  callback(prom_stat.size);
 };
 
 /* 同期・ファイルサイズ(BigInt)を得る。*/
@@ -213,7 +231,7 @@ exports.getSizeSync = (path) => {
 /*   optstr は false なら Date 型で、true なら String で結果を返す。*/
 exports.getDateTime = async (path, callback, optstr = false) => {
   let prom_stat = await fs.promises.stat(path);
-  let time = prom_stat.mtime; 
+  let time = prom_stat.mtime;
   if (optstr) {
     let sdate = `${time.getFullYear()}-${(time.getMonth()+1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
     let stime = `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}`;
@@ -228,7 +246,7 @@ exports.getDateTime = async (path, callback, optstr = false) => {
 /*   optstr は false なら Date 型で、true なら String で結果を返す。*/
 exports.getDateTimeSync = (path, optstr = false) => {
   let st = fs.statSync(path);
-  let time = st.mtime; 
+  let time = st.mtime;
   if (optstr) {
     let sdate = `${time.getFullYear()}-${(time.getMonth()+1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')}`;
     let stime = `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}`;
@@ -332,7 +350,7 @@ let translateMode = (mode, pre="") => {
     strmode = "-" + strmode;
   }
   strmode = pre + strmode;
-  
+
   return strmode;
 };
 

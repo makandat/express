@@ -68,6 +68,7 @@ function embedHyperlinks(place) {
   return rs;
 }
 
+
 // ファイル一覧を表示する。
 function showItems(dir, res, message = "") {
     if (dir == undefined || dir.startsWith('-')) {
@@ -82,6 +83,7 @@ function showItems(dir, res, message = "") {
             "orderbytime": "",
             "sortdirasc": "●",
             "sortdirdesc": "",
+            "hiddenItems": "",
             "message": ""
           });
     }
@@ -104,6 +106,7 @@ function showItems(dir, res, message = "") {
                     "orderbytime": session.orderby == "time" ? "●" : "",
                     "sortdirasc": session.sortdir == "asc" ? "●" : "",
                     "sortdirdesc": session.sortdir == "desc" ? "●" : "",
+                    "hiddenItems": session.hiddenItems ? "checked" : "",
                     "message": "エラー： サブディレクトリがありません。"
                 });
             }
@@ -112,36 +115,40 @@ function showItems(dir, res, message = "") {
                 for (let d of dirs) {
                     try {
                         d = d.replace(/\\/g, '/') + "/";
-                        row.push(`<a href="javascript:copyPath(${i - 1})">${i}</a>`);
-                        row.push(fso.getAttrSync(d, true, "d"));
-                        row.push(`<a href="/computer/folder/?folder=${d}" id="no${i}">${d}</a>`);
-                        row.push("d");
-                        row.push("-");
-                        row.push(fso.getDateTimeSync(d, true));
-                        resultDirs.push(row);
-                        row = [];
-                        i++;    
+                        if (includesHidden(d, session.hiddenItems)) {
+                            row.push(`<a href="javascript:copyPath(${i - 1})">${i}</a>`);
+                            row.push(fso.getAttrSync(d, true, "d"));
+                            row.push(`<a href="/computer/folder/?folder=${d}" id="no${i}">${d}</a>`);
+                            row.push("d");
+                            row.push("-");
+                            row.push(fso.getDateTimeSync(d, true));
+                            resultDirs.push(row);
+                            row = [];
+                            i++;    
+                        }
                     }
                     catch (err) {
                         row = [];
                     }
                 }
+
                 fso.getFiles(dir, null, (files) => {
                     // ファイル
                     try {
                         let row = [];
-                        let i = 0;
                         for (let f of files) {
                             f = f.replace(/\\/g, '/');
-                            row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
-                            row.push(fso.getAttrSync(f, true, "-"));
-                            row.push(`<a href="/computer/download/?file=${f}" target="_blank" id="no${i + 1}">${f}</a>`);
-                            row.push("f");
-                            row.push(insertCommas(fso.getSizeSync(f)));
-                            row.push(fso.getDateTimeSync(f, true));
-                            resultFiles.push(row);
-                            row = [];
-                            i++;
+                            if (includesHidden(f, session.hiddenItems)) {
+                                row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
+                                row.push(fso.getAttrSync(f, true, "-"));
+                                row.push(`<a href="/computer/download/?file=${f}" target="_blank" id="no${i + 1}">${f}</a>`);
+                                row.push("f");
+                                row.push(insertCommas(fso.getSizeSync(f)));
+                                row.push(fso.getDateTimeSync(f, true));
+                                resultFiles.push(row);
+                                row = [];
+                                i++;    
+                            }
                         }    
                     }
                     catch (err) {
@@ -151,12 +158,17 @@ function showItems(dir, res, message = "") {
                         // Symbolic リンク
                         try {
                             let row = [];
-                            let i = 0;
                             for (let f of symlinks) {
                                 f = f.replace(/\\/g, '/');
                                 row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
                                 row.push(fso.getAttrSync(f, true, "l"));
-                                row.push(`<a href="/computer/download/?file=${f}" target="_blank" id="no${i + 1}">${f}</a>`);
+                                let realPath = fs.realpathSync(f).replace(/\\/g, "/");
+                                if (fso.isFileSync(realPath)) {
+                                    row.push(`<a href="/computer/download/?file=${realPath}" target="_blank" id="no${i + 1}">${f} [${realPath}]</a>`);
+                                }
+                                else {
+                                    row.push(`<a href="/computer/folder/?folder=${realPath}" id="no${i}">${f} [${realPath}]</a>`);
+                                }
                                 row.push("l");
                                 row.push(insertCommas(fso.getSizeSync(f)));
                                 row.push(fso.getDateTimeSync(f, true));
@@ -197,6 +209,7 @@ function showItems(dir, res, message = "") {
                             "orderbytime": session.orderby == "time" ? "●" : "",
                             "sortdirasc": session.sortdir == "asc" ? "●" : "",
                             "sortdirdesc": session.sortdir == "desc" ? "●" : "",
+                            "hiddenItems": session.hiddenItems ? "checked" : "",
                             "message": message
                           }                     
                         );
@@ -204,6 +217,17 @@ function showItems(dir, res, message = "") {
                 });    
             }
         });
+    }
+}
+
+// 隠しアイテムを含めるかチェック
+function includesHidden(path, session) {
+    let fn = fso.getFileName(path);
+    if (session) {
+        return true;
+    }
+    else {
+        return !fn.startsWith(".");
     }
 }
 
@@ -327,14 +351,21 @@ router.get('/', (req, res) => {
       "orderbytime": "",
       "sortdirasc": "●",
       "sortdirdesc": "",
-        "message": "MyPC: 正常に起動しました。"
+      "hiddenItems": "",
+      "message": "MyPC: 正常に起動しました。"
     });
 });
 
 // 自分のPCの状態一覧表示、コマンド実行など
 router.get('/folder', (req, res) => {
-    session.currentDir = req.query.folder;
-    showItems(session.currentDir, res);
+    if (req.query.folder && req.query.folder == '$')  {
+        // カレントディレクトリを変更しない
+    }
+    else {
+        session.currentDir = req.query.folder;
+    }
+    session.hiddenItems = req.query.hiddenItems;
+    showItems(session.currentDir,  res);
 });
 
 // ファイル内容表示またはダウンロード

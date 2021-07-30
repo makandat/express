@@ -56,7 +56,7 @@
                 // 隠しアイテムも表示するのイベントハンドラ
                 $("#hiddenItems").change(() => {
                     let v = $("#hiddenItems").prop("checked");
-                    href.location = "/computer/hiddenItems?state=" + v;
+                    location.href = "/computer/folder?folder=$&hiddenItems=" + v;
                 });
             });
 
@@ -130,7 +130,7 @@
                 &nbsp;/&nbsp;
                 <a href="/computer/sortdir/desc"><%= sortdirdesc %>降順</a>
                 &nbsp;)&nbsp;
-                <label><input type="checkbox" id="hiddenItems" value="hiddenItems" /> 隠しアイテムも表示する</label>
+                <label><input type="checkbox" id="hiddenItems" value="hiddenItems" <%= hiddenItems %> /> ドットで始まるアイテムも表示する</label>
                 &nbsp;|&nbsp;
                 <a href="/computer/command" target="_blank"><img src="/img/tool2.png" /> ファイル操作ページ</a>
                 &nbsp;|&nbsp;

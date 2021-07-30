@@ -39,8 +39,8 @@
             <div class="menu">
                 <a href="/music/showContent?reset=true"><img src="/img/home.png"> 表示リセット</a>&nbsp;|&nbsp;
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
-                <a href="/music/musicForm/"><img src="/img/form.png" /> 音楽の追加・修正</a>&nbsp;|&nbsp;
-                <a href="/music/musicPlForm/"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
+                <a href="/music/musicForm/" target="_blank"><img src="/img/form.png" /> 音楽の追加・修正</a>&nbsp;|&nbsp;
+                <a href="/music/musicPlForm/" target="_blank"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
                 <a href="/music/showContent?fav=1" target="_blank"><img src="/img/heart2.png" /> 好き</a>&nbsp;|&nbsp;
                 マーク <select id="marks">
                     <option value="0">-- Select --</option>
@@ -52,7 +52,8 @@
                 </select>&nbsp;|&nbsp;
                 <img src="/img/find2.png" /> 検索 <input type="text" id="find" size="22" /> <input type="button" id="findButton" value=" 検索 " />&nbsp;|&nbsp;
                 <img src="/img/find_go.png" /> id の指定 <input type="text" id="directID" size="5" /> <input type="button" id="idButton" value=" 移動 " />&nbsp;|&nbsp;
-                <a href="/music/showContent?move=first"><img src="/img/first.svg" /> 先頭</a>&nbsp
+                <a href="/music/artistList" target="_blank"> アーティスト一覧</a>&nbsp;|&nbsp;
+                <a href="/music/showContent?move=first"><img src="/img/first.svg" /> 先頭</a>&nbsp;
                 <a href="/music/showContent?move=prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;
                 <a href="/music/showContent?move=next">次へ <img src="/img/next.svg" /></a>&nbsp;
                 <a href="/music/showContent?move=last">最後 <img src="/img/last.svg" /></a>&nbsp;|&nbsp;
@@ -65,11 +66,6 @@
             </div>
         </header>
         <article>
-            <h4>
-                <% if (albumName) { %>
-                    アルバム: <%= albumName %>
-                <% } %>
-            </h4>
             <br />
             <p>検索ワード：<%= search %></p>
             <table>
@@ -77,11 +73,7 @@
                 <% for (let row of result) { %>
                     <a>
                         <td><a href="/music/confirmMusic/<%= row.id %>" target="_blank"><%= row.id %></a></td>
-                        <% if (row.album > 0) { %>
-                            <td><a href="/music/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>                        
-                        <% } else { %>
-                            <td><%= row.album %></td>
-                        <% } %>
+                        <td><a href="/music/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>                        
                         <td><a href="/music/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
                         <td><a href="/music/showContent?artist=<%= row.artist %>" target="_blank"><%= row.artist %></a></td>

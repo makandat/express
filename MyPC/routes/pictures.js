@@ -361,13 +361,30 @@ router.post('/picturesForm', (req, res) => {
 
 // 作者一覧
 router.get("/creators", (req, res) => {
+    let mark = req.query.mark;
     let result = [];
-    mysql.query("SELECT DISTINCT creator FROM Pictures", (x) => {
-        if (x) {
-            result.push(x.creator);
+    let sql = "SELECT creator, COUNT(creator) AS creatorcount, SUM(`count`) AS sumref, SUM(fav) AS sumfav FROM Pictures";
+    if (mark) {
+        if (mark != "0") {
+            sql += ` WHERE mark='${mark}'`;
+        }
+    }
+    sql += " GROUP BY creator ORDER BY creator";
+    mysql.query(sql, (row) => {
+        if (row) {
+            result.push(row);
         }
         else {
-            res.render('creators', {message:"", result:result});
+            // マーク一覧を得る。
+            let marks = [];
+            mysql.query("SELECT DISTINCT mark FROM Pictures", (m) => {
+                if (m) {
+                    marks.push(m.mark);
+                }
+                else {
+                    res.render('creators', {message:"", result:result, marks:marks, mark:mark});
+                }
+            })
         }
     });
 });
@@ -583,7 +600,8 @@ async function makeSQL(req) {
 router.get('/favorite/:id', (req, res) => {
     let id = req.params.id;
     mysql.execute(`CALL user.favup(1, ${id})`, (err) => {
-        res.status(200).send(0);
+        // res.render と競合するので不要。
+        //res.status(200).send(0);
     });
 });
 

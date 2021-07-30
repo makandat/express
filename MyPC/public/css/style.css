@@ -138,6 +138,11 @@ input[type="button"]:hover {
   background-color: lemonchiffon;
 }
 
+input[type="reset"] {
+  border-radius: 6px;
+  height: 32px;
+}
+
 select {
   border-radius: 6px;
   height: 30px;
@@ -147,6 +152,7 @@ textarea {
   border-radius: 6px;
   padding: 4px;
   border-width:2px;
+  font-size: 11pt;
 }
 
 header {

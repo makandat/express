@@ -461,7 +461,7 @@ function getTableName(mark) {
 router.get("/deleteId", (req, res) => {
   let tableName = req.query.tableName;
   let id = req.query.id;
-  let sql = `DELETE FROM ${tableName} WHERE id=${id}`;
+  let sql = `DELETE FROM ${tableName} WHERE id = ${id}`;
   mysql.execute(sql, (err) => {
     if (err) {
       res.json("NG: " + err.message);
@@ -472,6 +472,20 @@ router.get("/deleteId", (req, res) => {
   });
 });
 
+// 指定されたテーブルの指定された path のレコードを削除する。
+router.get("/deletePath", (req, res) => {
+  let tableName = req.query.tableName;
+  let path = req.query.path.replace(/\\/g, "/").replace(/'/g, "''");
+  let sql = `DELETE FROM ${tableName} WHERE path = ${path}`;
+  mysql.execute(sql, (err) => {
+    if (err) {
+      res.json("NG: " + err.message);
+    }
+    else {
+      res.json("OK: 削除成功");
+    }
+  });
+});
 
 // ルータをエクスポート
 module.exports = router;

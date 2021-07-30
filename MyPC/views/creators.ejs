@@ -4,22 +4,52 @@
         <meta charset="utf-8" />
         <title>画像作者一覧</title>
         <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
         <script>
+            $(() => {
+                $("#marks").change(() => {
+                    let mark = $("#marks").val();
+                    if (mark != "0") {
+                        location.href = "/pictures/creators?mark=" + mark;
+                    }
+                    else {
+                        location.href = "/pictures/creators?mark=0";
+                    }
+                });
+
+            })
         </script>
     </head>
     <body>
         <header>
             <h1>画像作者一覧</h1>
             <p class="comment">Ctrl+F で検索できます。</p>
+            <p class="comment">現在のマークによる絞り込み：<%= mark %></p>
+            <div class="menu">
+                マークで絞り込む <select id="marks">
+                    <option value="0">-----</option>
+                    <% for (let m of marks) { %>
+                        <option value="<%= m %>"><%= m %></option>
+                    <% } %>
+                </select>
+                &nbsp;|&nbsp;<a href="javascript:location.href='/pictures/creators'">絞り込みしない。</a>
+            </div>
             <br />
         </header>
         <article>
             <p class="message"><%= message %></p>
-            <ol>
-                <% for (let a of result) { %>
-                    <li><a href="/pictures/showContent?creator=<%= a %>" target="_blank"><%= a %></a></li>
-                <% } %>
-            </ol>
+            <table style="margin-left:auto;margin-right:auto;">
+                <tr><th>No.</th><th>作者</th><th>作品数</th><th>参照数</th><th>好き数</th></tr>
+                <% let i = 1; for (let row of result) { %>
+                    <tr>
+                    <td><%= i %></td>
+                    <td><a href="/pictures/showContent?creator=<%= row.creator %>" target="_blank"><%= row.creator %></a></td>
+                    <td><%= row.creatorcount %></td>
+                    <td><%= row.sumref %></td>
+                    <td><%= row.sumfav %></td>
+                    </tr>
+                <% i++; } %>
+            </table>
         </article>
         <footer>
             <p>&nbsp;</p>

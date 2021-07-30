@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>動画のシリーズ一覧</title>
+        <title>アーティスト一覧</title>
         <link rel="stylesheet" href="/css/style.css" />
         <script src="/js/jquery.min.js"></script>
         <script>
@@ -10,19 +10,20 @@
                 $("#marks").change(() => {
                     let mark = $("#marks").val();
                     if (mark != "0") {
-                        location.href = "/videos/series?mark=" + mark;
+                        location.href = "/music/artistList?mark=" + mark;
                     }
                     else {
-                        location.href = "/videos/series?mark=0";
+                        location.href = "/music/artistList?mark=0";
                     }
                 });
 
             })
         </script>
     </head>
+
     <body>
         <header>
-            <h1>動画のシリーズ一覧</h1>
+            <h1>アーティスト一覧</h1>
             <p class="comment">Ctrl+F で検索できます。</p>
             <p class="comment">現在のマークによる絞り込み：<%= mark %></p>
             <div class="menu">
@@ -32,23 +33,24 @@
                         <option value="<%= m %>"><%= m %></option>
                     <% } %>
                 </select>
-                &nbsp;|&nbsp;<a href="javascript:location.href='/videos/series'">絞り込みしない。</a>
+                &nbsp;|&nbsp;<a href="javascript:location.href='/music/artistList'">絞り込みしない。</a>
             </div>
         </header>
         <article>
             <p class="message"><%= message %></p>
+            <br />
             <table style="margin-left:auto;margin-right:auto;">
-                <tr><th>No.</th><th>シリーズ</th><th>動画数</th><th>再生数</th><th>好き数</th></tr>
+                <tr><th>No.</th><th>アーティスト</th><th>曲数</th><th>再生数</th><th>好き数</th></tr>
                 <% let i = 1; for (let row of result) { %>
                     <tr>
                         <td style="text-align:center;"><%= i %></td>
-                        <td><a href="/videos/showContent?series=<%= row.series %>" target="_blank"><%= row.series %></a></td>
-                        <td style="text-align:right;"><%= row.seriecount %></td>
+                        <td><a href="/music/showContent?artist=<%= row.artist %>" target="_blank"><%= row.artist %></a></td>
+                        <td style="text-align:right;"><%= row.artistcount %></td>
                         <td style="text-align:right;"><%= row.sumplayback %></td>
                         <td style="text-align:right;"><%= row.sumfav %></td>
                     </tr>
                 <% i++; } %>
-                </table>
+            </table>
         </article>
         <footer>
             <p>&nbsp;</p>
