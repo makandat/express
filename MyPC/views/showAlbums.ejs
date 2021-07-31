@@ -24,7 +24,7 @@
 
     <body>
         <header>
-            <h1><%= mark %> アルバム一覧</h1>
+            <h1><span style="color:deeppink">"<%= mark %>"</span> のアルバム一覧</h1>
             <p class="comment">最初にアルバムの種別を選んでください。</p>
             <div class="menu">
                 <label class="form_item">種別 <select id="marks">
@@ -37,7 +37,8 @@
                     <option value="document">ドキュメント</option>
                     <option value="other">その他</option>
                 </select></label>&nbsp;|&nbsp;
-                <a href="/addModifyAlbum" target="_blank">アルバムの作成・修正</a>              
+                <a href="/addModifyAlbum" target="_blank">アルバムの作成・修正</a>&nbsp;|&nbsp;
+                <a href="/showAlbums/all?reverse=1">逆順で表示(すべて)</a>           
             </div>
         </header>
 
@@ -63,12 +64,14 @@
                     <% } %>
                 </table>
             <% } %>
-    </article>
-        <footer>
-            <p>&nbsp;</p>
+            <br />
             <p class="message"><%= message %></p>
-            <p>&nbsp;</p>
-            <p>&nbsp;</p>
-        </footer>
+        </article>
+    <footer>
+        <p>&nbsp;</p>
+        <p class="footer_text"><a href="#top">TOP</a></p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    </footer>
     </body>
 </html>

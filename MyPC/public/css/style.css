@@ -31,12 +31,20 @@ a:link, a:visited {
 }
 
 body {
-  margin-left: 5%;
-  margin-right: 5%;
+  margin-left: 3%;
+  margin-right: 3%;
 }
 
+/* 横方向レイアウト */
+.horblk {
+  padding: 10px;
+  display: flex;
+}
+
+/* (デフォルトの) たて方向レイアウト */
 .blk {
-  padding: 6px;
+  padding: 10px;
+  display: block;
 }
 
 table, th, td {

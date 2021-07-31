@@ -445,8 +445,7 @@ router.get('/videosForm', (req, res) => {
 router.get('/favorite/:id', (req, res) => {
     let id = req.params.id;
     mysql.execute(`CALL user.favup(2, ${id})`, (err) => {
-        // res.render と競合するので不要。
-        //res.status(200).send(0);
+        res.redirect(req.get('referer'));
     });
 });
 

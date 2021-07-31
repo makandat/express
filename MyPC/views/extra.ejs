@@ -17,6 +17,9 @@
             <h1>その他</h1>
         </header>
         <article>
+            <h2>/img フォルダ</h2>
+            <p><a href="/viewimgfolder" target="_blank">/img フォルダを表示する。</a></p>
+            <br />
             <h2>サムネール管理テーブル (BINDATA)</h2>
             <ul>
                 <li><a href="/extra/bindatalist" target="_blank">内容一覧表示</a></li>
@@ -53,9 +56,9 @@
                     </div>
                 </div>
                 <div class="form_row">
-                    <div class="form_item">削除する id またはパス (数字のみなら id とみなします。パスは Projects, Documents, Pictures, Videos, Music のみ指定可能)</div>
+                    <div class="form_item">削除する id</div>
                     <div class="form_item">
-                        <input type="text" v-model="deleteId" size="100" />&nbsp;
+                        <input type="number" v-model="deleteId" size="10" />&nbsp;
                         <input type="button" value=" 削除する " v-on:click="deleteRecord_Click" style="color:red;" />
                     </div>
                 </div>
@@ -275,18 +278,12 @@
                             alert("対象テーブルが指定されていません。");
                             return;
                         }
-                        if (!(appDelete.deleteId && appDelete.deleteId > 0)) {
-                            alert("対象 id が指定されていません。");
+                        if (!appDelete.deleteId) {
+                            alert("対象 id またはパスが指定されていません。");
                             return;
                         }
-                        if (confirm(appDelete.deleteTable + "の id (or path) " + appDelete.deleteId + " を削除します。")) {
-                            let url = "";
-                            if (/\\d+/.test(appDelete.deleteId)) {
-                                url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
-                            }
-                            else {
-                                url = `/deletePath?tableName=${appDelete.deleteTable}&path=${appDelete.deleteId}`;
-                            }
+                        if (confirm(appDelete.deleteTable + "の id " + appDelete.deleteId + " を削除します。")) {
+                            let url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
                             fetch(url)
                             .then(resp => resp.text())
                             .then(text=>appDelete.deleteRecordMessage = text)

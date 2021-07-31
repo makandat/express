@@ -9,6 +9,7 @@ const mysql = require("./MySQL.js");
 const fso = require("./FileSystem.js");
 const dto = require("./DateTime.js");
 const { render } = require('ejs');
+const session = require('express-session');
 
 /* package.json からアプリ名を得る。*/
 function getAppName() {
@@ -35,6 +36,21 @@ function getRelease() {
 router.get('/', function(req, res, next) {
   let title = getAppName() + ": " + os.hostname;
   res.render('index', { title: title, version: getVersion(), release_date: getRelease() });
+});
+
+// /img フォルダの表示
+router.get('/viewimgfolder', (req, res) => {
+  let dir = fso.getDirectory(__dirname).replace(/\\/g, "/") + "/public/img";
+  let images = [];
+  fso.getFiles(dir, [".jpg", ".png", ".gif"], (files) => {
+    let images = [];
+    for (let p of files) {
+      p = p.replace(/\\/g, "/");
+      let fn = fso.getFileName(p);
+      images.push(fn);
+    }
+    res.render("viewimgfolder", {images:images});
+  });
 });
 
 // アルバム一覧を返す。(markごと)
@@ -115,13 +131,19 @@ router.get('/showAlbums/:mark', async (req, res) => {
   let mark = req.params.mark;
   let groupname = req.query.groupname;
   let message = "";
-  let sql = "SELECT * FROM Album";
+  if (session.album_sortdesc == undefined) {
+    session.album_sortdesc = false;
+  }
+  else if (req.query.reverse) {
+    session.album_sortdesc = !session.album_sortdesc;
+  }
+  let sql = "SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album";
   let markName = "";
   let groupnames = await mysql.query_p("SELECT DISTINCT groupname FROM Album");
   switch (mark) {
     case "0":
       if (groupname) {
-        let result = await mysql.query_p(`SELECT * FROM Album WHERE groupname='${groupname}'`);
+        let result = await mysql.query_p(`SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM Album WHERE groupname='${groupname}'`);
         res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result, groupnames:groupnames});
       }
       else {
@@ -152,19 +174,18 @@ router.get('/showAlbums/:mark', async (req, res) => {
       sql += " WHERE mark = 'document'";
       break;
     default: // other
-    markName = "その他";
-    sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+      markName = "その他";
+      sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
       break;
+  }
+  if (session.album_sortdesc) {
+    sql += " ORDER BY id DESC";
   }
   let result = await mysql.query_p(sql);
   if (result.length == 0) {
     message = "アルバムが登録されていません。";
   }
-  else {
-    for (let i = 0; i < result.length; i++) {
-      result[i].date = dto.getDateString(result[i].date);
-    }
-  }
+  
   res.render('showAlbums', {message:message, result:result, mark:markName, groupnames:groupnames});
 });
 
@@ -467,22 +488,22 @@ router.get("/deleteId", (req, res) => {
       res.json("NG: " + err.message);
     }
     else {
-      res.json("OK: 削除成功");
+      res.json("OK: 削除成功 " + id + " on " + tableName);
     }
   });
 });
 
-// 指定されたテーブルの指定された path のレコードを削除する。
+// 指定されたテーブルの指定された path のレコードを削除する。(使用しない)
 router.get("/deletePath", (req, res) => {
   let tableName = req.query.tableName;
   let path = req.query.path.replace(/\\/g, "/").replace(/'/g, "''");
-  let sql = `DELETE FROM ${tableName} WHERE path = ${path}`;
+  let sql = `DELETE FROM ${tableName} WHERE path = '${path}'`;
   mysql.execute(sql, (err) => {
     if (err) {
       res.json("NG: " + err.message);
     }
     else {
-      res.json("OK: 削除成功");
+      res.json("OK: 削除成功 " + path + " on " + tableName);
     }
   });
 });

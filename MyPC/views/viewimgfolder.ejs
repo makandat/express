@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>/img フォルダの内容</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            figure {
+                text-align: center;
+                font-size: 10pt;
+                color: darkviolet;
+            }
+        </style> 
+    </head>
+
+    <body>
+        <header>
+            <h1>/img フォルダの内容</h1>
+            <hr />
+        </header>
+        <article class="horblk" style="flex-wrap: wrap;">
+            <% let i = 0; for (let img of images) { %>
+                <figure style="width:15%;"><img src="/img/<%= img %>" /><figcaption><%= img %></figcaption></figure>
+            <% i++; if (i % 5 == 0) { %>
+                <br />
+            <% } } %>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

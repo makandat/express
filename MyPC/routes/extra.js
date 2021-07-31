@@ -464,7 +464,7 @@ router.get("/bulkInsert", async (req, res) => {
             sql = "INSERT INTO Videos(id, album, title, path, media, series, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
             for (let p of files) {
                 let ext = fso.getExtension(p);
-                if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.mov' || ext == '.mpg') {
+                if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.wmv' || ext == '.mov' || ext == '.mpg') {
                     let fileName = fso.getFileName(p);
                     let title = fileName.split(".")[0];
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
@@ -493,7 +493,7 @@ router.get("/bulkInsert", async (req, res) => {
             sql = "INSERT INTO Music(id, album, title, path, artist, media, mark, info, fav, `count`, bindata, `date`, sn) VALUES";
             for (let p of files) {
                 let ext = fso.getExtension(p);
-                if (ext == '.mp3' || ext == '.m4a' || ext == '.flac') {
+                if (ext == '.mp3' || ext == '.m4a' || ext == '.ogg' || ext == '.flac' || ext == 'wma') {
                     let fileName = fso.getFileName(p);
                     let title = fileName.split(".")[0].slice(0, 99);
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
@@ -581,7 +581,7 @@ router.get("/bulkCheck", async (req, res) => {
             let sql = "";
             for (let p of files) {
                 let ext = fso.getExtension(p);
-                if (!(ext == ".mp4" || ext == ".avi" || ext == ".mov" || ext == ".mkv" || ext == ".mpg")) {
+                if (!(ext == ".mp4" || ext == '.ogv' || ext == '.webm' || ext == ".avi" || ext == ".mov" || ext == ".mkv" || ext == ".mpg")) {
                     continue;
                 }
                 let p1 = p.replace(/\\/g, "/").replace(/'/g, "''");

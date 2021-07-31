@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MyPC ヘルプ</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            .horblock {
+                display: flex;              
+                flex-direction: row;
+                padding: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>MyPC ヘルプ</h1>
+            <hr />
+        </header>
+        <article>
+        <div class="horblock">
+            <div style="width:25%;background-color: ghostwhite;">
+                <ul>
+                    <li><a href="#はじめに">はじめに</a></li>
+                    <li><a href="#インストール">インストール</a></li>
+                    <li><a href="#メニュー<">メニュー</a></li>
+                </ul>
+                </div>
+            <div style="padding:10px;background-color: white;">
+                <!-- はじめに -->
+                <h2><a id="はじめに">はじめに</a></h2>
+                <p>Chrome Book やタブレットではディスク容量が小さく、動画や大量の音楽ファイルを持つことができません。
+                    家庭内で一人で使うことを前提にこれらの低性能マシンでもメインマシンの大量の動画ファイルなどを利用できるようにしたいと思って開発してみました。</p>
+                <p>そのため、ログイン画面や排他処理のようなことはしていません。</p>
+                <p>&nbsp;</p>
+
+                <!-- インストール -->
+                <h2><a id="インストール">インストール</a></h2>
+                <h3>動作条件</h3>
+                <p>下記のものがインストールされていること。</p>
+                <ul>
+                    <li>Node.js 10.0 以上</li>
+                    <li>MySQL 5.x または MariaDB 10.x</li>
+                </ul>
+                <h3>インストール手順</h3>
+                <p>GitHub から clone を行います。</p>
+                <pre class="src">git clone https://github.com/makandat/express</pre>
+                <p>express フォルダに MyPC フォルダがあるのでそれをそのまま使ってもいいし、どこかへ移動しても構いません。他のフォルダは不要なので削除して構いません。</p>
+                <p>MyPC フォルダへ移動して必要なモジュールをインストールします。</p>
+                <pre class="src">npm install</pre>
+                <p>&nbsp;</p>
+
+                <!-- メニュー -->
+                <h2><a id="メニュー">メニュー</a></h2>
+                <p>&nbsp;</p>
+            </div>
+        </div>
+    </article>
+    <footer>
+        <p>&nbsp;</p>
+        <p class="footer_text"><a href="#top">TOP</a></p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    </footer>
+    </body>
+</html>
