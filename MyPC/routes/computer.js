@@ -10,6 +10,7 @@ const tempnam = require('tempnam');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const iconv = require('iconv-lite');
 const child_process = require('child_process');
 const fso = require('./FileSystem.js');
 const com = require("./Common.js");
@@ -319,15 +320,28 @@ function isText(file) {
 }
 
 // テキストを表示する。
-function showText(file, res) {
-    fs.readFile(file, (err, data) => {
-        if (err) {
-            res.render("textView", {"title": "エラー", "path":"エラー", "content": err.message});
-        }
-        else {
-            res.render("textView", {"title": fso.getFileName(file), "path": file, "content": data});
-        }
-    });
+function showText(file, res, encoding) {
+    if (encoding.toLowerCase() == "utf8" || encoding.toLowerCase() == "utf-8") {
+        fs.readFile(file, (err, data) => {
+            if (err) {
+                res.render("textView", {"title": "エラー", "path":"エラー", "content": err.message});
+            }
+            else {
+                res.render("textView", {"title": fso.getFileName(file), "path": file, "content": data});
+            }
+        });    
+    }
+    else {
+        let buffer = "";
+        let reader = fs.createReadStream(file)
+            .pipe(iconv.decodeStream(encoding));
+        reader.on("data", (chunk) => {
+            buffer += chunk;
+        });
+        reader.on("end", () => {
+            res.render("textView", {"title": fso.getFileName(file), "path": file, "content": buffer});
+        });
+    }
 }
 
 // 画像を表示する。
@@ -358,26 +372,34 @@ router.get('/', (req, res) => {
 
 // 自分のPCの状態一覧表示、コマンド実行など
 router.get('/folder', (req, res) => {
-    if (req.query.folder && req.query.folder == '$')  {
+    let folder = req.query.folder.trim();
+    if (folder && folder == '$') {
         // カレントディレクトリを変更しない
     }
+    else if (folder == '') {
+        session.currentDir = "-";
+    }
     else {
-        session.currentDir = req.query.folder;
+        session.currentDir = folder.endsWith(":") ? folder + "/" : folder;
     }
     session.hiddenItems = req.query.hiddenItems;
-    showItems(session.currentDir,  res);
+    showItems(session.currentDir, res);
 });
 
 // ファイル内容表示またはダウンロード
 router.get('/download', (req, res) => {
     let file = req.query.file;
+    let encoding = req.query.encoding;
+    if (!encoding) {
+        encoding = "UTF8";
+    }
     if (isImage(file)) {
         // 画像は表示
         showImage(file, res);
     }
     else if (isText(file)) {
         // テキストファイルは表示
-        showText(file, res);
+        showText(file, res, encoding);
     }
     else {
         // その他はダウンロード
@@ -464,8 +486,14 @@ router.get('/folderedit', (req, res) => {
 // 表示フォルダの編集 (POST)
 router.post('/folderedit', (req, res) => {
     let data = req.body.editor;
-    fs.writeFileSync("./folders.json", data);
-    res.render("folderedit", {"folderList": data, "message": "表示フォルダ一覧を更新しました。"});
+    try {
+        JSON.parse(data);
+        fs.writeFileSync("./folders.json", data);
+        res.render("folderedit", {"folderList": data, "message": "表示フォルダ一覧を更新しました。"});   
+    }
+    catch (err) {
+        res.render("folderedit", {"folderList": data, "message": "データの形式が間違っています。正確な JSON 形式で記述する必要があります。"});
+    }
 });
 
 // ファイル編集 (GET)

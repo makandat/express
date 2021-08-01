@@ -24,9 +24,14 @@
 
     <body>
         <header>
-            <h1><span style="color:deeppink">"<%= mark %>"</span> のアルバム一覧</h1>
+            <% if (mark != "") { %>
+                <h1><span style="color:deeppink">"<%= mark %>" の</span>アルバム一覧</h1>
+            <% } else { %> 
+                <h1>アルバム一覧</h1>
+            <% } %>
             <p class="comment">最初にアルバムの種別を選んでください。</p>
             <div class="menu">
+                <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <label class="form_item">種別 <select id="marks">
                     <option value="0">-- Select --</option>
                     <option value="all">すべて</option>

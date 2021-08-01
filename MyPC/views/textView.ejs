@@ -36,9 +36,9 @@
     </head>
 
     <body>
-        <h3><%= path %></h3>
+        <h3><a href="/"><img src="/img/home_blue.png" /></a> <%= path %></h3>
         <hr />
-        <div class="menu"><a href="/computer/getfile/?path=<%- path %>">この内容をダウンロードする。</a></div>
+        <div class="menu"><a href="/computer/getfile/?path=<%- path %>">この内容をダウンロードする。</a>&nbsp;|&nbsp;<a href="/computer/download?file=<%- path %>&encoding=Shift_JIS">Shift_JIS として表示する</a></div>
         <pre><code><%= content %></code></pre>
         <p class="footerlink"><a href="#top">TOP</a></p>
     </body>
