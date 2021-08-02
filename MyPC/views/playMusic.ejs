@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <title>プレイリスト：<%= title %></title>
         <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
         <style>
             audio {
                 padding:10px;
@@ -14,25 +15,47 @@
                 color:blue;
             }
         </style>
+        <script>
+            function ready() {
+                let mp = 1;
+                let musicList = document.getElementById('musicList');
+                let items = musicList.childNodes;
+                let list = [];
+                for (let a of items) {
+                    if (a.innerText) {
+                        list.push(a.innerText);
+                    }
+                }
+                let player = document.getElementById('player');
+                player.src = "/sendfile?path=" + list[0];
+                player.addEventListener('ended', () => {
+                    if (mp < list.length) {
+                        player.src = "/sendfile?path=" + list[mp];
+                        player.play();
+                        mp++;
+                        message.innerText = mp + " 曲目";
+                    }
+                    else {
+                        let message = document.getElementById('message');
+                        message.innerHTML = "終わり <a href=\"javascript:ready()\">もう一度 (再生ボタンのクリックが必要)。</a>";
+                    }
+                });
+            }
+        </script>
     </head>
 
-    <body>
+    <body onload="ready()">
         <header>
             <h1><a href="/"><img src="/img/home_blue.png" /></a>&nbsp;プレイリスト：<%= title %></h1>
-            <p class="comment">うまく演奏できない場合は、すべてのパスが正しいか確認してください。</p>
+            <p class="comment">うまく演奏できない場合は、すべてのパスが正しいか確認してください。また、ファイル形式にブラウザが対応しているかも確認してください。</p>
         </header>
         <article>
             <br />
-            <audio id="music" controls>
-                <% for (let item of items) { %>
-                    <% if (item) { %>
-                        <source src="/music/getmusic?path=<%= item %>" />
-                    <% } %>
-                <% } %>
-            </audio>
+            <audio id="player" controls></audio>
+            <p class="message" id="message"></p>
             <br />
             <h3>曲目</h3>
-            <ol>
+            <ol id="musicList">
                 <% for (let item of items) { %>
                     <% if (item) { %>
                         <li><%= item %></li>

@@ -49,7 +49,7 @@
                             else {
                                 image ="/img/music64.png";
                             }
-                            html += `<figure style='display:inline-block;'><a href="/music/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /></a><figcaption style="font-size:10pt;color:darkmagenta;">${a.name}</figcaption></figure>\n`;
+                            html += `<figure style="display:inline-block;text-align:center;"><a href="/music/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption style="font-size:10pt;color:darkmagenta;">${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");
@@ -65,8 +65,7 @@
                     else {
                         let html = "<table><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
                         for (let a of data) {
-                            let dt = a.date.substring(0, 10);
-                            html += `<tr><td style=\"text-align:center;\">${a.id}</td><td><a href="/music/showContent/?album=${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${dt}</td></tr>\n`;
+                            html += `<tr><td style="text-align:center;">${a.id}</td><td><a href="/music/showContent/?album=${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${a.date}</td></tr>\n`;
                         }
                         html += "</table>";
                         $("#albums").html(html);
@@ -84,7 +83,7 @@
                         let html = "";
                         for (let a of data) {
                             let image ="/img/playlist64.png";
-                            html += `<figure style='display:inline-block;'><a href="/playlist/?list=${a.id}" taregt="_blank"><img src="${image}" /></a><figcaption style="font-size:10pt;color:red">${a.title}</figcaption></figure>\n`;
+                            html += `<figure style="display:inline-block;text-align:center;"><a href="/playlist/?list=${a.id}" taregt="_blank"><img src="${image}" /><figcaption style="font-size:10pt;color:red">${a.title}</figcaption></a></figure>\n`;
                         }
                         $("#playlists").html(html);
                         $("message").text("アルバムとプレイリスト一覧が表示されました。");
@@ -100,8 +99,7 @@
                     else {
                         let html = "<table><tr><th style=\"text-align:center;\">id</th><th>タイトル</th><th>曲目</th><th>情報</th><th>作成日時</th></tr>";
                         for (let a of data) {
-                            let dt = a.date ? a.date.getFullYear() + "-" + (a.date.getMonth() + 1) + "-" + a.date.getDate() : "";
-                            html += `<tr><td style=\"text-align:center;\">${a.id}</td><td><a href="/playlist?list=${a.id}" target="_blank">${a.title}</a></td><td><textarea readonly>${a.items}</textarea></td><td>${a.info}</td><td>${dt}</td></tr>\n`;
+                            html += `<tr><td style="text-align:center;">${a.id}</td><td><a href="/playlist?list=${a.id}" target="_blank">${a.title}</a></td><td><textarea readonly>${a.items}</textarea></td><td>${a.info}</td><td>${a.date}</td></tr>\n`;
                         }
                         html += "</table>";
                         $("#playlists").html(html);

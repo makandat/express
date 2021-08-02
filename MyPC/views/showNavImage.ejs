@@ -21,6 +21,7 @@
     <div class="menu">
         <a href="/"><img src="/img/home.png"> HOME</a>&nbsp;/&nbsp;
         <a href="/pictures/showthumb/?path=<%= dir %>"><img src="/img/image2.png"> 画像一覧表示</a>&nbsp;/&nbsp;
+        <a href="/pictures/showthumb?path=<%= dir %>"> サムネール一覧表示</a>&nbsp;/&nbsp;
         <a href="/pictures/showNavImage/?nav=first"><img src="/img/first.svg" /> 先頭</a>&nbsp;
         <a href="/pictures/showNavImage/?nav=prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;&nbsp;
         <a href="/pictures/showNavImage/?nav=next"><img src="/img/next.svg" /> 次へ</a>&nbsp;
@@ -30,7 +31,7 @@
     <br />
     <p class="message"><%= message %></p>
     <div style="text-align:center;">
-        <a href="/showNavImage/?nav=next"><img src="/sendfile?path=<%= path %>" /></a>
+        <a href="/pictures/showNavImage/?nav=next"><img src="/sendfile?path=<%= path %>" /></a>
     </div>
     <p>&nbsp;</p>
     <p>&nbsp;</p>

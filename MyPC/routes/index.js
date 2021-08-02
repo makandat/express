@@ -56,7 +56,7 @@ router.get('/viewimgfolder', (req, res) => {
 // アルバム一覧を返す。(markごと)
 router.get('/getAlbums/:kind', async (req, res) => {
   let kind = req.params.kind;
-  let sql = "SELECT * FROM Album";
+  let sql = "SELECT id, `name`, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album";
   if (kind) {
     sql +=  ` WHERE mark='${kind}'`;
   }
@@ -66,7 +66,7 @@ router.get('/getAlbums/:kind', async (req, res) => {
 
 // プレイリスト一覧を返す。
 router.get('/getPlaylists', async (req, res) => {
-  let sql = "SELECT * FROM Playlists";
+  let sql = "SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Playlists";
   let result = await mysql.query_p(sql);
   res.json(result);
 });
@@ -74,7 +74,7 @@ router.get('/getPlaylists', async (req, res) => {
 // プレイリストを演奏する
 router.get("/playlist", (req, res) => {
   let pid = req.query.list;
-  mysql.getRow("SELECT * FROM Playlists WHERE id=" + pid, (err,row) => {
+  mysql.getRow("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Playlists WHERE id=" + pid, (err,row) => {
     let list = row.items.split("\n");
     res.render("playMusic", {title:row.title, items:list});
   });
@@ -108,7 +108,7 @@ router.get('/getAlbum/:id', async (req, res) => {
   let id = req.params.id;
   let name = "";
   if (id) {
-    let sql = "SELECT * FROM Album WHERE id=" + id;
+    let sql = "SELECT id, `name`, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE id=" + id;
     let row = await mysql.getRow_p(sql);
     res.json(row);
   }

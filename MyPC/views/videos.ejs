@@ -26,7 +26,7 @@
                             else {
                                 image ="/img/video0.png";
                             }
-                            html += `<figure style='display:inline-block;'><a href="/videos/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /></a><figcaption>${a.name}</figcaption></figure>\n`;
+                            html += `<figure style='display:inline-block;text-align:center;'><a href="/videos/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");

@@ -108,7 +108,7 @@ router.get("/showNavImage", async (req, res) => {
         session.pictures_navdir = fso.getDirectory(path);
         [session.pictures_nav, session.pictures_nfiles] = await getNavIndex(session.pictures_navdir, path);
         let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${session.pictures_navdir}'`);
-        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:"", path:path});
+        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:(session.pictures_nav+1) + " / " + session.pictures_nfiles, path:path});
     }
     else if (req.query.nav) {
         switch (req.query.nav) {
@@ -137,7 +137,7 @@ router.get("/showNavImage", async (req, res) => {
         }
         let files = await fso.getFiles_p(session.pictures_navdir);
         let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${session.pictures_navdir}'`);
-        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:"画像位置：" + session.pictures_nav, path:files[session.pictures_nav]});
+        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:"画像位置：" + (session.pictures_nav+1) + " / " + files.length, path:files[session.pictures_nav]});
     }
     else {
         res.render("showInfo", {icon:"/img/cancel.png", message:"/showNavImage のパラメータが不正です。"});
