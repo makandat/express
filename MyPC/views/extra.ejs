@@ -134,6 +134,7 @@
             </form>
             <!-- データ一括登録とチェック (bulkDataForm) -->
             <h2>データ一括登録とチェック</h2>
+            <p class="comment">Pictures の場合、ディレクトリは「親/子/孫」の関係で「親」を指定します。そして、画像ファイルは「孫」の中にあるものとします。</p>
             <form id="bulkDataForm">
                 <div class="form_row">
                     <div class="form_item">テーブルの選択</div>
@@ -282,23 +283,23 @@
                             alert("対象 id またはパスが指定されていません。");
                             return;
                         }
-                        if (confirm(appDelete.deleteTable + "の id " + appDelete.deleteId + " を削除します。")) {
-                            let url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
-                            fetch(url)
-                            .then(resp => resp.text())
-                            .then(text=>appDelete.deleteRecordMessage = text)
-                            .catch(err=>appDelete.deleteRecordMessage = err.message);
-
-                            if (await deleteId(appDelete.deleteTable, appDelete.deleteId)) {
-                                appDelete.deleteRecordMessage = "削除されました。";
+                        let sql = `/extra/getTitle?table=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
+                        fetch(sql)
+                        .then(res => res.json())
+                        .then(json => {
+                            let msg = `${appDelete.deleteTable} から id=${appDelete.deleteId}, タイトル"${json.title}" (${json.path}) を削除します。`;
+                            if (confirm(msg)) {
+                                let url = `/deleteId?tableName=${appDelete.deleteTable}&id=${appDelete.deleteId}`;
+                                fetch(url)
+                                .then(resp => resp.text())
+                                .then(text=>appDelete.deleteRecordMessage = text)
+                                .catch(err=>appDelete.deleteRecordMessage = err.message);
                             }
                             else {
-                                appDelete.deleteRecordMessage = "エラーを検出。";
+                                appDelete.deleteRecordMessage = "削除は取り消されました。";
                             }
-                        }
-                        else {
-                            appDelete.deleteRecordMessage = "削除は取り消されました。";
-                        }
+                        })
+                        .catch(err => appDelete.deleteRecordMessage = "エラーを検出。");
                     }
                 }
             });
@@ -323,7 +324,7 @@
                             let html = "";
                             if (arr.length == 0) {
                                 bulkDataForm.message = "";
-                                html = "<li style='font-size:14pt;color:magenta;'>未登録項目はありません。</li>";
+                                html = "<li style='font-size:14pt;color:magenta;'>未登録項目はありません。(" + bulkDataForm.folder1 + ")</li>";
                                 bulkDataForm.result = html;
                             }
                             else {
@@ -343,10 +344,16 @@
                         .catch(err=>{bulkDataForm.message = err.message;});
                     },
                     insertButton_Click: () => {  // 一括挿入
-                        fetch("/extra/bulkInsert?folder=" + bulkDataForm.folder1 + "&bulkTable=" + bulkDataForm.bulkTable)
-                        .then(res=>res.text())
-                        .then(text=>{bulkDataForm.message = text;})
-                        .catch(err=>{bulkDataForm.message = err.message;});
+                        let msg = `${bulkDataForm.bulkTable} に ${bulkDataForm.folder1} の情報を登録します。`;
+                        if (confirm(msg)) {
+                            fetch("/extra/bulkInsert?folder=" + bulkDataForm.folder1 + "&bulkTable=" + bulkDataForm.bulkTable)
+                            .then(res=>res.text())
+                            .then(text=>{bulkDataForm.message = text; bulkDataForm.result = "";})
+                            .catch(err=>{bulkDataForm.message = err.message; bulkDataForm.result = "";});
+                        }
+                        else {
+                            bulkDataForm.message = "取り消されました。";
+                        }
                     }
                 }
             });

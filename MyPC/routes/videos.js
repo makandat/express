@@ -46,6 +46,7 @@ router.get('/showContent', async (req, res) => {
         session.videos_orderby = "id";
         session.videos_sortdir = "asc";
         session.videos_search = null;
+        session.videos_album = album;
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " AND mark='video'");
     }
     if (req.query.reset) {
@@ -72,19 +73,23 @@ router.get('/showContent', async (req, res) => {
         dirdesc = "";
     }
     // クエリーを行う。
-    let sql = await makeSQL(req);
-    console.log(sql);
-    let result = await mysql.query_p(sql);
-    if (result.length > 0) {
-        session.videos_end = result[result.length - 1].id;
+    try {
+        let sql = await makeSQL(req);
+        //console.log(sql);
+        let result = await mysql.query_p(sql);
+        if (result.length > 0) {
+            session.videos_end = result[result.length - 1].id;
+        }
+        // 結果を返す。
+        res.render('videolist', {"title":title, "albumName":albumName, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});    
     }
-    // 結果を返す。
-    res.render('videolist', {"title":title, "albumName":albumName, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});
+    catch (err) {
+        res.render("showInfo", {"title":"Fatal Error", "icon":"cancel.png", "message":"エラー：" + err.message});
+    }
 });
 
 // SQL を構築する。
 async function makeSQL(req) {
-    session.videos_album = req.query.album;
     // アルバム指定あり？
     if (!session.videos_album) {
         session.videos_album = 0;
@@ -518,7 +523,7 @@ router.post('/videosForm', (req, res) => {
     let series = req.body.series;
     let mark = req.body.mark;
     let info = req.body.info.replace("'", "''");
-    let fav = req.body.fav;
+    let fav = req.body.fav ? req.body.fav : 0;
     let bindata = req.body.bindata;
     let value = {
         id: id,

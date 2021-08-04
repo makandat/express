@@ -8,8 +8,10 @@ const path = require('path');
 const mysql = require("./MySQL.js");
 const fso = require("./FileSystem.js");
 const dto = require("./DateTime.js");
-const { render } = require('ejs');
+const com = require("./Common.js");
+//const { render } = require('ejs');
 const session = require('express-session');
+//const { checkServerIdentity } = require('tls');
 
 /* package.json からアプリ名を得る。*/
 function getAppName() {
@@ -32,10 +34,63 @@ function getRelease() {
   return p.release;
 }
 
+/* 動作環境のチェック */
+async function checkEnv() {
+  return new Promise(async (resolve, reject) => {
+    // フォルダ
+    let mypc = fso.getDirectory(__dirname);
+    if (!fso.exists(mypc + "/uploads")) {
+      fs.mkdirSync(mypc + "/uploads");
+    }
+    if (!fso.exists(mypc + "/tmp")) {
+      fs.mkdirSync(mypc + "/tmp");
+    }
+    // DB
+    try {
+      let myconf = fs.readFileSync(mypc + "/mysql.json", "utf-8");
+      let conf = JSON.parse(myconf);
+      let sql = "SELECT table_name FROM information_schema.tables WHERE table_schema='" + conf.database +"'";
+      let result = await mysql.query_p(sql);
+      let n = 0;
+      for (let row of result) {
+        if (row.table_name.toLowerCase() == "pictures") {
+          n++;
+        }
+      }
+      if (n == 0) {
+        resolve("データベースのオブジェクトがないか、足りません。")
+      }
+      // JSON
+      let myfolders = fs.readFileSync(mypc + "/folders.json");
+      let folders = JSON.parse(myfolders);
+      if (com.isWindows()) {
+        if (!/^\w:.*/.test(folders[0])) {
+          resolve("folders.json の書式が正しくありません。");
+        }
+        else {
+          resolve("");
+        }
+      }
+      else {
+        if (!folders[0].startsWith('/')) {
+          resolve("");
+        }
+        else {
+          resolve("folders.json の書式が正しくありません。");
+        }
+      }
+    }
+    catch (err) {
+      resolve("エラー：" + err.message);
+    }
+  });
+}
+
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', async (req, res, next) => {
   let title = getAppName() + ": " + os.hostname;
-  res.render('index', { title: title, version: getVersion(), release_date: getRelease() });
+  let message = await checkEnv();
+  res.render('index', { title: title, version: getVersion(), release_date: getRelease(), message:message});
 });
 
 // /img フォルダの表示
@@ -243,32 +298,39 @@ router.post('/addModifyAlbum', async (req, res) => {
     groupname: req.body.groupname
   };
   // グループ名一覧を得る。
-  let groups = await mysql.query_p(`SELECT DISTINCT groupname FROM album where mark='${values.mark}' ORDER BY groupname`);
-  if (values.id) {
-    // 更新
-    let update = `UPDATE Album SET name='${values.name}', mark='${values.mark}', info='${values.info}', bindata=${values.bindata}, groupname='${values.groupname}' WHERE id = ${values.id}`;
-    mysql.execute(update, (err) => {
-      if (err) {
-        res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
+  let groups = [];
+  mysql.query(`SELECT DISTINCT groupname AS gn FROM album where mark='${values.mark}' ORDER BY groupname`, (row) => {
+    if (row) {
+      groups.push(row.gn);
+    }
+    else {
+      if (values.id) {
+        // 更新
+        let update = `UPDATE Album SET name='${values.name}', mark='${values.mark}', info='${values.info}', bindata=${values.bindata}, groupname='${values.groupname}' WHERE id = ${values.id}`;
+        mysql.execute(update, (err) => {
+          if (err) {
+            res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
+          }
+          else {
+            res.render('addModifyAlbum', {message:"\"" + values.name + "\" が更新されました。", values:values, groupnames:groups});
+          }
+        });
       }
       else {
-        res.render('addModifyAlbum', {message:"\"" + values.name + "\" が更新されました。", values:values, groupnames:groups});
+        // 新規作成
+        let today = dto.getDateString();
+        let insert = `INSERT INTO Album VALUES(NULL, '${values.name}', '${values.mark}', '${values.info}', ${values.bindata}, '${values.groupname}', '${today}')`;
+        mysql.execute(insert, (err) => {
+          if (err) {
+            res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
+          }
+          else {
+            res.render('addModifyAlbum', {message:"\"" + values.name + "\" が作成されました。", values:values, groupnames:groups});
+          }
+        });
       }
-    });
-  }
-  else {
-    // 新規作成
-    let today = dto.getDateString();
-    let insert = `INSERT INTO Album VALUES(NULL, '${values.name}', '${values.mark}', '${values.info}', ${values.bindata}, '${values.groupname}', '${today}')`;
-    mysql.execute(insert, (err) => {
-      if (err) {
-        res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
-      }
-      else {
-        res.render('addModifyAlbum', {message:"\"" + values.name + "\" が作成されました。", values:values, groupnames:groups});
-      }
-    });
-  }
+    }
+  });
 });
 
 // アルバムのデータ確認
@@ -485,10 +547,10 @@ router.get("/deleteId", (req, res) => {
   let sql = `DELETE FROM ${tableName} WHERE id = ${id}`;
   mysql.execute(sql, (err) => {
     if (err) {
-      res.json("NG: " + err.message);
+      res.send("NG: " + err.message);
     }
     else {
-      res.json("OK: 削除成功 " + id + " on " + tableName);
+      res.send("OK: 削除成功 " + id + " on " + tableName);
     }
   });
 });

@@ -63,8 +63,7 @@
             // パスをクリップボードへコピーする。
             function copyPath(idx) {
                 // コピーする文章の取得
-                idx++;
-                let text = $("#no" + idx).text();
+                let text = $("#no" + (idx+1)).text();
                 let textarea = $("#forcopying");
                 // テキストエリアに文章を挿入
                 textarea.text(text);

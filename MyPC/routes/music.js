@@ -36,28 +36,38 @@ router.get('/showContent', async (req, res) => {
     if (fav) {
         const FAVSQL = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music WHERE fav > 0 ORDER BY fav DESC";
         let result = [];
-        mysql.query(FAVSQL, (row) => {
-            if (row) {
-                result.push(row);
-            }
-            else {
-                res.render('musiclist', {"title":"好きな" + title, "album":"",  "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:"", dirdesc:"●", search:""});
-            }
-        });
+        try {
+            mysql.query(FAVSQL, (row) => {
+                if (row) {
+                    result.push(row);
+                }
+                else {
+                    res.render('musiclist', {"title":"好きな" + title, "album":"",  "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:"", dirdesc:"●", search:""});
+                }
+            });   
+        }
+        catch (err) {
+            res.render('showInfo', {"title":"Fatal Error", "icon":"cancel.png", "message":"致命的エラー：" + err.message});
+        }
         return;
     }
     let artist = req.query.artist;
     if (artist) {
         const ARTSQL = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music WHERE artist = '" +artist +"' ORDER BY artist";
         let result = [];
-        mysql.query(ARTSQL, (row) => {
-            if (row) {
-                result.push(row);
-            }
-            else {
-                res.render('musiclist', {"title":"アーティスト一覧", "album":"", "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "●", dirasc:"", dirdesc:"", search:""});
-            }
-        });
+        try {
+            mysql.query(ARTSQL, (row) => {
+                if (row) {
+                    result.push(row);
+                }
+                else {
+                    res.render('musiclist', {"title":"アーティスト一覧", "album":"", "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "●", dirasc:"", dirdesc:"", search:""});
+                }
+            });    
+        }
+        catch (err) {
+            res.render('showInfo', {"title":"Fatal Error", "icon":"cancel.png", "message":"致命的エラー：" + err.message});
+        }
         return;
     }
 
@@ -67,6 +77,7 @@ router.get('/showContent', async (req, res) => {
         session.music_search = null;
         session.music_start = 1;
         session.music_mark = null;
+        session.music_album = album;
         title += ` (アルバム=${album})`;
     }
     if (req.query.reset) {
@@ -81,28 +92,33 @@ router.get('/showContent', async (req, res) => {
     if (req.query.sortdir) {
         session.videos_sortdir = req.query.sortdir;
     }
-    let sql = await makeSQL(req);
-    let result = [];
-    mysql.query(sql, (row) => {
-        if (row) {
-            result.push(row);
-        }
-        else {
-            let dirasc = "●";
-            let dirdesc = "";
-            if (req.query.sortdir == "desc") {
-                dirasc = "";
-                dirdesc = "●";
-                session.music_start = 1000000;
+    try {
+        let sql = await makeSQL(req);
+        let result = [];
+        mysql.query(sql, (row) => {
+            if (row) {
+                result.push(row);
             }
             else {
-                dirasc = "●";
-                dirdesc = "";
-                session.music_start = 1;
+                let dirasc = "●";
+                let dirdesc = "";
+                if (req.query.sortdir == "desc") {
+                    dirasc = "";
+                    dirdesc = "●";
+                    session.music_start = 1000000;
+                }
+                else {
+                    dirasc = "●";
+                    dirdesc = "";
+                    session.music_start = 1;
+                }
+                res.render('musiclist', {"title":title, "album":album,  "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});
             }
-            res.render('musiclist', {"title":title, "album":album,  "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});
-        }
-    });
+        });    
+    }
+    catch (err) {
+        res.render('showInfo', {"title":"Fatal Error", "icon":"cancel.png", "message":"致命的エラー：" + err.message});
+    }
 });
 
 // アーティスト一覧
@@ -312,7 +328,6 @@ router.get('/getmusic', (req, res) => {
 
 // SQL を構築する。
 async function makeSQL(req) {
-    session.music_album = req.query.album;
     // アルバム指定あり？
     if (!session.music_album) {
         session.music_album = 0;

@@ -169,17 +169,22 @@ router.get("/showContent", (req, res) => {
             if (album) {
                 sql += ` WHERE album=${album}`;
             }
-            mysql.query(sql, (row) => {
-                if (row) {
-                    result.push(row);
-                }
-                else {
-                    if (album) {
-                        message = "アルバム番号： " + album;
+            try {
+                mysql.query(sql, (row) => {
+                    if (row) {
+                        result.push(row);
                     }
-                    res.render("projectlist", {message:message, result:result, marks:marks});
-                }
-            });
+                    else {
+                        if (album) {
+                            message = "アルバム番号： " + album;
+                        }
+                        res.render("projectlist", {message:message, result:result, marks:marks});
+                    }
+                });    
+            }
+            catch (err) {
+                res.render("showInfo", {title:"Fatal Error", message:"エラー：" + err.message, icon:"cancel.png"});
+            }
         }
     });
 });

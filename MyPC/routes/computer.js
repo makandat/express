@@ -92,7 +92,7 @@ function showItems(dir, res, message = "") {
         let resultFiles = [];
         let resultDirs = [];
         let resultSymLinks = [];
-        let i = 1;
+        let i = 0;
         fso.getDirectories(dir, (dirs) => {
             let row = [];
             if (com.getType(dirs) == 'string') {
@@ -117,7 +117,7 @@ function showItems(dir, res, message = "") {
                     try {
                         d = d.replace(/\\/g, '/') + "/";
                         if (includesHidden(d, session.hiddenItems)) {
-                            row.push(`<a href="javascript:copyPath(${i - 1})">${i}</a>`);
+                            row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
                             row.push(fso.getAttrSync(d, true, "d"));
                             row.push(`<a href="/computer/folder/?folder=${d}" id="no${i}">${d}</a>`);
                             row.push("d");

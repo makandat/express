@@ -19,8 +19,8 @@
             <hr />
         </header>
         <article id="app" style="margin-left:10%;margin-top:30px;">
-            <div class="form-row"><textarea cols="120" rows="40" v-model="history"></textarea></div>
-            <div class="form-row"><label style="font-size:small;">コマンド</label><br /> <input type="text" v-model="command" size="120" /></div>
+            <div class="form-row"><textarea cols="120" rows="30" v-model="history"></textarea></div>
+            <div class="form-row" style="margin-top:6px;"><label style="font-size:small;">コマンド <span style="color:red;">(空白を含むパスは引用符 (' or ") で囲むこと)</span></label><br /> <input type="text" v-model="command" size="120" /></div>
             <br />
             <div class="form-row">
                 <input type="button" v-on:click="execute" value="  実行  " />

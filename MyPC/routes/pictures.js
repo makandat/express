@@ -47,6 +47,7 @@ router.get('/showContent', async (req, res) => {
         session.pictures_sortdir = "asc";
         session.pictures_search = null;
         session.pictures_mark = null;
+        session.pictures_album = album;
         albumName = await mysql.getValue_p(`SELECT name FROM Album WHERE id = ${album} AND mark='picture'`);
     }
     if (req.query.reset) {
@@ -73,16 +74,21 @@ router.get('/showContent', async (req, res) => {
         dirdesc = "";
     }
     // マーク一覧を得る。
-    let marks = await mysql.query_p("SELECT DISTINCT mark FROM Pictures");
-    // クエリーを行う。
-    let sql = await makeSQL(req);
-    //console.log(sql);
-    let result = await mysql.query_p(sql);
-    if (result.length > 0) {
-        session.pictures_end = result[result.length - 1].id;
+    try {
+        let marks = await mysql.query_p("SELECT DISTINCT mark FROM Pictures");
+        // クエリーを行う。
+        let sql = await makeSQL(req);
+        //console.log(sql);
+        let result = await mysql.query_p(sql);
+        if (result.length > 0) {
+            session.pictures_end = result[result.length - 1].id;
+        }
+        // 結果を返す。
+        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});    
     }
-    // 結果を返す。
-    res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
+    catch (err) {
+        res.render('showInfo', {"title":"Fatal Error", "message":"エラー:" + err.message, "icon":"cancel.png"});
+    }
 });
 
 // サムネール形式で画像一覧を表示する。
@@ -391,7 +397,6 @@ router.get("/creators", (req, res) => {
 
 // SQL を構築する。
 async function makeSQL(req) {
-    session.pictures_album = req.query.album;
     // アルバム指定あり？
     if (!session.pictures_album) {
         session.pictures_album = 0;
@@ -536,12 +541,9 @@ async function makeSQL(req) {
 
     // SQL 文作成
     let sql = "SELECT id, `album`, title, creator, `path`, `media`, `mark`, `info`, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
-    let needWhere = true;
-    let needAnd = true;
     if (session.pictures_album > 0) {
         // アルバム指定あり
         sql += ` WHERE album=${session.pictures_album}`;
-        needWhere = false;
         if (session.pictures_sortdir == "desc") {
             sql += " AND id <= " + session.pictures_start;
         }

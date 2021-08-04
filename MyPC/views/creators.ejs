@@ -22,10 +22,11 @@
     </head>
     <body>
         <header>
-            <h1><a href="/"><img src="/img/home_orange.png" /></a>&nbsp;画像作者一覧</h1>
+            <h1>画像作者一覧</h1>
             <p class="comment">Ctrl+F で検索できます。</p>
             <p class="comment">現在のマークによる絞り込み：<%= mark %></p>
             <div class="menu">
+                <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 マークで絞り込む <select id="marks">
                     <option value="0">-----</option>
                     <% for (let m of marks) { %>
@@ -38,15 +39,15 @@
         </header>
         <article>
             <p class="message"><%= message %></p>
-            <table style="margin-left:auto;margin-right:auto;">
+            <table style="margin-left:auto;margin-right:auto;width:80%;">
                 <tr><th>No.</th><th>作者</th><th>作品数</th><th>参照数</th><th>好き数</th></tr>
                 <% let i = 1; for (let row of result) { %>
                     <tr>
-                    <td><%= i %></td>
+                    <td style="text-align:center;"><%= i %></td>
                     <td><a href="/pictures/showContent?creator=<%= row.creator %>" target="_blank"><%= row.creator %></a></td>
-                    <td><%= row.creatorcount %></td>
-                    <td><%= row.sumref %></td>
-                    <td><%= row.sumfav %></td>
+                    <td style="text-align:right;"><%= row.creatorcount %></td>
+                    <td style="text-align:right;"><%= row.sumref %></td>
+                    <td style="text-align:right;"><%= row.sumfav %></td>
                     </tr>
                 <% i++; } %>
             </table>

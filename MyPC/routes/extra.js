@@ -206,7 +206,7 @@ router.get("/bindataForm", (req, res) => {
         id:"",
         title:"",
         original:"",
-        datatype:"",
+        datatype:".jpg",
         info:""
     };
     res.render("bindataForm", {message:"", value:value});
@@ -292,7 +292,7 @@ router.post("/bindataForm", upload.single('dataFileClient'), async (req, res) =>
     });
 });
 
-// バイナリーデータを作成
+// BINDATA バイナリーデータを作成
 function makeBinData(fileName) {
     let hex = "0x";
     let buffer = fs.readFileSync(fileName);
@@ -305,7 +305,7 @@ function makeBinData(fileName) {
     return [hex, size];
 }
 
-// データ確認
+// BINDATA データ確認
 router.get("/confirmBINDATA/:id", (req, res) => {
     let id = req.params.id;
     let value = {
@@ -391,6 +391,7 @@ router.get("/createBackupTables", async (req, res) => {
     }
 });
 
+// バックアップテーブルを作る。
 async function createTable(tableName, age) {
     let backTableName = tableName + "Bak" + age;
     let sql = `CREATE TABLE ${backTableName} SELECT * FROM ${tableName}`;
@@ -438,8 +439,8 @@ router.get("/bulkInsert", async (req, res) => {
                 for (let dir2 of dirs2) {
                     dir2 = dir2.replace(/\\/g, "/");
                     let parts = dir2.split("/");
-                    let title = parts[parts.length - 1];
-                    let creator = parts[parts.length - 2].slice(0, 49);
+                    let title = parts[parts.length - 1].replace(/'/g, "''");
+                    let creator = parts[parts.length - 2].slice(0, 49).replace(/'/g, "''");
                     let path = dir2.replace(/'/g, "''");
                     sql += `(NULL, 0, '${title}', '${creator}', '${path}', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
                 }
@@ -466,7 +467,7 @@ router.get("/bulkInsert", async (req, res) => {
                 let ext = fso.getExtension(p);
                 if (ext == '.mp4' || ext == '.mkv' || ext == '.avi' || ext == '.wmv' || ext == '.mov' || ext == '.mpg') {
                     let fileName = fso.getFileName(p);
-                    let title = fileName.split(".")[0];
+                    let title = fileName.split(".")[0].replace(/'/g, "''");
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
                     let parts = path.split("/");
                     let series = parts[parts.length - 2];
@@ -495,7 +496,7 @@ router.get("/bulkInsert", async (req, res) => {
                 let ext = fso.getExtension(p);
                 if (ext == '.mp3' || ext == '.m4a' || ext == '.ogg' || ext == '.flac' || ext == 'wma') {
                     let fileName = fso.getFileName(p);
-                    let title = fileName.split(".")[0].slice(0, 99);
+                    let title = fileName.split(".")[0].slice(0, 99).replace(/'/g, "''");
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
                     let parts = path.split("/");
                     let artist = parts[parts.length - 2].slice(0, 49);
@@ -536,9 +537,28 @@ async function readdirRecursively(dir, files=[]) {
     return Promise.resolve(files);    
 }
 
+// テーブルと id を指定してタイトルとパスを得る。
+router.get("/getTitle", (req, res) => {
+    let table = req.query.table;
+    let id = req.query.id;
+    let sql = `SELECT title, path FROM ${table} WHERE id=${id}`;
+    mysql.getRow(sql, (err, row) => {
+        if (err) {
+            res.json({"title":"", "path":""});
+        }
+        else {
+            res.json({"title":row.title, "path":row.path});
+        }
+    });
+});
+
 // 一括データチェック
 router.get("/bulkCheck", async (req, res) => {
     let folder = req.query.folder;
+    if (!fso.exists(folder)) {
+        res.json(["フォルダが見つかりません。"]);
+        return;
+    }
     let bulkTable = req.query.bulkTable;
     let nopath = [];
     switch (bulkTable) {

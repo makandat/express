@@ -159,14 +159,19 @@ router.get("/showContent", (req, res) => {
             }
         }
         else {
-            mysql.query("SELECT * FROM Documents", (row) => {
-                if (row) {
-                    result.push(row);
-                }
-                else {
-                    res.render("documentlist", {message:"", result:result, marks:marks});
-                }
-            });
+            try {
+                mysql.query("SELECT * FROM Documents", (row) => {
+                    if (row) {
+                        result.push(row);
+                    }
+                    else {
+                        res.render("documentlist", {message:"", result:result, marks:marks});
+                    }
+                });    
+            }
+            catch (err) {
+                res.render("documentlist", {message:"致命的エラー：" + err.message, result:[], marks:[]});
+            }
         }
     });
 });
