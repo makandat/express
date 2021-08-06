@@ -6,10 +6,9 @@
         <link rel="stylesheet" href="/css/style.css" />
         <style>
             figure {
-                display:inline-block;
+                display: inline-block;
                 font-size: 10pt;
                 text-align: center;
-                color:darkviolet;
             }
         </style>
         <script src="/js/jquery.min.js"></script>
@@ -18,6 +17,7 @@
                 pictureAlbumsIcons();
             });
 
+            // アイコン形式で表示する。
             function pictureAlbumsIcons() {
                 $.getJSON('/getAlbums/picture', (data) => {
                     if (! data) {
@@ -33,7 +33,7 @@
                             else {
                                 image ="/img/song48.png";
                             }
-                            html += `<figure><a href="/pictures/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /></a><figcaption>${a.name}</figcaption></figure>\n`;
+                            html += `<figure><a href="/pictures/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");
@@ -41,13 +41,14 @@
                 });
             }
 
+            // 詳細形式で表示する。
             function pictureAlbumsDetail() {
                 $.getJSON('/getAlbums/picture', (data) => {
                     if (! data) {
                         app.message = "アルバムにデータがありません。";
                     }
                     else {
-                        let html = "<table><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
+                        let html = "<table style=\"width:100%;\"><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
                         for (let a of data) {
                             let dt = a.date.substring(0, 10);
                             html += `<tr><td style=\"text-align:center;\">${a.id}</td><td><a href="/showAlbumContent/${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${dt}</td></tr>\n`;

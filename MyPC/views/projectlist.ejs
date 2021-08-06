@@ -34,7 +34,10 @@
                     <% for (let m of marks) { %>
                         <option value="<%= m %>"><%= m %></option>
                     <% } %>
-                </select>
+                </select>&nbsp;|&nbsp;
+                <img src="/img/sortdir.png" />&nbsp;(&nbsp;
+                <a href="/projects/showContent?sortdir=asc"><%= sortasc %> 昇順で表示</a>&nbsp;|&nbsp;
+                <a href="/projects/showContent?sortdir=desc"><%= sortdesc %> 降順で表示</a> )
             </div>
         </header>
         <article>

@@ -26,14 +26,17 @@
             <p class="comment">Ctrl+F で検索できます。</p>
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
-                <a href="javascript:location.reload()">表示更新</a>&nbsp;|&nbsp;
-                <a href="/documents/documentForm">文書の追加・修正</a>&nbsp;|&nbsp;
+                <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
+                <a href="/documents/documentForm"><img src="/img/form.png" />文書の追加・修正</a>&nbsp;|&nbsp;
                 マークフィルタ： <select id="marks">
                     <option value="0">-- マーク --</option>
                     <% for (let m of marks) { %>
                         <option value="<%= m %>"><%= m %></option>
                     <% } %>
-                </select>
+                </select>&nbsp;|&nbsp;
+                <img src="/img/sortdir.png" /> (&nbsp;
+                <a href="/documents/showContent?sortdir=asc"><%= sortasc %> 昇順で表示</a>&nbsp;|&nbsp;
+                <a href="/documents/showContent?sortdir=desc"><%= sortdesc %> 降順で表示</a> )
             </div>
         </header>
         <article>
@@ -42,7 +45,7 @@
                 <tr><th>id</th><th>書棚(album)番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>作者</th><th>マーク</th><th>情報</th><th>バックアップ</th><th>最新版リリース日</th><th>サムネール</th><th>登録日</th></tr>
                 <% for (let a of result) { %>
                     <tr>
-                        <td><%= a.id %></td>
+                        <td><a href="/documents/documentForm?id=<%= a.id %>" target="_blank"><%= a.id %></a></td>
                         <td><%= a.album %></td>
                         <td><a href="/objectView?path=<%= a.path %>&title=<%= a.title %>" target="_blank"><%= a.title %></a></td>
                         <td><%= a.revision %></td>

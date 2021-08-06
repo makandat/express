@@ -7,12 +7,27 @@ const fso = require('./FileSystem.js');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
 const mysql = require('./MySQL.js');
+const log4js = require('log4js');
 const router = express.Router();
 const LIMIT = 200;
 const ENDLIMIT = 1000000;
 
+// Log4JS 初期化 (ログファイル ./tmp/mypc.log)
+const logger = log4js.getLogger();
+logger.level = 'debug';
+let logfile = fso.getDirectory(__dirname) + "/tmp/mypc.log";
+log4js.configure({
+    appenders : {
+        system : {type : "file", filename : logfile}
+    },
+    categories : {
+        default : {appenders : ["system"], level : "debug"}
+    }
+});
+
 //  /extra は単に「その他」ページを表示するだけ
 router.get('/', (req, res) => {
+    logger.debug("extra.get(\"/\")");
     res.render("extra", {});
 });
 
@@ -401,7 +416,8 @@ async function createTable(tableName, age) {
 // 古いバックアップテーブルを削除するフォーム
 router.get("/removeBackup", (req, res) => {
     let result = [];
-    mysql.query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='user' AND TABLE_NAME REGEXP '.+BAK.*'", (row) => {
+    let sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='user' AND TABLE_NAME REGEXP '.+BAK.*'";
+    mysql.query(sql, (row) => {
         if (row) {
             result.push(row.TABLE_NAME);
         }
@@ -416,7 +432,8 @@ router.post("/removeBackupTables", async (req, res) => {
     let tables = req.body;
     try {
         for (let tableName of tables) {
-            await mysql.execute_p(`DROP TABLE ${tableName}`);
+            let sql = `DROP TABLE ${tableName}`;
+            await mysql.execute_p(sql);
         }
         res.send("OK: 指定したテーブルを削除しました。");    
     }
@@ -434,6 +451,10 @@ router.get("/bulkInsert", async (req, res) => {
         case "Pictures": {
             sql = "INSERT INTO Pictures(id, album, title, creator, path, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
             let dirs = await fso.getDirectories_p(folder);
+            if (dirs.length == 0)  {
+                res.send("フォルダの位置が間違っています。");
+                return;
+            }
             for (let dir of dirs) {
                 let dirs2 = await fso.getDirectories_p(dir);
                 for (let dir2 of dirs2) {
@@ -446,6 +467,7 @@ router.get("/bulkInsert", async (req, res) => {
                 }
             }
             sql = sql.substring(0, sql.length - 1);
+            logger.debug("一括データ挿入 Pictures: " + sql);
             mysql.execute(sql, (err) => {
                 if (err) {
                     res.send(err.message);
@@ -475,6 +497,7 @@ router.get("/bulkInsert", async (req, res) => {
                 }
             }
             sql = sql.substring(0, sql.length - 1);
+            logger.debug("一括データ挿入 Videos: " + sql);
             mysql.execute(sql, (err) => {
                 if (err) {
                     res.send(err.message);
@@ -504,6 +527,7 @@ router.get("/bulkInsert", async (req, res) => {
                 }
             }
             sql = sql.substring(0, sql.length - 1);
+            logger.debug("一括データ挿入 Music: " + sql);
             mysql.execute(sql, (err) => {
                 if (err) {
                     res.send(err.message);
@@ -760,6 +784,7 @@ router.post('/insertFileList', (req, res) => {
         }
     }
     sql = sql.substring(0, sql.length - 2);
+    logger.debug("ファイルリストからの一括登録: " + sql);
     mysql.execute(sql, (err) => {
         if (err) {
             res.json(err.message);
@@ -792,6 +817,7 @@ router.get("/deleteBatch", async (req, res) => {
     }
     else {
         let sql = `DELETE FROM ${tableName} WHERE id BETWEEN ${idFrom} AND ${idTo}`;
+        logger.debug("テーブルレコードの一括削除: " + sql);
         mysql.execute(sql, (err) => {
             if (err) {
                 res.send("エラー：" + err.message);
@@ -819,6 +845,7 @@ router.get("/replacePathBatch", async (req, res) => {
     }
     else {
         let sql = `UPDATE ${tableName} SET path = REPLACE(path, '${before}', '${after}')`;
+        logger.debug("レコードのパス (path) の一括変更: " + sql);
         mysql.execute(sql, (err) => {
             if (err) {
                 res.send("エラー：" + err.message);

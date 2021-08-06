@@ -119,7 +119,7 @@ function showItems(dir, res, message = "") {
                         if (includesHidden(d, session.hiddenItems)) {
                             row.push(`<a href="javascript:copyPath(${i})">${i + 1}</a>`);
                             row.push(fso.getAttrSync(d, true, "d"));
-                            row.push(`<a href="/computer/folder/?folder=${d}" id="no${i}">${d}</a>`);
+                            row.push(`<a href="/computer/folder/?folder=${d}" id="no${i + 1}">${d}</a>`);
                             row.push("d");
                             row.push("-");
                             row.push(fso.getDateTimeSync(d, true));

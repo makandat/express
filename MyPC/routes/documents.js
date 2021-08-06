@@ -34,7 +34,19 @@ router.get("/documentForm", (req, res) => {
             }
         }
         else {
-            res.render('documentForm', {message:"", marks:marks, value:value});
+            if (req.query.id) {
+                mysql.getRow("SELECT * FROM Documents WHERE id = " + req.query.id, (err, row) => {
+                    if (err) {
+                        res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"})
+                    }
+                    else {
+                        res.render('documentForm', {message:"", marks:marks, value:row});
+                    }
+                });
+            }
+            else {
+                res.render('documentForm', {message:"", marks:marks, value:value});
+            }
         }
     });
 });
@@ -77,7 +89,7 @@ router.post("/documentForm", (req, res) => {
         else {
             if (id) {
                 // 更新
-                let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', release='${release}', bindata=${bindata} WHERE id=${id}`;
+                let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
                 mysql.execute(update, (err) => {
                     if (err) {
                         message = err.message;
@@ -130,17 +142,17 @@ router.get("/confirmDocument", (req, res) => {
         }
         else {
             if (!id) {
-                res.render("documentForm", {message:"id が正しくありません。", value:value});
+                res.render("showInfo", {message:"id が正しくありません。", title:"エラー", icon:"cancel.png"});
                 return;
             }
             else {
                 let sql = `SELECT * FROM Documents WHERE id=${id}`;
                 mysql.getRow(sql, (err, row) => {
                     if (err) {
-                        res.render("documentForm", {message:err.message, value:value});
+                        res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
                     }
                     else {
-                        res.render("documentForm", {message:`id=${id} が検索されました。`, value:row});
+                        res.render("documentForm", {message:`id=${id} が検索されました。`, value:row, marks:marks});
                     }
                 });
             }
@@ -159,13 +171,36 @@ router.get("/showContent", (req, res) => {
             }
         }
         else {
-            try {
-                mysql.query("SELECT * FROM Documents", (row) => {
+            let sortasc = "";
+            let sortdesc = "";
+            let sql = "SELECT * FROM Documents";
+            if (req.query.album) {
+                sql += ` WHERE album=${req.query.album}`;
+            }
+            if (req.query.sortdir) {
+                session.projects_sortdir = req.query.sortdir;
+                if (session.projects_sortdir == "desc") {
+                    sortasc = "";
+                    sortdesc = "●";   
+                }
+                else {
+                    sortasc = "●";
+                    sortdesc = "";
+                }
+            }
+            else {
+                session.projects_sortdir = "asc";
+                sortasc = "●";
+                sortdesc = "";
+            }
+            sql += " ORDER BY id " + session.projects_sortdir;
+try {
+                mysql.query(sql, (row) => {
                     if (row) {
                         result.push(row);
                     }
                     else {
-                        res.render("documentlist", {message:"", result:result, marks:marks});
+                        res.render("documentlist", {message:"", result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc});
                     }
                 });    
             }

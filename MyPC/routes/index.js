@@ -53,18 +53,24 @@ async function checkEnv() {
       let result = await mysql.query_p(sql);
       let n = 0;
       for (let row of result) {
-        if (row.table_name.toLowerCase() == "pictures") {
-          n++;
+        if (row.table_name) {
+          if (row.table_name.toLowerCase() == "pictures") {
+            n++;
+          }  
+        }
+        else {
+          // row.table_name == undefined の場合のエラー回避策
+          n = -1;
         }
       }
       if (n == 0) {
-        resolve("データベースのオブジェクトがないか、足りません。")
+        resolve("データベースのオブジェクトがないか、足りません。");
       }
       // JSON
       let myfolders = fs.readFileSync(mypc + "/folders.json");
       let folders = JSON.parse(myfolders);
       if (com.isWindows()) {
-        if (!/^\w:.*/.test(folders[0])) {
+        if (!/"^\w:.*/.test(folders[0])) {
           resolve("folders.json の書式が正しくありません。");
         }
         else {
@@ -72,7 +78,7 @@ async function checkEnv() {
         }
       }
       else {
-        if (!folders[0].startsWith('/')) {
+        if (!folders[0].startsWith('"/')) {
           resolve("");
         }
         else {
@@ -262,7 +268,7 @@ router.get('/showAlbumGroups', (req, res) => {
 // アルバムの作成・修正 (GET)
 router.get('/addModifyAlbum', (req, res) => {
   let values = {
-    id: null,
+    id: req.query.id ? req.query.id : null,
     name: "",
     mark: req.query.mark ? req.query.mark : "",
     info: "",
@@ -272,17 +278,28 @@ router.get('/addModifyAlbum', (req, res) => {
   let groups = [];
   let sql = "";
   if (values.mark == "") {
-    sql = "SELECT DISTINCT groupname FROM album ORDER BY groupname";
+    sql = "SELECT DISTINCT groupname FROM Album ORDER BY groupname";
   }
   else {
-    sql = `SELECT DISTINCT groupname FROM album WHERE mark='${values.mark}' ORDER BY groupname`;
+    sql = `SELECT DISTINCT groupname FROM Album WHERE mark='${values.mark}' ORDER BY groupname`;
   }
   mysql.query(sql, (row) => {
     if (row) {
       groups.push(row.groupname);
     }
     else {
-      res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});
+      mysql.getRow("SELECT * FROM Album WHERE id=" + values.id, (err, row) => {
+        if (err) {
+          res.render('showInfo', {title:"エラー", message:err.message, incon:"cancel.png"});
+        }
+        else {
+          values.name = row.name;
+          values.info = row.info ? row.info : "";
+          values.bindata = row.bindata ? row.bindata : 0;
+          values.groupname = row.groupname ? row.groupname : "";
+          res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});
+        }
+      });
     }
   });
 });
@@ -299,7 +316,7 @@ router.post('/addModifyAlbum', async (req, res) => {
   };
   // グループ名一覧を得る。
   let groups = [];
-  mysql.query(`SELECT DISTINCT groupname AS gn FROM album where mark='${values.mark}' ORDER BY groupname`, (row) => {
+  mysql.query(`SELECT DISTINCT groupname AS gn FROM Album where mark='${values.mark}' ORDER BY groupname`, (row) => {
     if (row) {
       groups.push(row.gn);
     }
@@ -344,7 +361,7 @@ router.get('/confirmAlbum/:id', async (req, res) => {
     bindata:0,
     groupname:""
   };
-  let groups = await mysql.query_p(`SELECT DISTINCT groupname FROM album where mark='${values.mark}' ORDER BY groupname`);
+  let groups = await mysql.query_p(`SELECT DISTINCT groupname FROM Album where mark='${values.mark}' ORDER BY groupname`);
   let message = "";
   mysql.getRow("SELECT * FROM Album WHERE id=" + id, (err, row) => {
     if (row) {

@@ -1,7 +1,7 @@
 {
   "name": "mypc",
-  "version": "0.8.0",
-  "release": "2021-08-04",
+  "version": "0.8.2",
+  "release": "2021-08-06",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -15,6 +15,7 @@
     "http-errors": "~1.6.3",
     "iconv-lite": "^0.6.3",
     "jshint": "^2.13.0",
+    "log4js": "^6.3.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",

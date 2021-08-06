@@ -26,6 +26,11 @@
                 color:darkslategray;
                 border-width:0px;
             }
+            figure {
+                display: inline-block;
+                text-align:center;
+                font-size:10pt;
+            }
         </style>
         <script src="/js/jquery.min.js"></script>
         <script>
@@ -34,6 +39,7 @@
                 musicPlaylistsIcons();
             });
 
+            // アイコン形式で表示
             function musicAlbumsIcons() {
                 $.getJSON('/getAlbums/music', (data) => {
                     if (! data) {
@@ -49,7 +55,7 @@
                             else {
                                 image ="/img/music64.png";
                             }
-                            html += `<figure style="display:inline-block;text-align:center;"><a href="/music/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption style="font-size:10pt;color:darkmagenta;">${a.name}</figcaption></a></figure>\n`;
+                            html += `<figure style="display:inline-block;text-align:center;"><a href="/music/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");
@@ -57,6 +63,7 @@
                 });
             }
 
+            // 詳細形式で表示
             function musicAlbumsDetail() {
                 $.getJSON('/getAlbums/music', (data) => {
                     if (! data) {
@@ -74,6 +81,7 @@
                 });
             }
 
+            // プレイリストをアイコン形式で表示
             function musicPlaylistsIcons() {
                 $.getJSON('/getPlaylists', (data) => {
                     if (! data) {
@@ -83,7 +91,7 @@
                         let html = "";
                         for (let a of data) {
                             let image ="/img/playlist64.png";
-                            html += `<figure style="display:inline-block;text-align:center;"><a href="/playlist/?list=${a.id}" taregt="_blank"><img src="${image}" /><figcaption style="font-size:10pt;color:red">${a.title}</figcaption></a></figure>\n`;
+                            html += `<figure style="display:inline-block;text-align:center;"><a href="/playlist/?list=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.title}</figcaption></a></figure>\n`;
                         }
                         $("#playlists").html(html);
                         $("message").text("アルバムとプレイリスト一覧が表示されました。");
@@ -91,6 +99,7 @@
                 });
             }
 
+            // プレイリストを詳細形式で表示
             function musicPlaylistsDetail() {
                 $.getJSON('/getPlaylists', (data) => {
                     if (! data) {
@@ -118,10 +127,10 @@
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
                 表示 (<a href="javascript:musicAlbumsIcons();musicPlaylistsIcons();">アイコン形式</a>&nbsp;/&nbsp;
                 <a href="javascript:musicAlbumsDetail();musicPlaylistsDetail();">詳細形式</a>)&nbsp;|&nbsp;
-                <a href="/music/showContent" target="_blank">音楽一覧</a>&nbsp;|&nbsp;
-                <a href="/music/musicForm" target="_blank">音楽の追加・修正</a>&nbsp;|&nbsp;
-                <a href="/music/musicPlForm" target="_blank">プレイリストの作成・修正</a>&nbsp;|&nbsp;
-                <a href="/addModifyAlbum?mark=music" target="_blank">アルバムの作成・修正</a>&nbsp;|&nbsp;
+                <a href="/music/showContent" target="_blank"><img src="/img/list2.png" /> 音楽一覧</a>&nbsp;|&nbsp;
+                <a href="/music/musicForm" target="_blank"><img src="/img/form.png" /> 音楽の追加・修正</a>&nbsp;|&nbsp;
+                <a href="/music/musicPlForm" target="_blank"><img src="/img/form.png" /> プレイリストの作成・修正</a>&nbsp;|&nbsp;
+                <a href="/addModifyAlbum?mark=music" target="_blank"><img src="/img/form.png" /> アルバムの作成・修正</a>
             </div>
         </header>
         <article id="app">

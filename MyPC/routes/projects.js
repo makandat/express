@@ -46,12 +46,12 @@ router.post("/projectForm", (req, res) => {
     let id = req.body.id;
     let album = req.body.album ? parseInt(req.body.album) : 0;
     let title = req.body.title.replace(/'/g, "''");
-    let version = req.body.revision ? req.body.version : "";
+    let version = req.body.version ? req.body.version : "";
     let path = req.body.path.replace(/'/g, "''").replace(/\\/g, "/");
-    let owner = req.body.writer ? req.body.owner : "";
+    let owner = req.body.owner ? req.body.owner : "";
     let mark = req.body.mark ? req.body.mark : "";
     let info = req.body.info ? req.body.info.replace(/'/g, "''") : "";
-    let git = req.body.info ? req.body.git.replace(/'/g, "''") : "";
+    let git = req.body.git ? req.body.git.replace(/'/g, "''") : "";
     let backup = req.body.backup ? req.body.backup.replace(/'/g, "''").replace(/\\/g, "/") : "";
     let release = req.body.release ? req.body.release : dto.getDateString();
     let bindata = req.body.bindata ? parseInt(req.body.bindata) : 0;
@@ -80,7 +80,7 @@ router.post("/projectForm", (req, res) => {
         else {
             if (id) {
                 // 更新
-                let update = `UPDATE Projects SET album=${album}, title='${title}', revision='${version}', path='${path}', writer='${owner}', mark='${mark}', info='${info}', git='${git}', backup='${backup}', release='${release}', bindata=${bindata} WHERE id=${id}`;
+                let update = `UPDATE Projects SET album=${album}, title='${title}', \`version\`='${version}', path='${path}', \`owner\`='${owner}', mark='${mark}', info='${info}', git='${git}', \`backup\`='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
                 mysql.execute(update, (err) => {
                     if (err) {
                         message = err.message;
@@ -93,7 +93,7 @@ router.post("/projectForm", (req, res) => {
             }
             else {
                 // 挿入
-                let insert = `INSERT INTO Projects VALUES(NULL, ${album}, '${title}', '${version}', '${path}', '${owner}', '${mark}', '${info}', '${git}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
+                let insert = `INSERT INTO Projects VALUES(NULL, ${album}, '${title}', '${version}', '${path}', '${owner}', '${mark}', '${info}', '${git}', '${backup}', DATE('${release}'), ${bindata}, CURRENT_DATE())`;
                 mysql.execute(insert, (err) => {
                     if (err) {
                         message = err.message;
@@ -138,7 +138,7 @@ router.get("/confirmProject/:id", (req, res) => {
                 return;
             }
             else {
-                let sql = `SELECT * FROM Projects WHERE id=${id}`;
+                let sql = "SELECT id, album, title, `version`, path, `owner`, mark, info, git, `backup`, DATE_FORMAT(`release`, '%Y-%m-%d') AS `release`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Projects WHERE id = " + id;
                 mysql.getRow(sql, (err, row) => {
                     if (err) {
                         res.render("projectForm", {message:err.message, value:value});
@@ -165,10 +165,29 @@ router.get("/showContent", (req, res) => {
             }
         }
         else {
+            let sortasc = "";
+            let sortdesc = "";
             let sql = "SELECT * FROM Projects";
             if (album) {
                 sql += ` WHERE album=${album}`;
             }
+            if (req.query.sortdir) {
+                session.projects_sortdir = req.query.sortdir;
+                if (session.projects_sortdir == "desc") {
+                    sortasc = "";
+                    sortdesc = "●";   
+                }
+                else {
+                    sortasc = "●";
+                    sortdesc = "";
+                }
+            }
+            else {
+                session.projects_sortdir = "asc";
+                sortasc = "●";
+                sortdesc = "";
+            }
+            sql += " ORDER BY id " + session.projects_sortdir;
             try {
                 mysql.query(sql, (row) => {
                     if (row) {
@@ -178,7 +197,7 @@ router.get("/showContent", (req, res) => {
                         if (album) {
                             message = "アルバム番号： " + album;
                         }
-                        res.render("projectlist", {message:message, result:result, marks:marks});
+                        res.render("projectlist", {message:message, result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc});
                     }
                 });    
             }

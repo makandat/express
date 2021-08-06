@@ -5,8 +5,10 @@
         <meta charset="utf-8" />
         <link rel="stylesheet" href="/css/style.css" />
         <style>
-            figcaption {
+            figure {
+                display: inline-block;
                 font-size: 10pt;
+                text-align:center;
             }
         </style>
         <script src="/js/jquery.min.js"></script>
@@ -26,7 +28,7 @@
                             else {
                                 image ="/img/video0.png";
                             }
-                            html += `<figure style='display:inline-block;text-align:center;'><a href="/videos/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>${a.name}</figcaption></a></figure>\n`;
+                            html += `<figure style='display:inline-block;text-align:center;'><a href="/videos/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");

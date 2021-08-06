@@ -1,3 +1,4 @@
+display: inline-block;
 <!DOCTYPE html>
 <html>
     <head>
@@ -5,11 +6,9 @@
         <meta charset="utf-8" />
         <link rel="stylesheet" href="/css/style.css" />
         <style>
-            figcaption {
-                font-size:10pt;
-                color:darkviolet;
-            }
             figure {
+                font-size:10pt;
+                display: inline-block;
                 text-align: center;
             }
         </style>
@@ -19,6 +18,7 @@
                 projectAlbumsIcons();
             });
 
+            // アイコン形式で表示
             function projectAlbumsIcons() {
                 $.getJSON('/getAlbums/project', (data) => {
                     if (! data) {
@@ -34,7 +34,7 @@
                             else {
                                 image ="/img/business64.png";
                             }
-                            html += `<figure style='display:inline-block;'><a href="/projects/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /></a><figcaption>${a.name}</figcaption></figure>\n`;
+                            html += `<figure style='display:inline-block;'><a href="/projects/showContent/?album=${a.id}" target="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");
@@ -42,13 +42,14 @@
                 });
             }
 
+            // 詳細形式で表示
             function projectAlbumsDetail() {
                 $.getJSON('/getAlbums/project', (data) => {
                     if (! data) {
                         app.message = "アルバムにデータがありません。";
                     }
                     else {
-                        let html = "<table><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
+                        let html = "<table style=\"width:100%;\"><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
                         for (let a of data) {
                             let dt = a.date.substring(0, 10);
                             html += `<tr><td style=\"text-align:center;\"><a href="/confirmAlbum/${a.id}" target="_blank">${a.id}</a></td><td><a href="/projects/showContent/?album=${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${dt}</td></tr>\n`;
