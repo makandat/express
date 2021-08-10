@@ -104,6 +104,8 @@ router.get("/showthumb", async (req, res) => {
             files[i] = files[i].replace(/\\/g, "/");
         }
     }
+    let id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
+    countup(id, res);
     res.render("showthumb", {title:title, message:"", dir:path, files:files});
 });
 
@@ -272,19 +274,7 @@ router.get('/confirmPictures/:id', (req, res) => {
             });
         }
         else {
-            let value = {
-                id: id,
-                album: 0,
-                title: "",
-                path: "",
-                creator: "",
-                media: "",
-                mark: "",
-                info: "",
-                fav: 0,
-                bindata: 0
-            };
-            res.render('picturesForm', {message:"エラー： データがありません。", marks:[], value:value});
+            res.render('showInfo', {message:"エラー： データがありません。", title:"エラー", icon:"cancel.png"});
         }
     });
 });
@@ -316,8 +306,8 @@ router.post('/picturesForm', (req, res) => {
         fav: fav,
         bindata: bindata
     };
-    if (!fso.isDirSync(path)) {
-        res.render('picturesForm', {message:path + " が存在しません。", marks:[], value:value});
+    if (!fso.exists(path)) {
+        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
         return;
     }
 

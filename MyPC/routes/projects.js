@@ -4,6 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const mysql = require('./MySQL.js');
 const dto = require('./DateTime.js');
+const fso = require('./FileSystem.js');
 const router = express.Router();
 
 // プロジェクトアルバム一覧表示
@@ -69,6 +70,11 @@ router.post("/projectForm", (req, res) => {
         release:release,
         bindata:bindata
     };
+
+    if (!fso.exists(req.body.path)) {
+        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
+        return;
+    }
 
     let marks = [];
     mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
@@ -141,10 +147,15 @@ router.get("/confirmProject/:id", (req, res) => {
                 let sql = "SELECT id, album, title, `version`, path, `owner`, mark, info, git, `backup`, DATE_FORMAT(`release`, '%Y-%m-%d') AS `release`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Projects WHERE id = " + id;
                 mysql.getRow(sql, (err, row) => {
                     if (err) {
-                        res.render("projectForm", {message:err.message, value:value});
+                        res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
                     }
                     else {
-                        res.render("projectForm", {message:`id=${id} が検索されました。`, value:row});
+                        if (row) {
+                            res.render("projectForm", {message:`id=${id} が検索されました。`, value:row});
+                        }
+                        else {
+                            res.render("showInfo", {message:"不正なパラメータが指定されました。", title:"エラー", icon:"cancel.png"});
+                        }
                     }
                 });
             }

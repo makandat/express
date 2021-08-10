@@ -36,6 +36,13 @@ router.get("/bindatalist", async (req, res) => {
     let jumpid = req.query.id;
     let findword = req.query.find;
     let move = req.query.move;
+    
+    if (req.query.reset) {
+        session.bindata_sortdir = "asc";
+        session.bindata_start = 1;
+        session.bindata_end = ENDLIMIT;
+        session.bindata_view = "detail";
+    }
     if (req.query.sortdir) {
         session.bindata_sortdir = req.query.sortdir;
     }
@@ -57,6 +64,17 @@ router.get("/bindatalist", async (req, res) => {
     if (jumpid) {
         session.bindata_start = jumpid;
     }
+    if (req.query.view) {
+        session.bindata_view = req.query.view;
+    }
+    else if (session.bindata_view) {
+        // 何もしない
+    }
+    else {
+        session.bindata_view = "detail";
+    }
+
+    // クエリー
     let sql = await makeSQL(jumpid, findword, move);
     let result = await mysql.query_p(sql);
     session.bindata_end = result[result.length-1].id;
@@ -64,7 +82,7 @@ router.get("/bindatalist", async (req, res) => {
     if (findword) {
         message = `検索ワード： ${findword}`;
     }
-    res.render("bindatalist", {message:message, result:result, dirasc:dirasc, dirdesc:dirdesc});
+    res.render("bindatalist", {message:message, result:result, dirasc:dirasc, dirdesc:dirdesc, view:session.bindata_view});
 });
 
 // SQL 文を構築する。
@@ -443,11 +461,13 @@ router.post("/removeBackupTables", async (req, res) => {
 });
 
 // 一括データ挿入
-router.get("/bulkInsert", async (req, res) => {
-    let folder = req.query.folder.replace(/\\/g, "/");
-    let bulkTable = req.query.bulkTable;
+router.post("/bulkInsert", async (req, res) => {
+    let folder = req.body.folder.replace(/\\/g, "/");
+    let tableName = req.body.tableName;
+    let media = req.body.media;
+    let mark = req.body.mark;
     let sql;
-    switch (bulkTable) {
+    switch (tableName) {
         case "Pictures": {
             sql = "INSERT INTO Pictures(id, album, title, creator, path, media, mark, info, `count`, fav, bindata, `date`, sn) VALUES";
             let dirs = await fso.getDirectories_p(folder);
@@ -463,7 +483,7 @@ router.get("/bulkInsert", async (req, res) => {
                     let title = parts[parts.length - 1].replace(/'/g, "''");
                     let creator = parts[parts.length - 2].slice(0, 49).replace(/'/g, "''");
                     let path = dir2.replace(/'/g, "''");
-                    sql += `(NULL, 0, '${title}', '${creator}', '${path}', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
+                    sql += `(NULL, 0, '${title}', '${creator}', '${path}', '${media}', '${mark}', '', 0, 0, 0, CURRENT_DATE(), 0),`;
                 }
             }
             sql = sql.substring(0, sql.length - 1);
@@ -493,7 +513,7 @@ router.get("/bulkInsert", async (req, res) => {
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
                     let parts = path.split("/");
                     let series = parts[parts.length - 2];
-                    sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', '${series}', 'MARK', '', 0, 0, 0, CURRENT_DATE, 0),`;
+                    sql += `(NULL, 0, '${title}', '${path}', '${media}', '${series}', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0),`;
                 }
             }
             sql = sql.substring(0, sql.length - 1);
@@ -523,7 +543,7 @@ router.get("/bulkInsert", async (req, res) => {
                     let path = p.replace(/\\/g, "/").replace(/'/g, "''");
                     let parts = path.split("/");
                     let artist = parts[parts.length - 2].slice(0, 49);
-                    sql += `(NULL, 0, '${title}', '${path}', '${artist}', 'MEDIA', 'MARK', '', 0, 0, 0, CURRENT_DATE(), 0),`;
+                    sql += `(NULL, 0, '${title}', '${path}', '${artist}', '${media}', '${mark}', '', 0, 0, 0, CURRENT_DATE(), 0),`;
                 }
             }
             sql = sql.substring(0, sql.length - 1);
@@ -856,6 +876,25 @@ router.get("/replacePathBatch", async (req, res) => {
             }
         });
     }
+});
+
+// タイトルの一括変更
+router.post("/replaceTitles", (req, res) => {
+    let tableName = req.body.tableName;
+    let fromid = req.body.fromid;
+    let toid = req.body.toid;
+    let before = req.body.before;
+    let after = req.body.after;
+    let sql = `UPDATE ${tableName} SET title = REPLACE(title, '${before}', '${after}') WHERE id BETWEEN ${fromid} AND ${toid}`;
+    logger.debug("タイトルの一括変更: " + sql);
+    mysql.execute(sql, (err) => {
+        if (err) {
+            res.send(err.message);
+        }
+        else {
+            res.send(`OK: ${tableName} のタイトルの一部が "${before}" から "${after} に置換されました。`);
+        }
+    });
 });
 
 // エクスポート

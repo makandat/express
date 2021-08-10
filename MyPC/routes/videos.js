@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     session.videos_search = null;
     session.videos_start = 1;
     session.videos_end = ENDLIMIT;
-    let result = await mysql.query_p("SELECT a.id, a.name, COUNT(v.album) cnt, a.info, a.bindata, a.groupname, a.date FROM album a, videos v where a.id = v.album and a.mark = 'video' GROUP BY a.name ORDER BY cnt DESC");
+    let result = await mysql.query_p("SELECT a.id, a.name, COUNT(v.album) cnt, a.info, a.bindata, a.groupname, a.date FROM Album a, Videos v WHERE a.id = v.album AND a.mark = 'video' GROUP BY a.name ORDER BY cnt DESC");
     res.render('videos', {message:"", result:result});
 });
 
@@ -351,13 +351,27 @@ router.get("/playForm/:id", async (req, res) => {
     res.render('videoPlayForm', {source:path, message:"再生中： " + path, title:title});
 });
 
+// 指定したパスの動画を表示するためのページを開く。
+router.get("/playPath", async (req, res) => {
+    let path = req.query.path;
+    let title = await mysql.getValue_p(`SELECT title FROM Videos WHERE path = '${path}'`);
+    let id = await mysql.getValue_p(`SELECT id FROM Videos WHERE path = '${path}'`);
+    title = `(${id}) ` + title;
+    countup(id);
+    res.render('videoPlayForm', {source:path, message:"再生中： " + path, title:title});
+});
+
 // フォルダ内の前の動画を再生する。
 router.get("/playPrev", async (req, res) => {
     let path = req.query.path;
     let row = await mysql.getRow_p(`SELECT id, title FROM Videos WHERE path='${path}'`);
+    if (!row) {
+        res.render("showInfo", {title:"エラー", message:"動画が登録されていません。", icon:"cancel.png"});
+        return;
+    }
     let title = `(${row.id}) ` + row.title;
     let folder = fso.getDirectory(path);
-    let files = await fso.getFiles_p(folder, ['.mp4']);
+    let files = await fso.getFiles_p(folder, ['.mp4', '.webm', '.ogg']);
     let i = 0;
     let source = null;
     let message = "";
@@ -366,6 +380,7 @@ router.get("/playPrev", async (req, res) => {
         if (p == path) {
             if (i - 1 < 0) {
                 message = "前の動画はありません。";
+                source = files[0].replace(/\\/g, "/");;
             }
             else {
                 source = files[i - 1].replace(/\\/g, "/");
@@ -389,9 +404,13 @@ router.get("/playPrev", async (req, res) => {
 router.get("/playNext", async (req, res) => {
     let path = req.query.path;
     let row = await mysql.getRow_p(`SELECT id, title FROM Videos WHERE path='${path}'`);
+    if (!row) {
+        res.render("showInfo", {title:"エラー", message:"動画が登録されていません。", icon:"cancel.png"});
+        return;
+    }
     let title = `(${row.id}) ` + row.title;
     let folder = fso.getDirectory(path);
-    let files = await fso.getFiles_p(folder, ['.mp4']);
+    let files = await fso.getFiles_p(folder, ['.mp4', '.webm', '.ogg']);
     let i = 0;
     let source = null;
     let message = "";
@@ -400,6 +419,7 @@ router.get("/playNext", async (req, res) => {
         if (p == path) {
             if (i + 1 >= files.length) {
                 message = "次の動画はありません。";
+                source = files[files.length - 1].replace(/\\/g, "/");;
             }
             else {
                 source = files[i + 1].replace(/\\/g, "/");
@@ -493,19 +513,7 @@ router.get('/confirmVideos/:id', (req, res) => {
             });
         }
         else {
-            let value = {
-                id: id,
-                album: 0,
-                title: "",
-                path: "",
-                media: "",
-                series: "",
-                mark: "",
-                info: "",
-                fav: 0,
-                bindata: 0
-            };
-            res.render('videosForm', {message:"エラー： データがありません。", marks:[], value:value});
+            res.render('showInfo', {message:"エラー： データがありません。", title:"エラー", icon:"cancel.png"});
         }
     });
 });
@@ -537,8 +545,8 @@ router.post('/videosForm', (req, res) => {
         fav: fav,
         bindata: bindata
     };
-    if (!fso.isFileSync(path)) {
-        res.render('videosForm', {message:path + " が存在しません。", marks:[], value:value});
+    if (!fso.exists(req.body.path)) {
+        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
         return;
     }
 
@@ -606,56 +614,6 @@ router.get("/series", (req, res) => {
             })
         }
     });
-});
-
-// アルバムの作成 (GET)
-router.get("/albumForm", (req, res) => {
-    let values = {
-        id: null,
-        name: "",
-        mark: "video",
-        info: "",
-        bindata: 0,
-        groupname: ""
-      };
-      res.render('addModifyAlbum', {message:"", values:values});
-});
-
-// アルバムの作成 (POST)
-router.post("/albumForm", (req, res) => {
-    let values = {
-        id: req.body.id,
-        name: req.body.name.replace(/'/g,"''"),
-        mark: "video",
-        info: req.body.info.replace(/'/g,"''"),
-        bindata: req.body.bindata,
-        groupname: req.body.groupname
-    };
-    if (values.id) {
-        // 更新
-        let update = `UPDATE Album SET name=${values.name}, mark='${values.mark}', info='${values.info}', bindata=${values.bindata}, groupname='${values.groupname}' WHERE id = ${values.id}`;
-        mysql.execute(update, (err) => {
-          if (err) {
-            res.render('addModifyAlbum', {message:err.message, values:values});
-          }
-          else {
-            res.render('addModifyAlbum', {message:values.name + "が更新されました。", values:values});
-          }
-        });
-    }
-    else {
-        // 新規作成
-        let today = dto.getDateString();
-        let insert = `INSERT INTO Album VALUES(NULL, '${values.name}', '${values.mark}', '${values.info}', ${values.bindata}, '${values.groupname}', '${today}')`;
-        mysql.execute(insert, (err) => {
-          if (err) {
-            res.render('addModifyAlbum', {message:err.message, values:values});
-          }
-          else {
-            res.render('addModifyAlbum', {message:values.name + "が作成されました。", values:values});
-          }
-        });
-    }
 });
 
 

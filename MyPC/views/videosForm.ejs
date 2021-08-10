@@ -39,11 +39,12 @@
     <body>
         <header>
             <h1><a href="/"><img src="/img/home_orange.png" /></a> 動画の追加・修正</h1>
+            <p class="comment">id を空欄にしたときは「追加」となります。データ確認を行う場合は必ず id を設定します。</p>
             <hr />
         </header>
         <article>
             <br />
-            <form id="form1" name="form1" method="POST" action="/videos/videosForm">
+            <form id="form1" name="form1" method="POST" action="/videos/videosForm" style="margin-left:4%;">
                 <div class="form_row">
                     <div class="form_item">id</div>
                     <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
@@ -82,13 +83,15 @@
                 </div>
                 <div class="form_row">
                     <div class="form_item">サムネール</div>
-                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="4" value="<%= value.bindata %>" /></div>
+                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="4" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
                 </div>
                 <div style="margin-top:20px;">
                     <input type="button" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
                     <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " />&nbsp;
                     <input type="button" id="clearButton" name="clearButton" value=" クリア " />&nbsp;
                 </div>
+                <br />
+                <p class="message"><%= message %></p>
             </form>
             <br />
             <h4>既存のマーク一覧</h4>
@@ -100,7 +103,6 @@
         </article>
         <footer>
             <p>&nbsp;</p>
-            <p class="message"><%= message %></p>
             <p>&nbsp;</p>
             <p>&nbsp;</p>
         </footer>

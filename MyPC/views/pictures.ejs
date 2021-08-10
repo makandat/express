@@ -31,9 +31,9 @@
                                 image = "/extract/" + a.bindata;
                             }
                             else {
-                                image ="/img/song48.png";
+                                image ="/img/picture0.png";
                             }
-                            html += `<figure><a href="/pictures/showContent/?album=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.name}</figcaption></a></figure>\n`;
+                            html += `<figure><a href="/pictures/showContent/?album=${a.id}" target="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.name}</figcaption></a></figure>\n`;
                         }
                         $("#albums").html(html);
                         $("message").text("アルバム一覧が表示されました。");
@@ -51,7 +51,7 @@
                         let html = "<table style=\"width:100%;\"><tr><th style=\"text-align:center;\">id</th><th>名前</th><th>情報</th><th>イメージ</th><th>グループ</th><th>作成日時</th></tr>";
                         for (let a of data) {
                             let dt = a.date.substring(0, 10);
-                            html += `<tr><td style=\"text-align:center;\">${a.id}</td><td><a href="/showAlbumContent/${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${dt}</td></tr>\n`;
+                            html += `<tr><td style=\"text-align:center;\"><a href="/addModifyAlbum?id=${a.id}" target="_blank">${a.id}</a></td><td><a href="/showAlbumContent/${a.id}" target="_blank">${a.name}</a></td><td>${a.info}</td><td>${a.bindata}</td><td>${a.groupname}</td><td>${dt}</td></tr>\n`;
                         }
                         html += "</table>";
                         $("#albums").html(html);
@@ -70,9 +70,9 @@
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
                 表示 (<a href="javascript:pictureAlbumsIcons()">アイコン形式</a>&nbsp;/&nbsp;
                 <a href="javascript:pictureAlbumsDetail()">詳細形式</a>)&nbsp;|&nbsp;
-                <a href="/pictures/showContent" target="_blank">画像フォルダ一覧</a>&nbsp;|&nbsp;
-                <a href="/pictures/picturesForm" target="_blank">画像フォルダの追加・修正</a>&nbsp;|&nbsp;
-                <a href="/addModifyAlbum?mark=picture" target="_blank">アルバムの作成・修正</a>&nbsp;|&nbsp;
+                <a href="/pictures/showContent" target="_blank"><img src="/img/thumbs2.png" /> 画像フォルダ一覧</a>&nbsp;|&nbsp;
+                <a href="/pictures/picturesForm" target="_blank"><img src="/img/form.png" /> 画像フォルダの追加・修正</a>&nbsp;|&nbsp;
+                <a href="/addModifyAlbum?mark=picture" target="_blank"><img src="/img/form.png" /> アルバムの作成・修正</a>
             </div>
         </header>
         <article>

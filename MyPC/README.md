@@ -5,12 +5,14 @@ MyPC は家庭で主に使用しているデスクトップ機あるいは大容
 家庭内 LAN を使用して Chrome Book などでサーバーのファイルを便利に使うために作成しました。
 
 # インストール
-1. 次のコマンドでダウンロードします。
-  git clone https://github.com/makandat/express
+0. 事前に git、Node.js、MySQL または MariaDB がインストールされているものとします。MySQL ではデータベース(デフォルトは 'user')とユーザ(デフォルトは 'user')を作っておきます。
 
-2. express フォルダには MyPC 以外のサブフォルダがありますが、不要なので削除します。
+1. 次のコマンドで本アプリをダウンロードします。
+  git clone https://github.com/makandat/express.git
 
-3. 次のコマンドで必要なモジュールをインストールします。
+2. express フォルダには MyPC 以外のサブフォルダがある場合、不要なので削除します。(今はないはず)
+
+3. MyPC フォルダへ移動し、次のコマンドで必要なモジュールをインストールします。
   npm install
 
 4. MySQL クライアントを起動して create_tables.sql と create_procs.sql を実行します。(create_tables.sql と同じフォルダで実行します)
@@ -19,14 +21,14 @@ MyPC は家庭で主に使用しているデスクトップ機あるいは大容
 
 5. MyPC/mysql.json を編集してパスワードを設定します。(必要ならその他も)
 
-6. MyPC/folders.json を環境に合わせて変更します。
+6. MyPC/folders.json を環境に合わせて変更します。このファイルの内容は「コンピュータ」で「表示するフォルダ」に表示されます。
 
 7. 必要なら MyPC/textfiles.json を編集します。このファイルはテキストファイルとして扱う拡張子を指定します。
 
 # 実行
  Windows ならコマンドプロンプトまたは PowerShell を開いて MyPC フォルダへ移動し、run.bat を実行します。
  Linux ならシェルで MyPC フォルダへ移動し、run を実行します。
- ブラウザで http://url:3000 を開きます。ただし、url は MyPC を実行しているマシンの URL です。
+ ブラウザで http://url:3000 を開きます。ただし、url は MyPC を実行しているマシンの URL です。(例 localhost)
 
 # 機能概要
 ## コンピュータ

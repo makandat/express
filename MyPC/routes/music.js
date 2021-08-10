@@ -207,19 +207,7 @@ router.get('/confirmMusic/:id', (req, res) => {
             });
         }
         else {
-            let value = {
-                id: id,
-                album: 0,
-                title: "",
-                path: "",
-                artist: "",
-                media: "",
-                mark: "",
-                info: "",
-                fav: 0,
-                bindata: 0
-            };
-            res.render('formMusic', {message:"エラー： データがありません。", marks:[], value:value});
+            res.render('showInfo', {message:"エラー： データがありません。", title:"エラー", icon:"cancel.png"});
         }
     });
 });
@@ -251,6 +239,10 @@ router.post('/musicForm', async (req, res) => {
         fav: req.body.fav,
         bindata: req.body.bindata
     };
+    if (!fso.exists(req.body.path)) {
+        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
+        return;
+    }
     let marks = [];
     mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
         if (row) {
@@ -286,16 +278,30 @@ router.post('/musicForm', async (req, res) => {
 
 });
 
-// 音楽演奏フォーム
+// 音楽演奏フォーム (id 指定)
 router.get('/playForm/:id', (req, res) => {
     let id = req.params.id;
     mysql.getRow("SELECT title, path FROM Music WHERE id=" + id, (err, row) =>{
         if (err) {
-            res.render('playForm', {title:row.title, path:row.path, message:err.message});
+            res.render('showInfo', {title:"エラー " + row.title, icon:"cancel.png", message:err.message});
         }
         else {
             countup(id);
             res.render('playForm', {title:row.title, path:row.path, message:"音楽ファイルの形式によっては音が鳴らないことがあります。"});
+        }
+    });
+});
+
+// 音楽演奏フォーム (path 指定)
+router.get('/playPath', (req, res) => {
+    let path = req.query.path;
+    mysql.getRow("SELECT id, title FROM Music WHERE path='" + path + "'", (err, row) =>{
+        if (err) {
+            res.render('showInfo', {title:"エラー " + row.title, icon:"cancel.png", message:err.message});
+        }
+        else {
+            countup(row.id);
+            res.render('playForm', {title:row.title, path:path, message:"音楽ファイルの形式によっては音が鳴らないことがあります。"});
         }
     });
 });

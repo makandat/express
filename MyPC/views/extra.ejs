@@ -17,9 +17,6 @@
             <h1><a href="/"><img src="/img/home_blue.png" />&nbsp;その他</h1>
         </header>
         <article>
-            <h2>/img フォルダ</h2>
-            <p><a href="/viewimgfolder" target="_blank">/img フォルダを表示する。</a></p>
-            <br />
             <h2>サムネール管理テーブル (BINDATA)</h2>
             <ul>
                 <li><a href="/extra/bindatalist" target="_blank">内容一覧表示</a></li>
@@ -27,7 +24,7 @@
                 <li><a href="/extra/bindataQuery" target="_blank">サムネール画像の逆引き</a></li>
             </ul>
             <br />
-            <h2>管理テーブルのバックアップ</h2>
+            <h2>テーブルのバックアップ</h2>
             <ul>
                 <li><a href="/extra/newBackup" target="_blank">バックアップテーブルを作る</a></li>
                 <li><a href="/extra/removeBackup" target="_blank">古いバックアップテーブルを削除する</a></li>
@@ -38,8 +35,8 @@
                 <li><a href="/extra/marksTable" target="_blank">識別マーク一覧 (marks テーブル)</a></li>
             </ul>
             <br />
-            <!-- 管理テーブルのデータの削除 (deleteRecordForm) -->
-            <h2>管理テーブルのデータの削除</h2>
+            <!-- テーブルのデータの削除 (deleteRecordForm) -->
+            <h2>テーブルのデータの削除</h2>
             <form id="deleteRecordForm">
                 <p class="comment" style="text-align:left;">(注意) 削除後のデータは復活できません。</p>
                 <div class="form_row">
@@ -66,8 +63,8 @@
                 <p class="message" v-text="deleteRecordMessage"></p>
             </form>
             <br />
-            <!-- 管理テーブルのデータの一括削除　-->
-            <h2>管理テーブルのデータの一括削除</h2>
+            <!-- テーブルのデータの一括削除　-->
+            <h2>テーブルのデータの一括削除</h2>
             <form id="deleteBatchForm">
                 <p class="comment" style="text-align:left;">(注意) 削除後のデータは復活できません。</p>
                 <div class="form_row">
@@ -99,8 +96,8 @@
                 <div class="message" v-text="message"></div>
             </form>
             <br />
-            <!-- 管理テーブルのレコードのパス (path) の一括変更　-->
-            <h2>管理テーブルのレコードのパス (path) の一括変更</h2>
+            <!-- テーブルのレコードのパス (path) の一括変更　-->
+            <h2>テーブルのレコードのパス (path) の一括変更</h2>
             <form id="replaceBatchForm">
                 <p class="comment" style="text-align:left;">(注意) 変更後のデータは復活できません。</p>
                 <div class="form_row">
@@ -147,6 +144,14 @@
                 <div class="form_row">
                     <div class="form_item">対象フォルダ</div>
                     <div class="form_item"><input type="text" v-model="folder" size="100" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">メディア (登録時のみ)</div>
+                    <div class="form_item"><input type="text" v-model="media" size="20" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">マーク (登録時のみ)</div>
+                    <div class="form_item"><input type="text" v-model="mark" size="20" /></div>
                 </div>
                 <div class="form_row" style="margin-top:12px;">
                     <input type="button" v-on:click="checkButton_Click" value=" 一括チェック " />&nbsp;
@@ -214,6 +219,36 @@
                 </div>
             </form>
             <br />
+            <!-- タイトルの一括変更 -->
+            <h2>タイトルの一括変更</h2>
+            <form id="changeTitles">
+                <div class="form_row">
+                    <div class="form_item">登録先のテーブル</div>
+                    <div class="form_item">
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Pictures" size="10" checked /> Pictures </label>
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Videos" size="10" /> Videos </label>
+                        <label><input type="radio" v-model="tableName" name="tableName" value="Music" size="10" /> Music</label>
+                    </div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">置き換え前の文字列</div>
+                    <div class="form_item"><input type="text" v-model="before" size="40" value="" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">置き換え後の文字列</div>
+                    <div class="form_item"><input type="text" v-model="after" size="40" value="" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">id の範囲</div>
+                    <div class="form_item"><input type="number" v-model="fromId" size="10" /> から <input type="number" v-model="toId" size="10" /> まで</div>
+                </div>
+                <div class="form_row" style="margin-top:16px;">
+                    <input type="button" v-on:click="changeTitleClick" value=" 変更する " style="color:red;" />
+                </div>
+                <br />
+                <p class="message" v-text="message"></p>
+            </form>
+            <br />
             <!--  タイマー (timerForm) -->
             <h2>タイマー</h2>
             <form id="timerForm">
@@ -224,6 +259,10 @@
                 <input type="button" v-on:click="stopButton_click" value=" 中止 " />
                 <p class="message" v-text="elapse"></p>
             </form>
+            <!-- /img フォルダ内容の表示 -->
+            <h2>/img フォルダ</h2>
+            <p><a href="/viewimgfolder" target="_blank">/img フォルダを表示する。</a></p>
+            <br />
         </article>
         <footer>
             <p>&nbsp;</p>
@@ -310,6 +349,8 @@
                 data: {
                     folder: "",
                     bulkTable: "",
+                    media: "",
+                    mark: "",
                     result: "",
                     message: ""
                 },
@@ -346,7 +387,13 @@
                     insertButton_Click: () => {  // 一括挿入
                         let msg = `${bulkDataForm.bulkTable} に ${bulkDataForm.folder1} の情報を登録します。`;
                         if (confirm(msg)) {
-                            fetch("/extra/bulkInsert?folder=" + bulkDataForm.folder1 + "&bulkTable=" + bulkDataForm.bulkTable)
+                            let data = {
+                                folder: bulkDataForm.folder,
+                                tableName: bulkDataForm.bulkTable,
+                                media: bulkDataForm.media,
+                                mark: bulkDataForm.mark
+                            };
+                            fetch("/extra/bulkInsert", {method:"POST", headers:{'Content-Type': 'application/json'}, body:JSON.stringify(data)})
                             .then(res=>res.text())
                             .then(text=>{bulkDataForm.message = text; bulkDataForm.result = "";})
                             .catch(err=>{bulkDataForm.message = err.message; bulkDataForm.result = "";});
@@ -424,7 +471,7 @@
                 }
             });
 
-            // 管理テーブルのデータの一括削除
+            // テーブルのデータの一括削除
             const deleteBatchForm = new Vue({
                 el: "#deleteBatchForm",
                 data: {
@@ -466,7 +513,7 @@
                 },
             });
 
-            // 管理テーブルのレコードのパス (path) の一括変更
+            // テーブルのレコードのパス (path) の一括変更
             const replaceBatchForm = new Vue({
                 el: "#replaceBatchForm",
                 data: {
@@ -500,6 +547,54 @@
                         replaceBatchForm.after = "";
                         replaceBatchForm.message = "";
                         replaceBatchForm.replaceBatchForm = false;
+                    }
+                }
+            });
+
+            // タイトルの一括変更
+            const changeTitles = new Vue({
+                el: "#changeTitles",
+                data: {
+                    tableName: "Pictures",
+                    fromId: 0,
+                    toId: 0,
+                    before: "",
+                    after: "",
+                    message: ""
+                },
+                methods: {
+                    changeTitleClick: () => {
+                        let fromid = parseInt(changeTitles.fromId);
+                        let toid = parseInt(changeTitles.toId);
+                        if (fromid + toid == 0) {
+                            alert("id の範囲が空欄です。");
+                            return;
+                        }
+                        if (fromid > toid) {
+                            alert("id の範囲が正しくありません。");
+                            return;
+                        }
+                        if (changeTitles.before == "") {
+                            alert("変換前の文字列が空欄です。");
+                            return;
+                        }
+                        let msg = `${changeTitles.tableName} の id ${fromid} から ${toid} のタイトルの "${changeTitles.before}" を "${changeTitles.after}" に置換します。`;
+                        if (confirm(msg)) {
+                            let data = {
+                                tableName: changeTitles.tableName,
+                                fromid: changeTitles.fromId,
+                                toid: changeTitles.toId,
+                                before: changeTitles.before,
+                                after: changeTitles.after
+                            };
+                            fetch('/extra/replaceTitles', {method:"POST", headers:{'Content-Type': 'application/json'}, body:JSON.stringify(data)})
+                            .then(res => res.text())
+                            .then(text => changeTitles.message = text)
+                            .catch(err => changeTitles.message = err.message);
+                        }
+                        else {
+                            changeTitles.message = "取り消されました。";
+                        }
                     }
                 }
             });

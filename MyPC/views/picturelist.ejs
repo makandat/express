@@ -42,7 +42,7 @@
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <a href="/pictures/showContent?reset=true"><img src="/img/clear2.png"> 表示リセット</a>&nbsp;|&nbsp;
-                <a href="javascript:location.reload()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
+                <a href="javascript:location.href='/pictures/showContent?move=0'"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/pictures/picturesForm/" target="_blank"><img src="/img/form.png" /> 画像フォルダの追加・修正</a>&nbsp;|&nbsp;
                 <a href="/pictures/creators/" target="_blank"><img src="/img/photo2.png" /> 作者一覧</a>&nbsp;|&nbsp;
                 <a href="/pictures/showContent?fav=1" target="_blank"><img src="/img/heart2.png" /> 好き</a>&nbsp;|&nbsp;
@@ -60,12 +60,7 @@
                 <a href="/pictures/showContent?move=prev"><img src="/img/prev.svg" /> 前へ</a>&nbsp;
                 <a href="/pictures/showContent?move=next">次へ <img src="/img/next.svg" /></a>&nbsp;
                 <a href="/pictures/showContent?move=last">最後 <img src="/img/last.svg" /></a>&nbsp;|&nbsp;
-                <img src="/img/sortdir.png" /> (<a href="/pictures/showContent?sortdir=asc"><%= dirasc %>昇順</a>&nbsp;/&nbsp;<a href="/pictures/showContent?sortdir=desc"><%= dirdesc %>降順</a>&nbsp;
-                <select id="orderby" style="display: none;">
-                    <option value="id">id</option>
-                    <option value="title">タイトル</option>
-                    <option value="date">日付</option>
-                </select>)
+                <img src="/img/sortdir.png" /> (<a href="/pictures/showContent?sortdir=asc"><%= dirasc %>昇順</a>&nbsp;/&nbsp;<a href="/pictures/showContent?sortdir=desc"><%= dirdesc %>降順</a>)&nbsp;
             </div>
         </header>
         <article>
@@ -84,7 +79,7 @@
             <table>
                 <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>作者</th><th>パス</th><th>メディア</th><th>マーク</th><th>情報</th><th>好き</th><th>カウント</th><th>サムネール</th><th>登録日</th></tr>
                 <% for (let row of result) { %>
-                    <a>
+                    <tr>
                         <td><a href="/pictures/confirmPictures/<%= row.id %>" target="_blank"><%= row.id %></a></td>
                         <% if (row.album > 0) { %>
                             <td><a href="/pictures/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>

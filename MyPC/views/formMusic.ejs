@@ -7,6 +7,9 @@
             .form_item {
                 font-size:10pt;
             }
+            fieldset {
+                border-width: 0px;
+            }
         </style>
         <script>
             function confirmMusic() {
@@ -40,24 +43,52 @@
 
         <article>
             <br />
-            <form id="form1" method="POST" action="/music/musicForm">
-                <div class="form-row">
-                    <div><div class="form_item">id<div><div><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div></div>
-                    <div><div class="form_item">アルバム<div><div><input type="number" id="album" name="album" size="6" value="<%= value.album %>" /></div></div>
-                    <div><div class="form_item">タイトル<div><div><input type="text" id="title" name="title" size="80" value="<%= value.title %>" /></div></div>
-                    <div><div class="form_item">パス<div><div><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div></div>
-                    <div><div class="form_item">アーティスト<div><div><input type="text" id="artist" name="artist" size="50" value="<%= value.artist %>" /></div></div>
-                    <div><div class="form_item">メディア<div><div><input type="text" id="media" name="media" size="50" value="<%= value.media %>" /></div></div>
-                    <div><div class="form_item">マーク<div><div><input type="text" id="mark" name="mark" size="20" value="<%= value.mark %>" /></div></div>
-                    <div><div class="form_item">情報<div><div><input type="text" id="info" name="info" size="150" value="<%= value.info %>" /></div></div>
-                    <div><div class="form_item">好き<div><div><input type="text" id="fav" name="fav" size="6" value="<%= value.fav %>" /></div></div>
-                    <div><div class="form_item">サムネール<div><div><input type="number" id="bindata" name="bindata" size="6" value="<%= value.bindata %>" /></div></div>
-                    <div style="margin-top:15px;">
-                        <input type="submit" id="submit" name="submit" value=" 送信する " />&nbsp;
-                        <input type="button" id="confirm" name="confirm" value=" データ確認 " onclick="javascript: confirmMusic()" />&nbsp;
-                        <input type="button" id="reset" value=" クリアする " onclick="javascript: clearForm()" />
-                    </div>
-                </div>
+            <form id="form1" method="POST" action="/music/musicForm" style="margin-left:4%;">
+                <fieldset>
+                    <div class="form_item">id</div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">アルバム</div>
+                    <div class="form_item"><input type="number" id="album" name="album" size="6" value="<%= value.album %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">タイトル</div>
+                    <div class="form_item"><input type="text" id="title" name="title" size="80" value="<%= value.title %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">パス</div>
+                    <div class="form_item"><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">アーティスト</div>
+                    <div><input type="text" id="artist" name="artist" size="50" value="<%= value.artist %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">メディア</div>
+                    <div class="form_item"><input type="text" id="media" name="media" size="50" value="<%= value.media %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">マーク</div>
+                    <div class="form_item"><input type="text" id="mark" name="mark" size="20" value="<%= value.mark %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">情報</div>
+                    <div><input type="text" id="info" name="info" size="150" value="<%= value.info %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">好き</div>
+                    <div class="form_item"><input type="text" id="fav" name="fav" size="6" value="<%= value.fav %>" /></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item">サムネール</div>
+                    <div><input type="number" id="bindata" name="bindata" size="6" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
+                </fieldset>
+                <fieldset>
+                    <input type="submit" id="submit" name="submit" value=" 送信する " />&nbsp;
+                    <input type="button" id="confirm" name="confirm" value=" データ確認 " onclick="javascript: confirmMusic()" />&nbsp;
+                    <input type="button" id="reset" value=" クリアする " onclick="javascript: clearForm()" />
+                </fieldset>
             </form>
             <br />
             <p class="message"><%= message %></p>

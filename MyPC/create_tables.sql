@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `Videos` (
   `date` date DEFAULT NULL,
   `sn` int(11) DEFAULT NULL COMMENT '使用しない',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `PATH` (`path`),
   KEY `info` (`info`),
   KEY `videos_path` (`path`),
   KEY `videos_title` (`title`)

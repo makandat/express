@@ -70,8 +70,9 @@ async function checkEnv() {
       let myfolders = fs.readFileSync(mypc + "/folders.json");
       let folders = JSON.parse(myfolders);
       if (com.isWindows()) {
-        if (!/"^\w:.*/.test(folders[0])) {
-          resolve("folders.json の書式が正しくありません。");
+        if (!/^\w:.*/.test(folders[0])) {
+          resolve("folders.json の書式が正しくありません。(Windows)");
+          console.log(folders[0]);
         }
         else {
           resolve("");
@@ -82,7 +83,8 @@ async function checkEnv() {
           resolve("");
         }
         else {
-          resolve("folders.json の書式が正しくありません。");
+          resolve("folders.json の書式が正しくありません。(Linux)");
+          console.log(folders[0]);
         }
       }
     }
@@ -150,7 +152,29 @@ router.get('/showAlbumContent/:id', async (req, res) => {
   let tableName = getTableName(mark);
   sql = `SELECT * FROM ${tableName} WHERE album=${id}`;
   let result = await mysql.query_p(sql);
-  res.render('showAlbumContent', {title:"id: " + id + "アルバムの内容一覧", message:"番号" + id + "のアルバム内容が検索されました。", result:result});
+  for (let row of result) {
+    switch (mark) {
+      case "picture":
+        row.title = `<a href="/pictures/showthumb?path=${row.path}" target="_blank">${row.title}</a>`;
+        break;
+      case "video":
+        row.title = `<a href="/videos/playPath?path=${row.path}" target="_blank">${row.title}</a>`;
+        break;
+      case "music":
+        row.title = `<a href="/music/playPath?path=${row.path}" target="_blank">${row.title}</a>`;
+        break;
+      case "project":
+        row.title = `<a href="/projects/infoView/${row.id}" target="_blank">${row.title}</a>`;
+        break;
+      case "document":
+        row.title = `<a href="/objectView?path=${row.path}" target="_blank">${row.title}</a>`;
+        break;
+      default:
+        break;
+    }
+  
+  }
+  res.render('showAlbumContent', {title:"id: " + id + "アルバムの内容一覧", message:"番号" + id + "のアルバム内容が検索されました。", result:result, mark:mark});
 });
 
 // アルバムのタイトルを返す。
@@ -179,12 +203,19 @@ router.get('/getAlbum/:id', async (req, res) => {
 });
 
 // 指定したパスのファイルをダウンロードする。
-router.get('/download', async (req, res) => {
+router.get('/download', (req, res) => {
   let path = req.query.path;
-  let body = await fs.promises.readFile(path);
   let fileName = fso.getFileName(path);
-  res.set({'Content-Disposition': `attachment; filename=${fileName}`});
-  res.send(body);
+  fs.readFile(path, (err, data) => {
+    if (err) {
+      res.send(err.message);
+    }
+    else {
+      // encodeURI() を使わないと日本語のファイル名はエラーになる。
+      res.set({"Content-Disposition": "attachment; filename=" + encodeURI(fileName)});
+      res.send(data);
+    }
+  });
 });
 
 // アルバム一覧の表示
@@ -192,62 +223,123 @@ router.get('/showAlbums/:mark', async (req, res) => {
   let mark = req.params.mark;
   let groupname = req.query.groupname;
   let message = "";
-  if (session.album_sortdesc == undefined) {
-    session.album_sortdesc = false;
+  if (session.album_sortdir == undefined) {
+    session.album_sortdir = "asc";
   }
-  else if (req.query.reverse) {
-    session.album_sortdesc = !session.album_sortdesc;
+  else if (req.query.sortdir) {
+    session.album_sortdir = req.query.sortdir;
+  }
+  else {
+    session.album_sortdir = session.album_sortdir ? session.album_sortdir : "asc";
+  }
+  if (session.album_mark == undefined) {
+    session.album_mark = "all";
+  }
+  if (req.query.view) {
+    session.album_view = req.query.view;
+  }
+  else if (session.album_view == undefined) {
+    session.album_view = "detail";
+  }
+  else {
+    session.album_view = session.album_view ? session.album_view : "detail";
   }
   let sql = "SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album";
   let markName = "";
   let groupnames = await mysql.query_p("SELECT DISTINCT groupname FROM Album");
   switch (mark) {
-    case "0":
+    case "0": {
       if (groupname) {
-        let result = await mysql.query_p(`SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM Album WHERE groupname='${groupname}'`);
+        sql += ` WHERE groupname='${groupname}' ORDER BY id ${session.album_sortdir}`;
+        let result = await mysql.query_p(sql);
         res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result, groupnames:groupnames});
       }
       else {
         res.render('showAlbums', {message:"", mark:"", groupnames:groupnames, result:[]});
       }
       return;
+    }
+    case "keep": {
+      switch (session.album_mark) {
+        case "all":
+          markName = "すべて";
+          session.album_mark = "all";
+          break;
+        case "picture":
+          markName = "画像フォルダ";
+          sql += " WHERE mark = 'picture'";
+          session.album_mark = "picture";
+          break;
+        case "video":
+          markName = "動画";
+          sql += " WHERE mark = 'video'";
+          session.album_mark = "video";
+          break;
+        case "music":
+          markName = "音楽";
+          sql += " WHERE mark = 'music'";
+          session.album_mark = "music";
+          break;
+        case "project":
+          markName = "プロジェクト";
+          sql += " WHERE mark = 'project'";
+          session.album_mark = "project";
+          break;
+        case "document":
+          markName = "文書";
+          sql += " WHERE mark = 'document'";
+          session.album_mark = "document";
+          break;
+        default: // other
+          markName = "その他";
+          sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+          session.album_mark = "other";
+          break;    
+      }
+    }
+    break;
     case "all":
       markName = "すべて";
+      session.album_mark = "all";
       break;
     case "picture":
       markName = "画像フォルダ";
       sql += " WHERE mark = 'picture'";
+      session.album_mark = "picture";
       break;
     case "video":
       markName = "動画";
       sql += " WHERE mark = 'video'";
+      session.album_mark = "video";
       break;
     case "music":
       markName = "音楽";
       sql += " WHERE mark = 'music'";
+      session.album_mark = "music";
       break;
     case "project":
       markName = "プロジェクト";
       sql += " WHERE mark = 'project'";
+      session.album_mark = "project";
       break;
     case "document":
       markName = "文書";
       sql += " WHERE mark = 'document'";
+      session.album_mark = "document";
       break;
     default: // other
       markName = "その他";
       sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+      session.album_mark = "other";
       break;
   }
-  if (session.album_sortdesc) {
-    sql += " ORDER BY id DESC";
-  }
+  sql += " ORDER BY id " + session.album_sortdir;
   let result = await mysql.query_p(sql);
   if (result.length == 0) {
     message = "アルバムが登録されていません。";
   }
   
-  res.render('showAlbums', {message:message, result:result, mark:markName, groupnames:groupnames});
+  res.render('showAlbums', {message:message, result:result, mark:markName, groupnames:groupnames, view:session.album_view});
 });
 
 // アルバムグループ一覧の表示
@@ -285,21 +377,30 @@ router.get('/addModifyAlbum', (req, res) => {
   }
   mysql.query(sql, (row) => {
     if (row) {
-      groups.push(row.groupname);
+      if (row.groupname) {
+        groups.push(row.groupname);
+      }
     }
     else {
-      mysql.getRow("SELECT * FROM Album WHERE id=" + values.id, (err, row) => {
-        if (err) {
-          res.render('showInfo', {title:"エラー", message:err.message, incon:"cancel.png"});
-        }
-        else {
-          values.name = row.name;
-          values.info = row.info ? row.info : "";
-          values.bindata = row.bindata ? row.bindata : 0;
-          values.groupname = row.groupname ? row.groupname : "";
-          res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});
-        }
-      });
+      if (values.id) {
+        mysql.getRow("SELECT * FROM Album WHERE id=" + values.id, (err, row) => {
+          if (err) {
+            res.render('showInfo', {title:"エラー", message:err.message, incon:"cancel.png"});
+          }
+          else {
+            if (row) {
+              values.name = row.name;
+              values.info = row.info ? row.info : "";
+              values.bindata = row.bindata ? row.bindata : 0;
+              values.groupname = row.groupname ? row.groupname : "";
+            }
+            res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});  
+          }
+        }); 
+      }
+      else {
+        res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});  
+      }
     }
   });
 });
@@ -342,7 +443,10 @@ router.post('/addModifyAlbum', async (req, res) => {
             res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
           }
           else {
-            res.render('addModifyAlbum', {message:"\"" + values.name + "\" が作成されました。", values:values, groupnames:groups});
+            mysql.getValue("SELECT MAX(id) FROM Album WHERE mark='" + values.mark +"'", (maxId) => {
+              let msg = "(id" + maxId + ") \"" + values.name + "\" が作成されました。";
+              res.render('addModifyAlbum', {message:msg, values:values, groupnames:groups});
+            });
           }
         });
       }
@@ -361,7 +465,16 @@ router.get('/confirmAlbum/:id', async (req, res) => {
     bindata:0,
     groupname:""
   };
-  let groups = await mysql.query_p(`SELECT DISTINCT groupname FROM Album where mark='${values.mark}' ORDER BY groupname`);
+  let sql = `SELECT mark FROM Album WHERE id=${id}`;
+  values.mark = await mysql.getValue_p(sql);
+  sql = `SELECT DISTINCT groupname FROM Album where mark='${values.mark}' ORDER BY groupname`;
+  let rows = await mysql.query_p(sql);
+  let groups = [];
+  for (let row of rows) {
+    if (row.groupname) {
+      groups.push(row.groupname);
+    }
+  }
   let message = "";
   mysql.getRow("SELECT * FROM Album WHERE id=" + id, (err, row) => {
     if (row) {
@@ -520,6 +633,12 @@ router.get("/objectView", (req, res) => {
       case ".txt":
         res.render("objectView", {title:title, message:"", path:path, mime:"text/plain"});
         break;
+      case ".html":
+        res.render("objectView", {title:title, message:"", path:path, mime:"text/html"});
+        break;
+      case ".css":
+        res.render("objectView", {title:title, message:"", path:path, mime:"text/css"});
+        break;
       case ".csv":
         res.render("objectView", {title:title, message:"", path:path, mime:"text/csv"});
         break;
@@ -527,7 +646,7 @@ router.get("/objectView", (req, res) => {
         res.render("objectView", {title:title, message:"", path:path, mime:"application/json"});
         break;
       default:
-        res.render("showInfo", {title:"エラー", icon:"cancel.png", message:"サポートされない形式です。"});
+        res.render("showInfo", {title:"エラー", icon:"cancel.png", message:"サポートされない形式です。" + ext + "。パスをクリックしてダウンロードしてからアプリで表示してください。"});
         break;
   }
 });

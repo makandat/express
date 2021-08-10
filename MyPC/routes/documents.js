@@ -4,6 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const mysql = require('./MySQL.js');
 const dto = require('./DateTime.js');
+const fso = require('./FileSystem.js');
 const router = express.Router();
 
 // 書棚一覧表示
@@ -79,6 +80,10 @@ router.post("/documentForm", (req, res) => {
         bindata:bindata
     };
 
+    if (!fso.exists(req.body.path)) {
+        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
+        return;
+    }
     let marks = [];
     mysql.query("SELECT DISTINCT mark FROM Documents", (row) => {
         if (row) {
@@ -152,9 +157,14 @@ router.get("/confirmDocument", (req, res) => {
                         res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
                     }
                     else {
-                        res.render("documentForm", {message:`id=${id} が検索されました。`, value:row, marks:marks});
+                        if (row) {
+                            res.render("documentForm", {message:`id=${id} が検索されました。`, value:row, marks:marks});
+                        }
+                        else {
+                            res.render("showInfo", {message:"不正なパラメータが指定されました。", title:"エラー", icon:"cancel.png"});
+                        }
                     }
-                });
+                });    
             }
         }
     });
@@ -194,7 +204,7 @@ router.get("/showContent", (req, res) => {
                 sortdesc = "";
             }
             sql += " ORDER BY id " + session.projects_sortdir;
-try {
+            try {
                 mysql.query(sql, (row) => {
                     if (row) {
                         result.push(row);

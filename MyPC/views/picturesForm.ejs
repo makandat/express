@@ -43,7 +43,7 @@
         </header>
         <article>
             <br />
-            <form id="form1" name="form1" method="POST" action="/pictures/picturesForm">
+            <form id="form1" name="form1" method="POST" action="/pictures/picturesForm" style="margin-left:4%;">
                 <div class="form_row">
                     <div class="form_item">id</div>
                     <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="form_row">
                     <div class="form_item">サムネール</div>
-                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="4" value="<%= value.bindata %>" /></div>
+                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="4" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
                 </div>
                 <div style="margin-top:20px;">
                     <input type="button" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;

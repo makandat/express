@@ -4,6 +4,11 @@
         <meta charset="utf-8" />
         <title>アルバムの作成・修正</title>
         <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            fieldset {
+                border-width:0px;
+            }
+        </style>
         <script>
             // フォームをポストする。
             function postform() {
@@ -50,37 +55,37 @@
         </header>
         <article>
             <p class="comment">id が空欄の場合は新規作成となります。そうでない場合は当該 id のアルバムが修正されます。<br />id を入力して「データ確認」をクリックするとその id のデータが表示されます。</p>
-            <form id="form1" name="form1" method="POST" action="/addModifyAlbum" style="margin-top:40px;margin-left:20%;">
-                <div class="form_row">
-                    <div class="form_item">id</div>
+            <form id="form1" name="form1" method="POST" action="/addModifyAlbum" style="margin-top:40px;margin-left:10%;">
+                <fieldset>
+                    <div class="form_item"><legend>id</legend></div>
                     <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= values.id %>" /></div>
-                </div>
-                <div class="form_row">
-                    <div class="form_item">名称</div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item"><legend>名称</legend></div>
                     <div class="form_item"><input type="text" id="name" name="name" size="50" value="<%= values.name %>" /></div>
-                </div>
-                <div class="form_row">
-                    <div class="form_item">マーク</div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item"><legend>マーク</legend></div>
                     <div class="form_item"><input type="text" id="mark" name="mark" size="20" value="<%= values.mark %>" /></div>
-                </div>
-                <div class="form_row">
-                    <div class="form_item">情報</div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item"><legend>情報</legend></div>
                     <div class="form_item"><input type="text" id="info" name="info" size="100" value="<%= values.info %>" /></div>
-                </div>
-                <div class="form_row">
-                    <div class="form_item">サムネール</div>
-                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="6" value="<%= values.bindata %>" /></div>
-                </div>
-                <div class="form_row">
-                    <div class="form_item">グループ名</div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item"><legend>サムネール</legend></div>
+                    <div class="form_item"><input type="number" id="bindata" name="bindata" size="6" value="<%= values.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
+                </fieldset>
+                <fieldset>
+                    <div class="form_item"><legend>グループ名</legend></div>
                     <div class="form_item"><input type="text" id="groupname" name="groupname" size="20" value="<%= values.groupname %>" /></div>
-                </div>
+                </fieldset>
                 <br />
-                <div class="form_row">
+                <fieldset class="form_row">
                     <input type="button" name="button_postform" value=" 送信する " onclick="javascript:postform()" />&nbsp;
                     <input type="button" name="button_confirm" value=" データ確認 " onclick="javascript:confirm()" />&nbsp;
                     <input type="button" id="button_clear" value=" クリア " onclick="javascript:clear()" />&nbsp;
-                </div>
+                </fieldset>
                 <br />
                 <p class="message"><%= message %></p>
             </form>

@@ -8,6 +8,7 @@
 
     <body>
         <h1><%= title %></h1>
+        <p class="comment">（注意) フォルダ内の未登録動画は再生できません。(エラー発生)</p>
         <div class="menu">
             <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;/&nbsp;
             同じフォルダの動画：
@@ -17,7 +18,9 @@
         <br />
         <div style="text-align:center;">
             <video id="player1" preload="none" autoplay loop controls muted>
-                <source src="/sendfile?path=<%= source %>" />
+                <source src="/sendfile?path=<%= source %>" type="video/mp4" />
+                <source src="/sendfile?path=<%= source %>" type="video/webm" />
+                <source src="/sendfile?path=<%= source %>" type="video/ogg" />
             </video>    
         </div>
         <p class="message"><%= message %></p>
