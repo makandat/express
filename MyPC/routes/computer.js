@@ -366,7 +366,7 @@ router.get('/', (req, res) => {
       "sortdirasc": "●",
       "sortdirdesc": "",
       "hiddenItems": "",
-      "message": "MyPC: 正常に起動しました。"
+      "message": "MyPC: 正常に起動しました。表示するフォルダを選んでください。"
     });
 });
 
@@ -614,7 +614,7 @@ function deleteFile(cmdtokens, res) {
     let path = cmdtokens[1];
     if (fso.isFileSync(path)) {
         fs.unlinkSync(path);
-        res.status(OK).send("rm").end();
+        res.status(OK).send("rm OK.").end();
     }
     else {
         res.status(NG).send("NG").end();
@@ -635,7 +635,7 @@ function copyFile(cmdtokens, res, optMove = false) {
         if (optMove) {
             fs.unlinkSync(cmdtokens[1]);
         }
-        res.status(OK).send("cp/mv").end();
+        res.status(OK).send("cp/mv OK.").end();
     });
 }
 
@@ -647,7 +647,7 @@ function makeDir(cmdtokens, res) {
             res.status(NG).send("NG").end();
         }
         else {
-            res.status(OK).send("md").end();
+            res.status(OK).send("md OK.").end();
         }
     });
 }
@@ -660,7 +660,7 @@ function removeDir(cmdtokens, res) {
             res.status(NG).send("NG").end();
         }
         else {
-            res.status(OK).send("rd").end();
+            res.status(OK).send("rd OK.").end();
         }
     });  
 }
@@ -674,7 +674,7 @@ function changeMode(cmdtokens, res) {
             res.status(NG).send("NG").end();
         }
         else {
-            res.status(OK).send("cm").end();
+            res.status(OK).send("cm OK.").end();
         }
     });
 }
@@ -689,7 +689,7 @@ function execCommand(cmdtokens, res) {
                 res.status(NG).send("NG").end();
             }
             else {
-                res.status(OK).send("go").end();
+                res.status(OK).send("go OK.").end();
             }
         });    
     }
@@ -699,7 +699,7 @@ function execCommand(cmdtokens, res) {
                 res.status(NG).send("NG").end();
             }
             else {
-                res.status(OK).send("go").end();
+                res.status(OK).send("go OK.").end();
             }
         });    
     }

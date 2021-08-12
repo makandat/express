@@ -116,7 +116,11 @@
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>
                 &nbsp;|&nbsp;
-                <a href="/computer/"><img src="/img/refresh2.png" onclick="javascript:location.reload()"/> 表示更新</a>
+                <% if (currentDir) { %>
+                    <a href="/computer/folder?folder=<%= currentDir %>"><img src="/img/refresh2.png" /> 表示更新</a>
+                <% } else { %>
+                    <a href="/computer/"><img src="/img/refresh2.png" /> 表示更新</a>                
+                <% } %>
                 &nbsp;|&nbsp;
                 <a id="linkUpward" href=""><img src="/img/upper.png" /> 上のフォルダへ</a>&nbsp;|&nbsp;
                 表示するフォルダ&nbsp;<select id="selectFolder"><%- folders %></select>

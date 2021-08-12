@@ -166,8 +166,8 @@ router.get('/musicForm', (req, res) => {
         bindata: 0
     };
     // マーク一覧を得る。
+    let marks = [];
     mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
-        let marks = [];
         if (row) {
             marks.push(row.mark);
         }
@@ -301,7 +301,7 @@ router.get('/playPath', (req, res) => {
         }
         else {
             countup(row.id);
-            res.render('playForm', {title:row.title, path:path, message:"音楽ファイルの形式によっては音が鳴らないことがあります。"});
+            res.render('playForm', {title:row.title, path:path, message:"音楽ファイルの形式によっては音が鳴らないことがあります。(mp3 推奨)"});
         }
     });
 });

@@ -174,7 +174,7 @@ router.get('/showAlbumContent/:id', async (req, res) => {
     }
   
   }
-  res.render('showAlbumContent', {title:"id: " + id + "アルバムの内容一覧", message:"番号" + id + "のアルバム内容が検索されました。", result:result, mark:mark});
+  res.render('showAlbumContent', {title:"id:" + id + " アルバムの内容一覧", message:"番号" + id + "のアルバム内容が検索されました。", result:result, mark:mark});
 });
 
 // アルバムのタイトルを返す。

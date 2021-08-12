@@ -98,7 +98,7 @@ router.get("/showthumb", async (req, res) => {
     if (!title) {
         title = path;
     }
-    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif"]);
+    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
     if (common.isWindows()) {
         for (let i = 0; i < files.length; i++) {
             files[i] = files[i].replace(/\\/g, "/");
@@ -206,7 +206,7 @@ router.get("/getCreatorInfo", async (req, res) => {
 router.get("/showPictures", async (req, res) => {
     let path = req.query.path;
     let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
-    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF"]);
+    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
     let result = [];
     for (let i = 0; i < files.length; i++) {
         result.push(files[i].replace(/\\/g, '/'));
