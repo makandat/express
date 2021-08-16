@@ -587,7 +587,7 @@ router.get("/extract/:id", async (req, res) => {
   res.send(row.data);
 });
 
-// 画像ファイルなどのバイナリーファイルを返す。
+// ファイル内容を返す。
 router.get("/sendfile", (req, res) => {
   let path = req.query.path;
   res.sendFile(path);

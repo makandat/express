@@ -8,7 +8,7 @@
         <script>
             $(() => {
                 $("input[name='tablename']").val(['<%= value.tablename %>']);
-
+                // データ確認ボタン
                 $("#confirmButton").click(() => {
                     let id = $("#id").val();
                     if (!id) {
@@ -17,11 +17,23 @@
                     }
                     location.href = "/extra/marksForm?id=" + id;
                 });
+                // クリアボタン
                 $("#clearButton").click(() => {
                     $("#id").val("");
                     $("#mark").val("");
                     $("input[name='tablename']").val(['Pictures']);
                     $("#info").val("");
+                });
+                // 一括登録ボタン
+                $('#bulkButton').click(() => {
+                    if (confirm("すでに使われているマーク一覧からマークを登録します。")) {
+                        $.get("/extra/marksInsert", (msg) => {
+                            $('#message').text(msg);
+                        });
+                    }
+                    else {
+                        $('#message').text("取り消されました。");
+                    }
                 });
             });
         </script>
@@ -36,7 +48,7 @@
             <form method="POST" action="/extra/marksForm">
                 <div class="form_row">
                     <div class="form_item">id (空欄の場合は挿入)</div>
-                    <div class="form_item"><input type="number" id="id" name="id" value="<%= value.id %>" /></div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
                 </div>
                 <div class="form_row">
                     <div class="form_item">マーク</div>
@@ -65,11 +77,29 @@
                     <div class="form_item">
                         <input type="submit" name="submitButton" id="submitButton" value=" 送信 " />&nbsp;
                         <input type="button" name="confirmButton" id="confirmButton" value=" データ確認 " />&nbsp;
-                        <input type="button" name="clearButton" id="clearButton" value=" クリア " />&nbsp;                    
+                        <input type="button" name="clearButton" id="clearButton" value=" クリア " />&nbsp;
+                        <input type="button" name="clearButton" id="bulkButton" value=" 一括登録 " />&nbsp;
                     </div>
                 </div>
-                <p class="message"><%= message %></p>
+                <p id="message" class="message"><%= message %></p>
             </form>
+            <br />
+            <h2>テーブルごとの既存マーク一覧</h2>
+            <table style="margin-left:10%;width:50%;">
+                <tr><th>マーク</th><th>関連テーブル</th></tr>
+                <% for (let row of marks) { %>
+                    <tr>
+                        <td><%= row.mark %></td>
+                        <td><%= row.tableName %></td>
+                    </tr>
+                <% } %>
+            </table>
         </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
     </body>
 </html>

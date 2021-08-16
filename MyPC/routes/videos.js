@@ -44,7 +44,7 @@ router.get('/showContent', async (req, res) => {
     if (album > 0) {
         title += ` (アルバム=${album})`;
         session.videos_orderby = "id";
-        session.videos_sortdir = "asc";
+        session.videos_sortdir = session.videos_sortdir ? session.videos_sortdir : "asc";
         session.videos_search = null;
         session.videos_album = album;
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " AND mark='video'");

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MySQL コマンド実行</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue.js"></script>
+        <style>
+            #history {
+                font-size: 11pt;
+                box-shadow: 6px 6px 6px gray;
+            }
+            fieldset {
+                border-width:0px;
+                padding:5px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png" /></a> MySQL コマンド実行</h1>
+            <hr />
+        </header>
+        <article>
+            <form id="app" style="margin-top:25px;">
+                <fieldset>
+                    <p class="form_item">コマンド実行履歴</p>
+                    <textarea id="history" v-model="history" cols="120" rows="20" readonly></textarea>
+                </fieldset>
+                <fieldset>
+                    <p class="form_item">コマンド (SQL)</p>
+                    <input type="text" v-model="command" size="150" style="box-shadow: 6px 6px 6px gray;" /><br />
+                    <input type="button" v-on:click="execClick" value=" 実行する " style="margin-top:15px;" />
+                    <input type="button" v-on:click="clearClick" value=" クリア " style="margin-top:15px;" />
+                </fieldset>
+                <fieldset>
+                    <p class="message" v-text="message"></p>
+                </fieldset>
+                <br />
+                <div v-html="result"></div>
+            </form>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+        <!-- Vue.js -->
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    history: [],
+                    command: "",
+                    message: "(注意) mysql クライアントのコマンドは実行できません。",
+                    result: ""
+                },
+                methods: {
+                    // 実行する
+                    execClick: () => {
+                        if (app.command == "") {
+                            alert("コマンドが空欄です。")
+                            return;
+                        }
+                        let data = {
+                            'command': app.command
+                        };
+                        fetch("/extra/mysqlExecCommand", {method:"POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)})
+                        .then(res => res.json())
+                        .then(data => {
+                            app.history = app.history + data.text;
+                            if (data.result) {
+                                let html = "<table>\n<tr>\n";
+                                let fnames = [];
+                                for (let f of data.fields) {
+                                    html += "<th>" + f.name + "</th>";
+                                    fnames.push(f.name);
+                                }
+                                html += "</tr>\n";
+                                for (let row of data.result) {
+                                    html += "<tr>";
+                                    for (let i = 0; i < fnames.length; i++) {
+                                        html += "<td>" + row[fnames[i]] + "</td>";
+                                    }
+                                    html += "</tr>\n";
+                                }
+                                html += "</table>\n";
+                                app.result = html;
+                            }
+                            app.message = data.text;
+                        })
+                        .catch(err => app.message = err.message);
+                    },
+                    // クリア
+                    clearClick: () => {
+                        app.command = "";
+                        app.table = "";
+                        app.message = "";
+                        app.history = [];
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

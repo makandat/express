@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Google Drive</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png"></a> Google Drive</h1>
+        </header>
+        <article id="app">
+
+            <p class="message" v-text="message"></p>
+        </article>
+        
+        <footer>
+        </footer>
+
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    message: "工事中"
+                },
+                methods: {
+                    
+                }
+            });
+
+        </script>
+    </body>
+</html>

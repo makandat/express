@@ -73,7 +73,7 @@ router.get('/showContent', async (req, res) => {
 
     if (album > 0) {
         session.music_orderby = "id";
-        session.music_sortdir = "asc";
+        session.music_sortdir = session.music_sortdir ? session.music_sortdir : "asc";
         session.music_search = null;
         session.music_start = 1;
         session.music_mark = null;

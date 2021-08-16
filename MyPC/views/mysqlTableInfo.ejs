@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MySQL テーブルカラム一覧</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png"></a> MySQL テーブルカラム一覧</h1>
+        </header>
+        <article id="app">
+            <div class="menu">
+                <a href="/extra/mysqlMetaInfo">MySQL メタ情報</a>&nbsp;|&nbsp;
+                <label>テーブル </label>
+                <select v-model="table" v-on:change="tableChanged">
+                    <% for (let tn of tables) { %>
+                        <option value="<%= tn %>"><%= tn %></option>
+                    <% } %>
+                </select>
+            </div>
+            <p class="message" v-text="message"></p>
+            <table v-html="htmlTable">
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    table:"",
+                    htmlTable: "",
+                    message: ""
+                },
+                methods: {
+                    tableChanged: () => {
+                        fetch("/extra/mysqlTableInfo?table=" + app.table)
+                        .then(res => res.json())
+                        .then(data => {
+                            let html = "<tr>";
+                            for (let f of data.fields) {
+                                html += "<th>" + f + "</th>";
+                            }
+                            for (let row of data.result) {
+                                html += "<tr>";
+                                    for (let fn of data.fields) {
+                                        html += "<td>" + row[fn] + "</td>";
+                                    }
+                                html += "</tr>\n";
+                            }
+                            app.htmlTable = html;
+                            app.message = "テーブル " + app.table + " のカラムが検索されました。";
+                        })
+                        .catch(err => app.message = err.message);
+                    }
+                },
+            });
+        </script>
+    </body>
+</html>

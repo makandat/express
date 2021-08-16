@@ -14,29 +14,67 @@
 
     <body>
         <header>
-            <h1><a href="/"><img src="/img/home_blue.png" />&nbsp;その他</h1>
+            <h1><a href="/"><img src="/img/home_blue.png" /></a>&nbsp;その他</h1>
+            <hr style="color:deepskyblue;" />
+            <!-- メニュー -->
+            <div class="menu" style="padding:5px;">
+                <a href="#データベース">データベース</a>&nbsp;/&nbsp;
+                <a href="#クラウド">クラウド</a>&nbsp;/&nbsp;
+                <a href="#BINDATA">サムネール管理テーブル (BINDATA)</a>&nbsp;/&nbsp;
+                <a href="#テーブルのバックアップ">テーブルのバックアップ</a>&nbsp;/&nbsp;
+                <a href="#レコード識別マーク一覧">レコード識別マーク一覧</a>&nbsp;/&nbsp;
+                <a href="#テーブルのデータの削除">テーブルのデータの削除</a>&nbsp;/&nbsp;
+                <a href="#テーブルのデータの一括削除">テーブルのデータの一括削除</a>&nbsp;/&nbsp;
+                <a href="#テーブルのレコードのパス (path) の一括変更">テーブルのレコードのパス (path) の一括変更</a>&nbsp;/&nbsp;
+                <a href="#データ一括登録とチェック">データ一括登録とチェック</a>&nbsp;/&nbsp;
+                <a href="#パスの存在チェック">パスの存在チェック</a>&nbsp;/&nbsp;
+                <a href="#ファイルリストからの一括データ登録">ファイルリストからの一括データ登録</a>&nbsp;/&nbsp;
+                <a href="#タイトルの一括変更">タイトルの一括変更</a>&nbsp;/&nbsp;
+                <a href="#タイマー">タイマー</a>&nbsp;/&nbsp;
+                <a href="#/img フォルダ">/img フォルダ</a>
+            </div>
         </header>
         <article>
-            <h2>サムネール管理テーブル (BINDATA)</h2>
+            <!-- データベース -->
+            <h2><a id="データベース">データベース</a></h2>
+            <ul>
+                <li><a href="/extra/mysqlExecCommand" target="_blank">SQL 文の実行</a></li>
+                <li><a href="/extra/mysqlExecFile" target="_blank">SQL ファイルの実行</a></li>
+                <li><a href="/extra/mysqlMetaInfo" target="_blank">MySQL メタ情報 (INFORMATION_SCHEMA)</a></li>
+            </ul>
+            <p>&nbsp;</p>
+
+            <!-- クラウド -->
+            <h2><a id="クラウド">クラウド</a></h2>
+            <ul>
+                <li><a href="/extra/googleDrive" target="_blank">Google Drive</a></li>
+                <li><a href="/extra/awsS3" target="_blank">AWS S3</a></li>
+            </ul>
+            <p>&nbsp;</p>
+
+            <!-- サムネール管理テーブル (BINDATA) -->
+            <h2><a id="BINDATA">サムネール管理テーブル (BINDATA)</a></h2>
             <ul>
                 <li><a href="/extra/bindatalist" target="_blank">内容一覧表示</a></li>
                 <li><a href="/extra/bindataForm" target="_blank">サムネール画像の追加と修正</a></li>
                 <li><a href="/extra/bindataQuery" target="_blank">サムネール画像の逆引き</a></li>
             </ul>
             <br />
-            <h2>テーブルのバックアップ</h2>
+            <!-- テーブルのバックアップ -->
+            <h2><a id="テーブルのバックアップ">テーブルのバックアップ</a></h2>
             <ul>
                 <li><a href="/extra/newBackup" target="_blank">バックアップテーブルを作る</a></li>
                 <li><a href="/extra/removeBackup" target="_blank">古いバックアップテーブルを削除する</a></li>
             </ul>
             <br />
-            <h2>レコード識別マーク一覧</h2>
+            <!-- レコード識別マーク一覧 -->
+            <h2><a id="レコード識別マーク一覧">レコード識別マーク一覧</a></h2>
             <ul>
                 <li><a href="/extra/marksTable" target="_blank">識別マーク一覧 (marks テーブル)</a></li>
             </ul>
             <br />
             <!-- テーブルのデータの削除 (deleteRecordForm) -->
-            <h2>テーブルのデータの削除</h2>
+            <h2><a id="テーブルのデータの削除">テーブルのデータの削除</a></h2>
             <form id="deleteRecordForm">
                 <p class="comment" style="text-align:left;">(注意) 削除後のデータは復活できません。</p>
                 <div class="form_row">
@@ -64,7 +102,7 @@
             </form>
             <br />
             <!-- テーブルのデータの一括削除　-->
-            <h2>テーブルのデータの一括削除</h2>
+            <h2><a id="テーブルのデータの一括削除">テーブルのデータの一括削除</a></h2>
             <form id="deleteBatchForm">
                 <p class="comment" style="text-align:left;">(注意) 削除後のデータは復活できません。</p>
                 <div class="form_row">
@@ -97,7 +135,7 @@
             </form>
             <br />
             <!-- テーブルのレコードのパス (path) の一括変更　-->
-            <h2>テーブルのレコードのパス (path) の一括変更</h2>
+            <h2><a id="テーブルのレコードのパス (path) の一括変更">テーブルのレコードのパス (path) の一括変更</a></h2>
             <form id="replaceBatchForm">
                 <p class="comment" style="text-align:left;">(注意) 変更後のデータは復活できません。</p>
                 <div class="form_row">
@@ -130,7 +168,7 @@
                 <div class="message" v-text="message"></div>
             </form>
             <!-- データ一括登録とチェック (bulkDataForm) -->
-            <h2>データ一括登録とチェック</h2>
+            <h2><a id="データ一括登録とチェック">データ一括登録とチェック</a></h2>
             <p class="comment">Pictures の場合、ディレクトリは「親/子/孫」の関係で「親」を指定します。そして、画像ファイルは「孫」の中にあるものとします。</p>
             <form id="bulkDataForm">
                 <div class="form_row">
@@ -163,7 +201,7 @@
             </form>
             <br />
             <!-- パスの存在チェック (checkPathForm) -->
-            <h2>パスの存在チェック</h2>
+            <h2><a id="パスの存在チェック">パスの存在チェック</a></h2>
             <form id="checkPathForm" name="checkPathForm">
                 <div class="form_row">
                     <div class="form_item">テーブルの選択</div>
@@ -192,7 +230,7 @@
             </form>
             <br />
             <!-- ファイルリストからの一括データ登録 (insertFileList) -->
-            <h2>ファイルリストからの一括データ登録</h2>
+            <h2><a id="ファイルリストからの一括データ登録">ファイルリストからの一括データ登録</a></h2>
             <form id="insertFileList" name="formInsertFileList">
                 <div class="form_row">
                     <div class="form_item">登録先のテーブル</div>
@@ -220,7 +258,7 @@
             </form>
             <br />
             <!-- タイトルの一括変更 -->
-            <h2>タイトルの一括変更</h2>
+            <h2><a id="タイトルの一括変更">タイトルの一括変更</a></h2>
             <form id="changeTitles">
                 <div class="form_row">
                     <div class="form_item">登録先のテーブル</div>
@@ -250,18 +288,18 @@
             </form>
             <br />
             <!--  タイマー (timerForm) -->
-            <h2>タイマー</h2>
+            <h2><a id="タイマー">タイマー</a></h2>
             <form id="timerForm">
-                <input type="number" v-model="hours"> 時間&nbsp;&nbsp;
-                <input type="number" v-model="munites"> 分
-                <input type="number" v-model="seconds"> 秒<br />
+                <input type="number" size="8" v-model="hours"> 時間&nbsp;&nbsp;
+                <input type="number" size="8" v-model="munites"> 分
+                <input type="number" size="8" v-model="seconds"> 秒<br />
                 <input type="button" v-on:click="startButton_click" value=" スタート " style="margin-top:15px;" />&nbsp;
                 <input type="button" v-on:click="stopButton_click" value=" 中止 " />
                 <p class="message" v-text="elapse"></p>
             </form>
             <!-- /img フォルダ内容の表示 -->
-            <h2>/img フォルダ</h2>
-            <p><a href="/viewimgfolder" target="_blank">/img フォルダを表示する。</a></p>
+            <h2><a id="/img フォルダ">/img フォルダ</a></h2>
+            <p style="margin-left:5%;"><a href="/viewimgfolder" target="_blank">/img フォルダを表示する。</a></p>
             <br />
         </article>
         <footer>

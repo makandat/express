@@ -69,14 +69,13 @@
                 textarea.text(text);
                 textarea.select();
                 /* https: でないと動作しない？ らしい。*/
-                //navigator.clipboard.writeText(text)
-                //.then(()=>{$("#copied").css("visibility", "visible");})
-                //.catch(()=>{$("#copied").css("visibility", "visible");
-                //    $("#copied").text("Error");});
+                /* navigator.clipboard.writeText(text)
+                .then(()=>{$("#copied").css("visibility", "visible");})
+                .catch(()=>{$("#copied").css("visibility", "visible");
+                    $("#copied").text("Error");}); */
                 /* 廃止されたが動作可能 */
                 document.execCommand('copy');
                 $("#copied").css("visibility", "visible");
-                /* 考えてみればローカルストレージとかにパスをコピーして使えばいいんじゃない？ */
             }
 
             // 親のディレクトリを得る。
@@ -140,6 +139,8 @@
                 <a href="/computer/folderedit" target="_blank"><img src="/img/form.png" /> 表示フォルダの編集</a>
                 &nbsp;|&nbsp;
                 <a href="/computer/zipfile" target="_blank"><img src="/img/tool2.png" /> 圧縮ファイルの解凍・作成</a>
+                &nbsp;|&nbsp;
+                <a href="/computer/textEditor" target="_blank"><img src="/img/business2.png" /> テキストエディタ</a>
                 <br />
                 <form class="upload_region" enctype="multipart/form-data" method="POST" action="/computer/upload">
                     <b>ファイルアップロード</b>　<input type="file" name="uploadFile" />&nbsp;<input type="submit" value=" アップロード " />

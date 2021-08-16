@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MySQL メタ情報</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            .layout {
+                display: flex;
+            }
+            ul {
+                list-style-type: none;
+            }
+        </style>
+        <script src="/js/vue.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png" /></a> MySQL メタ情報</h1>
+            <hr />
+        </header>
+
+        <article id="app" class="layout">
+            <div style="width:20%;background-color:snow;">
+                <ul>
+                    <li><a href="#" v-on:click.stop.prevent="queryInfo('databases')">データベース一覧</a></li>
+                    <li><a href="#" v-on:click.stop.prevent="queryInfo('tables')">テーブル一覧</a></li>
+                    <li><a href="#" v-on:click.stop.prevent="queryInfo('routines')">ルーチン一覧</a></li>
+                    <li><a href="#" v-on:click.stop.prevent="queryInfo('indexes')">インデックス一覧</a></li>
+                    <li><a href="/extra/mysqlTableInfo">テーブルカラム一覧</a></li>
+                    <li><a href="/extra/mysqlRoutineInfo">ルーチン内容</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="message" v-text="message"></p>
+                <table v-html="table" style="margin-left:4%;"></table>
+            </div>
+        </article>
+
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    table: "",
+                    message: ""
+                },
+                methods: {
+                    queryInfo: (page) => {
+                        let data = {
+                            page: page
+                        };
+                        fetch("/extra/mysqlMetaInfo", {method:"POST", headers:{'Content-Type': 'application/json'}, body:JSON.stringify(data)})
+                        .then(res => res.json())
+                        .then(data => {
+                            let html = "<tr>";
+                            for (let f of data.fields) {
+                                html += "<th>" + f + "</th>";
+                            }
+                            html += "</tr>\n";
+                            for (let row of data.result) {
+                                html += "<tr>";
+                                    for (let f of data.fields) {
+                                        html += "<td>" + row[f] + "</td>";
+                                    }
+                                html += "</tr>\n";
+                            }
+                            app.table = html;
+                            app.message = "検索されました。(" + page + ")";
+                        })
+                        .catch(err => { app.message = err.message; });
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

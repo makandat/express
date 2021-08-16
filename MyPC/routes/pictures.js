@@ -44,7 +44,7 @@ router.get('/showContent', async (req, res) => {
     if (album > 0) {
         title += ` (アルバム=${album})`;
         session.pictures_orderby = "id";
-        session.pictures_sortdir = "asc";
+        session.pictures_sortdir = session.pictures_sortdir ? session.pictures_sortdir : "asc";
         session.pictures_search = null;
         session.pictures_mark = null;
         session.pictures_album = album;

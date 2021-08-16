@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>AWS S3</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            fieldset {
+                padding:4px;
+                border-width:0px;
+            }
+        </style>
+        <script src="/js/vue.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png"></a> AWS S3</h1>
+            <div class="menu">
+                <a href="https://s3.console.aws.amazon.com/s3/" target="_blank">AWS Management Console (S3)</a>&nbsp;|&nbsp;
+                <a href="/help_awsS3.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>
+            </div>
+        </header>
+        <article id="app">
+            <br />
+            <h4>AWS S3 へファイルのバックアップとリカバリーを行います。バケットとキーの確認は<a href="https://s3.console.aws.amazon.com/s3/" target="_blank"> AWS マネージメントコンソール</a>で行ってください。</h4>
+            <fieldset>
+                <div class="form_item">S3 バケット</div>
+                <div class="form_item"><input type="text" v-model="bucket" size="50" /></div>
+            </fieldset>
+            <fieldset>
+                <div class="form_item">S3 キー</div>
+                <div class="form_item"><input type="text" v-model="key" size="120" /></div>
+            </fieldset>
+            <fieldset>
+                <div class="form_item">ローカルファイルのパス名</div>
+                <div class="form_item"><input type="text" v-model="local" size="120" /></div>
+            </fieldset>
+            <fieldset>
+                <div class="form_item">メモ</div>
+                <div class="form_item"><input type="text" v-model="memo" size="120" /></div>
+            </fieldset>
+            <fieldset>
+                <input type="button" v-on:click="backupClick" value="　アップロード　" />&nbsp;
+                <input type="button" v-on:click="recoveryClick" value="　ダウンロード　" />
+            </fieldset>
+            <p class="message" v-text="message"></p>
+            <h4>
+                <span v-text="legend"></span>&nbsp;<input type="button" v-on:click="historyClick" v-model="buttonFace" />
+                &nbsp;<input type="button" v-on:click="historyClearClick" value="履歴クリア" />
+            </h4>
+            <pre class="src" v-text="history" v-bind:style="hideHistory"></pre>
+        </article>
+        
+        <footer>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+
+        <script>
+            'use strict';
+            const HISTORYKEY = "AwsS3";
+            const MAXLINES = 500;
+
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    bucket: "",
+                    key: "",
+                    local: "",
+                    memo: "",
+                    history: "",
+                    buttonFace: " 表示 ",
+                    message: "",
+                    legend: "履歴 (最大 " + MAXLINES + " 件)",
+                    hideHistory: {"display":"none"}
+                },
+                methods: {
+                    // バックアップボタン
+                    backupClick: () => {
+                        if (!app.bucket) {
+                            alert("S3 バケットが空欄です。");
+                            return;
+                        }
+                        if (!app.key) {
+                            alert("S3 のキーが空欄です。");
+                            return;
+                        }
+                        if (!app.local) {
+                            alert("転送元のパスが空欄です。");
+                            return;
+                        }
+                        if (confirm(`${app.local} を S3 へアップロードします。`)) {
+                            let data = {
+                                "backup": true,
+                                "bucket": app.bucket,
+                                "key": app.key,
+                                "local": app.local.replace(/\\/g, "/")
+                            };
+                            fetch("/extra/awsS3", {"method":"POST", "headers":{"Content-Type":"application/json"}, "body":JSON.stringify(data)})
+                            .then(res => res.text())
+                            .then(text => {
+                                app.message = text;
+                                app.appendHistory();
+                            })
+                            .catch(err => {
+                                app.message = err.message;
+                                app.appendHistory(true, err.message);
+                            })
+                        }
+                        else {
+                            app.message = "バックアップは取り消されました。"
+                        }
+                    },
+                    // リカバリーボタン
+                    recoveryClick: () => {
+                        if (!app.bucket) {
+                            alert("S3 バケットが空欄です。");
+                            return;
+                        }
+                        if (!app.key) {
+                            alert("S3 のキーが空欄です。");
+                            return;
+                        }
+                        if (!app.local) {
+                            alert("保存先のパスが空欄です。");
+                            return;
+                        }
+                        let data = {
+                                "backup": false,
+                                "bucket": app.bucket,
+                                "key": app.key,
+                                "local": app.local.replace(/\\/g, "/")
+                            };
+                        fetch("/extra/awsS3", {"method":"POST", headers:{"Content-Type":"application/json"}, "body":JSON.stringify(data)})
+                        .then(res => res.text())
+                        .then(text => {
+                            app.message = text;
+                            app.appendHistory(false);
+                        })
+                        .catch(err => {
+                            app.message = err.message;
+                            app.appendHistory(false, err.message);
+                        })
+                    },
+                    // 履歴の表示・非表示ボタン
+                    historyClick: () => {
+                        if (app.hideHistory.display == "none") {
+                            app.hideHistory.display = "block";
+                            app.buttonFace = " 隠す ";
+                            app.history = localStorage.getItem(HISTORYKEY);
+                        }
+                        else {
+                            app.hideHistory.display = "none";
+                            app.buttonFace = " 表示 ";
+                        }
+                    },
+                    // 履歴を localStorage.HISTORYKEY に追加
+                    appendHistory: (backup = true, errmsg = "") => {
+                        let his = localStorage.getItem(HISTORYKEY);
+                        if (his == null) {
+                            his = "";
+                        }
+                        let lines = [];
+                        if (his != "") {
+                            lines = his.split(/\\n/g);
+                        }
+                        if (lines.length >= 2) {
+                            lines.pop();
+                        }
+                        if (lines.length > MAXLINES) {
+                            lines.shift();
+                        }
+                        let line = app.now;
+                        if (backup) {
+                            line += "UPLOAD From '";
+                            line += app.local + "' To '";
+                            line += "/" + app.bucket + "/" + app.key + "'";
+                            if (errmsg != "") {
+                                line += " ERROR '" + errmsg + "'";
+                            }
+                            if (app.memo) {
+                                line += " Memo '" + app.memo + "'";
+                            }
+                            else {
+                                line += " Memo '-'";
+                            }
+                        }
+                        else {
+                            line += "DOWNLOAD From '";
+                            line += "/" + app.bucket + "/" + app.key;
+                            line += "' To '" + app.local + "' Memo '";
+                            if (app.memo) {
+                                line += app.memo + "'";
+                            }
+                            else {
+                                line += "-'";
+                            }
+                        }
+                        lines.push(line);
+                        let s = lines.join("\n");
+                        localStorage.setItem(HISTORYKEY, s);
+                    },
+                    // 履歴クリアボタン
+                    historyClearClick: () => {
+                        if (confirm("すべての履歴が消去されます。必要ならコピペしてファイル保存してください。")) {
+                            localStorage.setItem(HISTORYKEY, "");
+                            location.reload();
+                            app.message = "履歴は消去されました。";
+                        }
+                        else {
+                            app.message = "履歴消去は取り消されました。";
+                        }
+                    }
+                },
+                computed: {
+                    now: () => {
+                        let date = new Date();
+                        return date.getFullYear()
+                            + '/' + ('0' + (date.getMonth() + 1)).slice(-2)
+                            + '/' + ('0' + date.getDate()).slice(-2)
+                            + ' ' + ('0' + date.getHours()).slice(-2)
+                            + ':' + ('0' + date.getMinutes()).slice(-2)
+                            + ':' + ('0' + date.getSeconds()).slice(-2)
+                            + " - ";
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

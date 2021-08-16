@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MySQL SQL ファイル実行</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue.js"></script>
+        <style>
+            fieldset {
+                border-width: 0px;
+            }
+            pre {
+                margin-left:3%;
+                font-size:10pt;
+                color:darkred;
+                padding:6px;
+                border:dotted thin silver;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png" /></a> MySQL SQL ファイル実行</h1>
+            <hr />
+            <br />
+        </header>
+
+        <article>
+            <form id="app">
+                <fieldset>
+                    <label class="form_item">SQL ファイル (空白を含まないパスを指定してください)</label><br />
+                    <input type="text" size="120" v-model="sqlFile" />
+                </fieldset>
+                <fieldset>
+                    <label class="form_item">SQL ファイル内容</label><br />
+                    <textarea v-model="fileContent" v-bind:display="confirmContent" cols="100" rows="8"></textarea>
+                </fieldset>
+                <fieldset>
+                    <input type="button" v-on:click="confirmClick" value=" SQL ファイル内容を確認する " />
+                    <input type="button" v-on:click="execClick" value=" 実行する " style="color:red;" />
+                    <input type="button" v-on:click="clearClick" value=" クリア " />
+                    <input type="button" v-on:click="saveClick" value=" ファイル保存 " />
+                </fieldset>
+                <p class="comment">「ファイル保存」を行うと、既存ファイルの場合は上書き、存在しないファイルの場合は新規作成になります。</p>
+                <br />
+                <p class="message" v-text="message"></p>
+                <pre v-html="result"></pre>
+            </form>
+        </article>
+
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>            
+        </footer>
+        <script>
+            // Vue.js
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    sqlFile: "",
+                    fileContent: "",
+                    confirmContent: "none",
+                    message: "",
+                    result: ""
+                },
+                methods: {
+                    confirmClick: () => {
+                        if (app.sqlFile) {
+                            fetch("/sendfile?path=" + app.urlPath)
+                            .then(res => res.text())
+                            .then(text => {
+                                app.fileContent = text;
+                                app.conformContent = "block";
+                                app.message = "SQL ファイル内容が取得されました。"
+                            })
+                            .catch(err => app.message = err.message);
+                        }
+                        else {
+                            alert("SQL ファイルが設定されていません。");
+                        }
+                    },
+                    execClick: () => {
+                        if (!app.sqlFile) {
+                            alert("SQL ファイルの指定がありません。");
+                            return;
+                        }
+                        if (!confirm(app.sqlFile + " を実行します。")) {
+                            app.message = "実行が取り消されました。";
+                            return;
+                        }
+                        let data = {
+                            path: app.urlPath
+                        };
+                        fetch("/extra/mysqlExecFile", {method:"POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)})
+                        .then(res => res.json())
+                        .then(data => {
+                            app.result = data.text.replace(/\\n/g, '\n');
+                            app.message = data.error;
+                        })
+                        .catch(err => app.message = err.message);
+                    },
+                    clearClick: () => {
+                        app.message = "";
+                        app.sqlFile = "";
+                        app.fileContent = "";
+                        app.conformContent = "none";
+                        app.result = "";
+                    },
+                    saveClick: () => {
+                        let data = {
+                            path: app.urlPath,
+                            fileContent: app.fileContent
+                        };
+                        fetch("/extra/saveFile", {method:"POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)})
+                        .then(res => res.text())
+                        .then(text => app.message = text)
+                        .catch(err => app.message = err.message);
+                    }
+                },
+                computed: {
+                    urlPath: () => {
+                        let p = encodeURI(app.sqlFile.replace(/\\/g, "/"));
+                        return p;
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

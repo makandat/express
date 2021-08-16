@@ -46,11 +46,11 @@
             <form id="form1" method="POST" action="/music/musicForm" style="margin-left:4%;">
                 <fieldset>
                     <div class="form_item">id</div>
-                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="8" value="<%= value.id %>" /></div>
                 </fieldset>
                 <fieldset>
                     <div class="form_item">アルバム</div>
-                    <div class="form_item"><input type="number" id="album" name="album" size="6" value="<%= value.album %>" /></div>
+                    <div class="form_item"><input type="number" id="album" name="album" size="8" value="<%= value.album %>" /></div>
                 </fieldset>
                 <fieldset>
                     <div class="form_item">タイトル</div>
@@ -78,11 +78,11 @@
                 </fieldset>
                 <fieldset>
                     <div class="form_item">好き</div>
-                    <div class="form_item"><input type="text" id="fav" name="fav" size="6" value="<%= value.fav %>" /></div>
+                    <div class="form_item"><input type="text" id="fav" name="fav" size="8" value="<%= value.fav %>" /></div>
                 </fieldset>
                 <fieldset>
                     <div class="form_item">サムネール</div>
-                    <div><input type="number" id="bindata" name="bindata" size="6" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
+                    <div><input type="number" id="bindata" name="bindata" size="8" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
                 </fieldset>
                 <fieldset>
                     <input type="submit" id="submit" name="submit" value=" 送信する " />&nbsp;

@@ -1,3 +1,25 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<!DOCTYPE html>
+<html>
+  <!-- この EJS はシステムエラーの表示に使用される。 -->
+  <head>
+    <meta charset="utf-8" />
+    <title>システムエラー</title>
+    <style>
+      h1 {
+        color: indianred;
+      }
+      h2 {
+        color:dodgerblue;
+      }
+      body {
+        margin-left:3%;
+      }
+    </style>
+  </head>
+  <body>
+	  <h1><%= message %></h1>
+	  <h2><%= error.status %></h2>
+	  <pre><%= error.stack %></pre>
+  </body>
+</html>
+

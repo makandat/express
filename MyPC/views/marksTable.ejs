@@ -28,7 +28,7 @@
                     <option value="0">-- Select --</option>
                     <option value="1">すべて</option>
                     <option value="Album">アルバム</option>
-                    <option value="Pictures">画像フォルダ</option>
+                    <option value="Pictures">画像</option>
                     <option value="Videos">動画</option>
                     <option value="Music">音楽</option>
                     <option value="Projects">プロジェクト</option>
@@ -43,11 +43,13 @@
             <table style="width:100%;">
                 <tr><th>id</th><th>マーク</th><th>適用テーブル</th><th>情報</th><th>登録日</th></tr>
                 <% for (let row of result) { %>
-                    <td><%= row.id %></td>
-                    <td><%= row.mark %></td>
-                    <td><%= row.tablename %></td>
-                    <td><%= row.info %></td>
-                    <td><%= row.date %></td>
+                    <tr>
+                        <td><%= row.id %></td>
+                        <td><%= row.mark %></td>
+                        <td><%= row.tablename %></td>
+                        <td><%= row.info %></td>
+                        <td><%= row.date %></td>
+                    </tr>
                 <% } %>
             </table>
         </article>

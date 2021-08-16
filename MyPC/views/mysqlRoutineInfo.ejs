@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MySQL ルーチン情報</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue.js"></script>
+        <style>
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png"></a> MySQL ルーチン情報</h1>
+            <hr />
+        </header>
+        <article id="app">
+            <div class="menu">
+                <a href="/extra/mysqlMetaInfo">MySQL メタ情報</a>&nbsp;|&nbsp;
+                <label>ルーチン</label> <select v-model="routine" v-on:change="routineChanged">
+                    <% for (let rt of routines) { %>
+                        <option value="<%= rt %>"><%= rt %></option>
+                    <% } %>
+                </select>
+            </div>
+            <p class="message" v-text="message"></p>
+            <h3>パラメータ</h3>
+            <table v-html="htmlTable"></table>
+            <br />
+            <h3>コード</h3>
+            <pre class="src" v-text="code"></pre>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    routine: "",
+                    message: "ルーチンを選んでください。",
+                    code: ""
+                },
+                methods: {
+                    routineChanged: () => {
+                        fetch("/extra/mysqlRoutineInfo?routine=" + app.routine)
+                        .then(res => res.json())
+                        .then(data => {
+                            let html = "<tr>";
+                            for (let fn of data.fields) {
+                                html += "<th>" + fn + "</th>";
+                            }
+                            html += "</tr>\n";
+                            for (let p of data.parameters) {
+                                html += "<tr>";
+                                for (let fn of data.fields) {
+                                    html += "<td>" + p[fn] + "</td>";
+                                }
+                                html += "</tr>\n";
+                            }
+                            app.htmlTable = html;
+                            app.code = data.code;
+                            app.message = app.routine + " が検索されました。";
+                        })
+                        .catch(err => app.message = err.message);
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

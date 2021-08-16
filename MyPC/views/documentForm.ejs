@@ -45,16 +45,16 @@
             <br />
             <form id="form1" method="POST" action="/documents/documentForm">
                 <div class="form-row">
-                    <div><div class="form_item">id<div><div><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div></div>
-                    <div><div class="form_item">アルバム<div><div><input type="number" id="album" name="album" size="6" value="<%= value.album %>" /></div></div>
+                    <div><div class="form_item">id<div><div><input type="number" id="id" name="id" size="8" value="<%= value.id %>" /></div></div>
+                    <div><div class="form_item">アルバム<div><div><input type="number" id="album" name="album" size="8" value="<%= value.album %>" /></div></div>
                     <div><div class="form_item">タイトル<div><div><input type="text" id="title" name="title" size="80" value="<%= value.title %>" /></div></div>
-                    <div><div class="form_item">リビジョン<div><div><input type="number" id="revision" name="revision" size="6" value="<%= value.revision %>" /></div></div>
+                    <div><div class="form_item">リビジョン<div><div><input type="number" id="revision" name="revision" size="8" value="<%= value.revision %>" /></div></div>
                     <div><div class="form_item">パス<div><div><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div></div>
                     <div><div class="form_item">作者<div><div><input type="text" id="writer" name="writer" size="20" value="<%= value.writer %>" /></div></div>
                     <div><div class="form_item">マーク<div><div><input type="text" id="mark" name="mark" size="20" value="<%= value.mark %>" /></div></div>
                     <div><div class="form_item">情報<div><div><input type="text" id="info" name="info" size="150" value="<%= value.info %>" /></div></div>
                     <div><div class="form_item">バックアップ<div><div><input type="text" id="backup" name="backup" size="150" value="<%= value.backup %>" /></div></div>
-                    <div><div class="form_item">サムネール<div><div><input type="number" id="bindata" name="bindata" size="6" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div></div>
+                    <div><div class="form_item">サムネール<div><div><input type="number" id="bindata" name="bindata" size="8" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div></div>
                     <div style="margin-top:15px;">
                         <input type="submit" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
                         <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " onclick="javascript: confirmDocument()" />&nbsp;

@@ -4,10 +4,13 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const fso = require('./FileSystem.js');
+const cmo = require('./Common.js');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
 const mysql = require('./MySQL.js');
 const log4js = require('log4js');
+const {exec} = require("child_process");
+const aws = require('aws-sdk');
 const router = express.Router();
 const LIMIT = 200;
 const ENDLIMIT = 1000000;
@@ -684,6 +687,9 @@ router.get("/marksTable", (req, res) => {
             result.push(row);
         }
         else {
+            if (!tablename) {
+                tablename = "すべて";
+            }
             res.render("marksTable", {message:"テーブル指定：" + tablename, result:result});
         }
     });
@@ -701,7 +707,7 @@ router.get("/marksForm", (req, res) => {
         let sql = "SELECT id, mark, tablename, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Marks WHERE id=" + req.query.id;
         mysql.getRow(sql, (err, row) => {
             if (err) {
-                res.render("marksForm", {message:err.message, value:value});
+                res.render("sowInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
             }
             else {
                 value.id = req.query.id;
@@ -709,7 +715,30 @@ router.get("/marksForm", (req, res) => {
                 value.tablename = row.tablename;
                 value.info = row.info;
                 value.date = row.date;
-                res.render("marksForm", {message:"", value:value});
+                // マーク一覧
+                let sql = "SELECT DISTINCT mark, 'Pictures' AS tableName FROM Pictures UNION SELECT DISTINCT mark, 'Videos' AS tableName FROM Videos UNION SELECT DISTINCT mark, 'Music' AS tableName FROM Music UNION SELECT DISTINCT mark, 'Projects' AS tableName FROM Projects UNION SELECT DISTINCT mark, 'Documents' AS tableName FROM Documents";
+                let marks = [];
+                mysql.query(sql, (row) => {
+                    if (row) {
+                        marks.push(row);
+                    }
+                    else {
+                        res.render("marksForm", {message:"", value:value, marks:marks});
+                    }
+                });
+            }
+        });
+    }
+    else {
+        // マーク一覧
+        let sql = "SELECT DISTINCT mark, 'Pictures' AS tableName FROM Pictures UNION SELECT DISTINCT mark, 'Videos' AS tableName FROM Videos UNION SELECT DISTINCT mark, 'Music' AS tableName FROM Music UNION SELECT DISTINCT mark, 'Projects' AS tableName FROM Projects UNION SELECT DISTINCT mark, 'Documents' AS tableName FROM Documents";
+        let marks = [];
+        mysql.query(sql, (row) => {
+            if (row) {
+                marks.push(row);
+            }
+            else {
+                res.render("marksForm", {message:"", value:value, marks:marks});
             }
         });
     }
@@ -727,6 +756,10 @@ router.post("/marksForm", (req, res) => {
 
     let sql = null;
     let message = "";
+    if (value.tablename == "") {
+        res.render("showInfo", {title:"エラー", message:"テーブルが指定されていません。", icon:"cancel.png"});
+        return;
+    }
     if (id) {
         // 更新
         sql = `UPDATE Marks SET mark='${value.mark}', tablename='${value.tablename}', info='${value.info}' WHERE id = ${id}`;
@@ -739,10 +772,19 @@ router.post("/marksForm", (req, res) => {
     }
     mysql.execute(sql, (err) => {
         if (err) {
-            res.render("marksForm", {message:err.message, value:value});
+            res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
         }
         else {
-            res.render("marksForm", {message:message, value:value});
+            let sql = "SELECT DISTINCT mark, 'Pictures' AS tableName FROM Pictures UNION SELECT DISTINCT mark, 'Videos' AS tableName FROM Videos UNION SELECT DISTINCT mark, 'Music' AS tableName FROM Music UNION SELECT DISTINCT mark, 'Projects' AS tableName FROM Projects UNION SELECT DISTINCT mark, 'Documents' AS tableName FROM Documents";
+            let marks = [];
+            mysql.query(sql, (row) => {
+                if (row) {
+                    marks.push(row);
+                }
+                else {
+                    res.render("marksForm", {message:message, value:value, marks:marks});
+                }
+            });
         }
     });
 });
@@ -897,5 +939,278 @@ router.post("/replaceTitles", (req, res) => {
     });
 });
 
-// エクスポート
+// Marks テーブルへの一括登録
+router.get("/marksInsert", async (req, res) => {
+    try {
+        let sql = "SELECT DISTINCT mark, 'Pictures' AS tableName FROM Pictures UNION SELECT DISTINCT mark, 'Videos' AS tableName FROM Videos UNION SELECT DISTINCT mark, 'Music' AS tableName FROM Music UNION SELECT DISTINCT mark, 'Projects' AS tableName FROM Projects UNION SELECT DISTINCT mark, 'Documents' AS tableName FROM Documents";
+        let rows = await mysql.query_p(sql);
+        for (let a of rows) {
+            let sql2 = `REPLACE INTO Marks VALUES(NULL, '${a.mark}', '${a.tableName}', '', CURRENT_DATE())`;
+            await mysql.execute_p(sql2);
+        }
+        res.send("OK: 一括登録が終了しました。");    
+    }
+    catch (err) {
+        res.send(err.message);
+    }
+});
+
+// MySQL: コマンド実行 (GET)
+router.get("/mysqlExecCommand", (req, res) => {
+    res.render("mysqlExecCommand", {history:[], command:"", message:""});
+});
+
+// MySQL: コマンド実行 (POST)
+router.post("/mysqlExecCommand", (req, res) => {
+    let command = req.body.command;
+    let text = command + "\n" + "OK\n";
+    let result = [];
+    let fields = [];
+    if (command.toLowerCase().startsWith('select')) {
+        mysql.query(command, (row, fld) => {
+            if (row) {
+                result.push(row);
+                fields = fld;
+            }
+            else {
+                res.json({text:text, result:result, fields:fields});
+            }
+        });
+    }
+    else {
+        mysql.execute(command, (err) => {
+            if (err) {
+                res.json({text:err.message, result:result, fields:fields});
+            }
+            else {
+                res.json({text:text, result:result, fields:fields});
+            }
+        });
+    }
+});
+
+/* "mysql.json" から接続情報を読み取る。(ヘルパ関数) */
+const getConf = () => {
+    let confstr = fs.readFileSync("mysql.json", "utf-8");
+    let conf = JSON.parse(confstr);
+    return conf;
+}
+  
+// MySQL: ファイル実行 (GET)
+router.get("/mysqlExecFile", (req, res) => {
+    res.render("mysqlExecFile", {});
+});
+
+// MySQL: ファイル実行 (POST)
+router.post("/mysqlExecFile", (req, res) => {
+    let path = req.body.path.replace(/\\/g, "/");
+    let data = {
+        text: "",
+        error: ""
+    };
+    let conf = getConf();
+    let param = "-h localhost -u " + conf.user + " --password=" + conf.password + " -D " + conf.database + " -e \"source " + path + "\"";
+    exec("mysql " + param, (err, stdout, stderr) => {
+        if (err) {
+            res.json({text:"Error", error:err.message});
+        }
+        else {
+            res.json({text:stdout, error:stderr});
+        }
+    });
+});
+
+// ファイル保存
+router.post("/saveFile", (req, res) => {
+    let path = req.body.path;
+    let fileContent = req.body.fileContent;
+    fs.writeFile(path, fileContent, (err) =>{
+        if (err) {
+            res.send(err.message);
+        }
+        else {
+            let fileName = fso.getFile(path);
+            res.send(fileName + " へのファイル保存が完了しました。");
+        }
+    });
+});
+
+// MySQL: 情報表示 (GET)
+router.get("/mysqlMetaInfo", (req, res) => {
+    res.render("mysqlMetaInfo", {});
+});
+
+// MySQL: 情報表示 (POST)
+router.post("/mysqlMetaInfo", (req, res) => {
+    let page = req.body.page ? req.body.page : "databases";
+    let result = [];
+    let fields = [];
+    let sql = "";
+    switch (page) {
+        case "databases":
+            // データベース一覧
+            sql = "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM INFORMATION_SCHEMA.SCHEMATA";
+            break;
+        case "tables":
+            // テーブル一覧
+            sql = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE, DATE_FORMAT(CREATE_TIME, '%Y-%m-%d') AS CREATE_TIME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA <> 'information_schema'";
+            break;
+        case "routines":
+            // ルーチン一覧
+            sql = "SELECT SPECIFIC_NAME, ROUTINE_SCHEMA, ROUTINE_TYPE, DATE_FORMAT(CREATED, '%Y-%m-%d') AS CREATED FROM INFORMATION_SCHEMA.ROUTINES";
+            break;
+        case "indexes":
+            // インデックス一覧
+            sql = "SELECT INDEX_NAME, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.STATISTICS";
+            break;
+        default:
+            res.json({result:[], fields:[]});
+            break;
+    }
+    // クエリーを行う。
+    mysql.query(sql, (row, fld) => {
+        if (row) {
+            fields = fld;
+            result.push(row);
+        }
+        else {
+            let fnames = [];
+            for (let f of fields) {
+                fnames.push(f.name);
+            }
+            res.json({result:result, fields:fnames});
+        }
+    });
+
+});
+
+// MySQL テーブルカラム一覧
+router.get("/mysqlTableInfo", (req, res) => {
+    let sql = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA <> 'information_schema'";
+    let tables = [];
+    let fields = [];
+    let result = [];
+    mysql.query(sql, (row) => {
+        if (row) {
+            tables.push(row.TABLE_SCHEMA + "." + row.TABLE_NAME);
+        }
+        else {
+            if (req.query.table) {
+                let sql2 = "SELECT ORDINAL_POSITION, COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE, COLUMN_DEFAULT, COLUMN_KEY, EXTRA FROM INFORMATION_SCHEMA.COLUMNS";
+                let parts = req.query.table.split('.');
+                sql2 += ` WHERE TABLE_SCHEMA = '${parts[0]}' AND TABLE_NAME = '${parts[1]}'`;
+                mysql.query(sql2, (row, fld) => {
+                    if (row) {
+                        fields = fld;
+                        result.push(row);
+                    }
+                    else {
+                        let fnames = [];
+                        for (let f of fields) {
+                            fnames.push(f.name);
+                        }
+                        res.json({tables:tables, result:result, fields:fnames});
+                    }
+                });
+            }
+            else {
+                res.render("mysqlTableInfo", {tables:tables, message:"", result:null});
+            }
+        }
+    });
+});
+
+// MySQL ルーチン情報
+router.get("/mysqlRoutineInfo", (req, res) => {
+    let sql = "SELECT SPECIFIC_NAME, ROUTINE_SCHEMA, ROUTINE_TYPE FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA <> 'information_schema'";
+    let routines = [];
+    mysql.query(sql, (row) => {
+        if (row) {
+            routines.push(row.ROUTINE_SCHEMA + "." + row.SPECIFIC_NAME);
+        }
+        else {
+            if (req.query.routine) {
+                let parts = req.query.routine.split('.');
+                let code = "";
+                let sql2 = "SELECT ROUTINE_DEFINITION FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA='" + parts[0] + "' AND ROUTINE_NAME='" + parts[1] + "'";
+                mysql.getRow(sql2, (err, row) => {
+                    code = row.ROUTINE_DEFINITION;
+                    let parameters = [];
+                    let sql3 = "SELECT ORDINAL_POSITION, PARAMETER_MODE, PARAMETER_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.PARAMETERS WHERE SPECIFIC_SCHEMA='" + parts[0] + "' AND SPECIFIC_NAME='" + parts[1] + "'";
+                    mysql.query(sql3, (row) => {
+                        if (row) {
+                            parameters.push(row);
+                        }
+                        else {
+                            res.json({code:code, parameters:parameters, fields:['ORDINAL_POSITION', 'PARAMETER_MODE', 'PARAMETER_NAME', 'DATA_TYPE', 'CHARACTER_MAXIMUM_LENGTH'], message:""});
+                        }
+                    });
+                });
+            }
+            else {
+                res.render("mysqlRoutineInfo", {routines:routines, message:"", result:[]});
+            }
+        }
+    });
+});
+
+
+// AWS S3 (GET)
+router.get("/awsS3", (req, res) => {
+    res.render("awsS3", {});
+});
+
+// AWS S3 (POST)
+router.post("/awsS3", async (req, res) => {
+    let key = req.body.key;
+    let local = req.body.local;
+    let confPath = fso.getDirectory(__dirname).replace(/\\/g, "/") + "/aws_config.json";
+    aws.config.loadFromPath(confPath);
+    let s3 = new aws.S3();
+    if (req.body.backup) {
+        let data = await fs.promises.readFile(req.body.local);
+        let params = {
+            Bucket: req.body.bucket,
+            Key: req.body.key,
+            Body: data
+        };
+        s3.putObject(params, (err, data) => {
+            if (err) {
+                res.send("Error: " + err.message);
+            }
+            else {
+                res.send("OK: " + req.body.local + " をアップロードしました。");
+            }
+        });
+    }
+    else {
+        let params = {
+            Bucket: req.body.bucket,
+            Key: req.body.key
+        };
+        s3.getObject(params, (err, data) => {
+            if (err) {
+                res.send("Error: " + err.message);
+            }
+            else {
+                fs.writeFile(req.body.local, data.Body.toString(), (err) => {
+                    if (err) {
+                        res.send("Error: " + err.message);
+                    }
+                    else {
+                        res.send("OK: " + req.body.local + " にダウンロードしたキーのデータが保存されました。");
+                    }
+                });
+            }
+        });
+    }
+});
+
+// Google Drive
+router.get("/googleDrive", (req, res) => {
+    res.render("googleDrive", {});
+});
+
+
+/* エクスポート */
 module.exports = router;
