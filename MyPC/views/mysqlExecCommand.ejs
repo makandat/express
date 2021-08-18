@@ -64,6 +64,15 @@
                             alert("コマンドが空欄です。")
                             return;
                         }
+                        let ucommand = app.command.toUpperCase();
+                        if (ucommand.startsWith('UPDATE') || ucommand.startsWith('DELETE') && ucommand.includes("WHERE") == false) {
+                            if (!confirm("WHERE 句がありません。このまま実行すると危険です。実行しますか?"))
+                                return;
+                        }
+                        if (ucommand.startsWith('TRUNCATE')) {
+                            if (!confirm("危険なコマンドです。本当に実行しますか?"))
+                                return;
+                        }
                         let data = {
                             'command': app.command
                         };

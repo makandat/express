@@ -29,6 +29,11 @@
                 font-size: small;
                 color: darkmagenta;
             }
+            #clickedPaths {
+                display: "none";
+                font-size: 10pt;
+                color: darkviolet;
+            }
         </style>
         <script src="/js/jquery.min.js"></script>
         <script>
@@ -76,6 +81,10 @@
                 /* 廃止されたが動作可能 */
                 document.execCommand('copy');
                 $("#copied").css("visibility", "visible");
+                // localStorage にパスを保存
+                let pathlist = localStorage.getItem("clickedPathList");
+                pathlist += text + "\n";
+                localStorage.setItem("clickedPathList", pathlist);
             }
 
             // 親のディレクトリを得る。
@@ -103,6 +112,28 @@
                     }
                     return parent;
                 }
+            }
+
+            // クリックしたパス一覧を表示
+            function showClickedPaths() {
+                let str = localStorage.getItem("clickedPathList");
+                let plist = str.split(/\n/g);
+                let html = "<ul>\n";
+                for (let p of plist) {
+                    if (p) {
+                        html += "<li>" + p + "</li>\n";
+                    }
+                }
+                html += "\n</ul>\n";
+                $("#clickedPaths").html(html);
+                $("#clickedPaths").css('display', 'block');
+            }
+
+            // クリックしたパス一覧を消去
+            function clearClickedPaths() {
+                localStorage.setItem("clickedPathList", "");
+                $("#clickedPaths").html("");
+                $("#clickedPaths").css('display', 'none');
             }
         </script>
     </head>
@@ -141,6 +172,10 @@
                 <a href="/computer/zipfile" target="_blank"><img src="/img/tool2.png" /> 圧縮ファイルの解凍・作成</a>
                 &nbsp;|&nbsp;
                 <a href="/computer/textEditor" target="_blank"><img src="/img/business2.png" /> テキストエディタ</a>
+                &nbsp;|&nbsp;
+                <a href="javascript:showClickedPaths()"> クリックしたパス一覧を表示</a>
+                &nbsp;|&nbsp;
+                <a href="javascript:clearClickedPaths()"> クリックしたパス一覧を消去</a>
                 <br />
                 <form class="upload_region" enctype="multipart/form-data" method="POST" action="/computer/upload">
                     <b>ファイルアップロード</b>　<input type="file" name="uploadFile" />&nbsp;<input type="submit" value=" アップロード " />
@@ -148,6 +183,7 @@
             </div>
         </header>
         <article>
+            <div id="clickedPaths"></div>
             <% if (result.length > 0) { %>
                 <p class="comment">項目 No.(番号) をクリックするとパスをコピーします。</p>
                 <table style="width:100%;">

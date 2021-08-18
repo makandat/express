@@ -65,6 +65,7 @@
             <ul>
                 <li><a href="/extra/newBackup" target="_blank">バックアップテーブルを作る</a></li>
                 <li><a href="/extra/removeBackup" target="_blank">古いバックアップテーブルを削除する</a></li>
+                <li><a href="/extra/exportImportTable" target="_blank">テーブルのエクスポートとインポート</a></li>
             </ul>
             <br />
             <!-- レコード識別マーク一覧 -->
@@ -241,7 +242,7 @@
                     </div>
                 </div>
                 <div class="form_row">
-                    <div class="form_item">ファイルリスト</div>
+                    <div class="form_item">ファイルリスト <button type="button" v-on:click="pasteButton_Click">クリックされたパスリストを貼り付け</button> (「コンピュータ」のパスをクリックしてリストを作れます。)</div>
                     <div class="form_item"><textarea name="fileList" v-model="fileList" cols="150" rows="12"></textarea></div>
                 </div>
                 <div class="form_row" style="margin-bottom:10px;">
@@ -505,6 +506,10 @@
                             insertFileList.message = "データ登録が完了しました。" + data;
                         })
                         .catch(err => insertFileList.message = err.message);
+                    },
+                    pasteButton_Click: () => {
+                        insertFileList.fileList = localStorage.getItem("clickedPathList");
+                        localStorage.setItem("clickedPathList", "");
                     }
                 }
             });

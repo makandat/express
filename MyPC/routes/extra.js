@@ -4,7 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const fso = require('./FileSystem.js');
-const cmo = require('./Common.js');
+const readline = require('readline');
 const multer = require('multer');
 const upload = multer({ dest: './uploads/' });
 const mysql = require('./MySQL.js');
@@ -33,6 +33,23 @@ router.get('/', (req, res) => {
     logger.debug("extra.get(\"/\")");
     res.render("extra", {});
 });
+
+// アメリカ式の日付 (ex. Fri Aug 13 2021) を日本式 (2021-08-13) に変換する。
+function convertDateFormat(us) {
+    if (/GMT\+\d\d\d\d/.test(us)) {
+        let parts = us.toString().split(' ');
+        let jp = parts[3] + "-";
+        let map = {
+            "Jan":"01", "Feb":"02", "Mar":"03", "Apr":"04", "May":"05", "Jun":"06", "Jul":"07", "Aug":"08", "Sep":"09", "Oct":"10", "Nov":"11", "Dec":"12"
+        }
+        jp += map[parts[1]] + "-";
+        jp += parts[2];
+        return jp;
+    }
+    else {
+        return us;
+    }
+}
 
 // BINDATA テーブルの内容
 router.get("/bindatalist", async (req, res) => {
@@ -463,6 +480,84 @@ router.post("/removeBackupTables", async (req, res) => {
     }
 });
 
+// エクスポートとインポート (GET)
+router.get("/exportImportTable", (req, res) => {
+    res.render("exportImportTable", {});
+});
+
+// エクスポートとインポート (POST)
+router.post("/exportImportTable", (req, res) => {
+    let fileName = req.body.fileName.replace(/\\/g, "/");
+    let tableName = req.body.tableName;
+    if (req.body.operation == "export") {
+        // エクスポート
+        let writer = fs.createWriteStream(fileName);
+        writer.on("error", err => {
+            res.send("エラー： " + err.message);
+        });
+        mysql.query("SELECT * FROM " + tableName, (row, fields) => {
+            if (row) {
+                let line = "";
+                for (let fn of fields) {
+                    line += convertDateFormat(row[fn.name]) + "\t";
+                }
+                line = line.substring(0, line.length - 1) + "\n";
+                writer.write(line);
+            }
+            else {
+                writer.close();
+                res.send(`テーブル ${tableName} をファイル ${fileName} へエクスポートしました。`);
+            }
+        });
+    }
+    else {
+        // インポート
+        /* let reader = fs.createReadStream(fileName);
+        let rdif = readline.createInterface({input:reader});
+        rdif.on('line', (line) => {
+            let parts = line.split(/\t/g);
+            switch (tableName.toLowerCase()) {
+                case "album":
+                    break;
+                case "pictures":
+                    break;
+                case "videos":
+                    break;
+                case "music":
+                    break;
+                case "playlists":
+                    break;
+                case "projects":
+                    break;
+                case "documents":
+                    break;
+                default: // marks
+                    break;
+            }
+        });
+        rdif.on('close', () => {
+            res.send(`ファイル ${fileName} をテーブル ${tableName} へインポートしました。`);
+        });     */
+
+        let sql = `LOAD DATA LOCAL INFILE '${fileName}' INTO TABLE ${tableName} FIELDS TERMINATED BY '\t'`;
+        mysql.execute("TRUNCATE TABLE " + tableName, err => {
+            if (err) {
+                res.send("エラー：" + err.message);
+            }
+            else {
+                mysql.execute(sql, err => {
+                    if (err) {
+                        res.send("エラー：" + err.message);
+                    }
+                    else {
+                        res.send(`ファイル '${fileName}' の内容をテーブル '${tableName}' にインポートしました。`);
+                    }
+                });
+            }
+        });
+    }
+});
+
 // 一括データ挿入
 router.post("/bulkInsert", async (req, res) => {
     let folder = req.body.folder.replace(/\\/g, "/");
@@ -831,18 +926,20 @@ router.post('/insertFileList', (req, res) => {
     for (let path of files) {
         path = path.trim().replace(/\\/g, "/").replace(/'/g, "''");
         let title = fso.getFileName(path).split(".")[0];
-        switch (tableName) {
-            case "Pictures":
-                sql += `(NULL, 0, '${title}', 'CREATOR', '${path}', 'MEDIA', '${mark}', '', 0, 0, 0, CURRENT_DATE(), 0), `;
-                break;
-            case "Videos":
-                sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', 'SERIES', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0), `;
-                break;
-            case "Music":
-                sql += `(NULL, 0, '${title}', '${path}', 'ARTIST', 'MEDIA', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0), `;
-                break;
-            default:
-                break;
+        if (fso.exists(path)) {
+            switch (tableName) {
+                case "Pictures":
+                    sql += `(NULL, 0, '${title}', 'CREATOR', '${path}', 'MEDIA', '${mark}', '', 0, 0, 0, CURRENT_DATE(), 0), `;
+                    break;
+                case "Videos":
+                    sql += `(NULL, 0, '${title}', '${path}', 'MEDIA', 'SERIES', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0), `;
+                    break;
+                case "Music":
+                    sql += `(NULL, 0, '${title}', '${path}', 'ARTIST', 'MEDIA', '${mark}', '', 0, 0, 0, CURRENT_DATE, 0), `;
+                    break;
+                default:
+                    break;
+            }    
         }
     }
     sql = sql.substring(0, sql.length - 2);

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>AWS S3 ヘルプ</title>
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_green.png" /></a> AWS S3 ヘルプ</h1>
+            <hr style="color:deepskyblue;" />    
+        </header>
+        <article>
+            <h2>AWS S3 を使うための準備</h2>
+            <p>AWS とは Amazon Web Service の略で S3 は Simple Storage Service の略です。</p>
+            <p>S3 を使うためには AWS マネージメントコンソールから IAM にアクセスして認証情報を作成するか、前にダウンロードしておいた認証情報が必要になります。</p>
+            <p>具体的にはアクセスキーと秘密キーが必要になります。</p>
+            <p>AWS CLI をインストールしてある場合、これらはファイル ~/.aws/credentials (Linux) あるいは C:/Users/user/.aws/credentials (Windows) に含まれています。</p>
+            <p>そうでない場合は、自身で保存しておいた認証情報ファイルから取得します。</p>
+            <p>MyPC フォルダ内に aws_config.json というファイルをエディタで作成します。その内容は次の例のようにします。</p>
+            <pre class="src">
+                { "accessKeyId": "AKIAII*******ASJBW45A", "secretAccessKey": "hb3yJrVOD*******rNPK/7ir6Mae*****miaqD8w", "region": "******" }</pre>
+            <p>accessKeyId と secretAccessKey は credentials からコピーします。region はバケットを作った場所で、例えば "us-east-1" とかです。</p>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

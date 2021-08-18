@@ -279,17 +279,62 @@ router.post('/musicForm', async (req, res) => {
 });
 
 // 音楽演奏フォーム (id 指定)
-router.get('/playForm/:id', (req, res) => {
-    let id = req.params.id;
-    mysql.getRow("SELECT title, path FROM Music WHERE id=" + id, (err, row) =>{
-        if (err) {
-            res.render('showInfo', {title:"エラー " + row.title, icon:"cancel.png", message:err.message});
+router.get('/playForm/:id', async (req, res) => {
+    const MSG = "音楽ファイルの形式によっては音が鳴らないことがあります。パスが間違っている場合も同様です。";
+    let id = req.params.id ? req.params.id : 0;
+    if (id == 'prev') {
+        let id = session.music_playid - 1;
+        if (id == 0) {
+            res.render('showInfo', {title:"エラー", icon:"cancel.png", message:"もう音楽がありません。"});
+            return;
         }
-        else {
-            countup(id);
-            res.render('playForm', {title:row.title, path:row.path, message:"音楽ファイルの形式によっては音が鳴らないことがあります。"});
+        while (id > 0) {
+            let sql = `SELECT title, path FROM Music WHERE id=${id}`;
+            let row = await mysql.getRow_p(sql);
+            if (row) {
+                session.music_playid = id;
+                countup(id);
+                res.render('playForm', {title:row.title, path:row.path, message:"(" + id + ") " + row.path});
+                return;
+            }
+            else {
+                id--;
+            }
+        }        
+    }
+    else if (id == 'next') {
+        let id = session.music_playid + 1;
+        let maxId = await mysql.getValue_p("SELECT MAX(id) FROM Music");
+        if (id > maxId) {
+            res.render('showInfo', {title:"エラー", icon:"cancel.png", message:"もう音楽がありません。"});
+            return;
         }
-    });
+        while (id <= maxId) {
+            let sql = `SELECT title, path FROM Music WHERE id=${id}`;
+            let row = await mysql.getRow_p(sql);
+            if (row) {
+                session.music_playid = id;
+                countup(id);
+                res.render('playForm', {title:row.title, path:row.path, message:"(" + id + ") " + row.path});
+                return;
+            }
+            else {
+                id++;
+            }
+        }     
+    }
+    else {
+        session.music_playid = parseInt(id);
+        mysql.getRow("SELECT title, path FROM Music WHERE id=" + id, (err, row) =>{
+            if (err) {
+                res.render('showInfo', {title:"エラー " + row.title, icon:"cancel.png", message:err.message});
+            }
+            else {
+                countup(id);
+                res.render('playForm', {title:row.title, path:row.path, message:MSG});
+            }
+        });
+    }
 });
 
 // 音楽演奏フォーム (path 指定)
@@ -574,6 +619,50 @@ function getCriteria(search, mark) {
     }
     return criteria;
 }
+
+// 音楽を返す。
+router.get('/play/:move', async (req, res) => {
+    let move = req.params.move;
+    let path = req.query.path;
+    let sql = `SELECT id FROM Music WHERE path = '${path}'`;
+    let id0 = await mysql.getValue_p(sql);
+    switch (move) {
+        case "prev": {
+                let id = id0 - 1;
+                while (id > 0) {
+                    sql = `SELECT path FROM Music WHERE id='${id}'`;
+                    let p = await mysql.getValue_p(sql);
+                    if (p) {
+                        res.sendFile(p);
+                        return;
+                    }
+                    else {
+                        id--;
+                    }
+                } 
+            }           
+            break;
+        case "next": {
+                let id = id0 + 1;
+                let maxId = await mysql.getValue_p("SELECT MAX(id) FROM Music");
+                while (id <= maxId) {
+                    sql = `SELECT path FROM Music WHERE id=${id}`;
+                    let p = await mysql.getValue_p(sql);
+                    if (p) {
+                        res.sendFile(p);
+                        return;
+                    }
+                    else {
+                        id++;
+                    }
+                }
+            }            
+            break;
+        default:
+            res.sendFile(path);
+            break;
+    }
+});
 
 
 // ルータをエクスポート

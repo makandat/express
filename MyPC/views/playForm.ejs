@@ -4,18 +4,32 @@
         <meta charset="utf-8" />
         <title><%= title %></title>
         <link rel="stylesheet" href="/css/style.css" />
+        <script>
+            // 使用しない
+            function playPrev(path) {
+                let player = document.getElementById('player');
+                player.src = "/music/play/prev?path=" + path;
+                player.load();
+            }
+            // 使用しない
+            function playNext(path) {
+                let player = document.getElementById('player');
+                player.src = "/music/play/next?path=" + path;
+                player.load();
+            }
+        </script>
     </head>
 
     <article>
         <!-- 音楽プレーヤー -->
         <h1><a href="/"><img src="/img/home_blue.png" /></a>&nbsp;<%= title %></h1>
         <hr />
-        <figure style="text-align:center;margin-top:30px;">
-            <audio
-                controls
-                src="/sendfile?path=<%= path %>">
-            </audio>
-        </figure>
+        <div style="text-align:center;margin-top:30px;">
+            <audio id="player" src="/music/play/current?path=<%= path %>" controls></audio>
+            <br />
+            <a href="/music/playForm/prev">前の曲 <img src="/img/prev.svg" /></a>&nbsp;
+            <a href="/music/playForm/next"><img src="/img/next.svg" /> 次の曲</a>&nbsp;
+        </div>
     </article>
 
     <footer>

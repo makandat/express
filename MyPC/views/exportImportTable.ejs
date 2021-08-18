@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>テーブルのエクスポートとインポート</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/vue.js"></script>
+        <style>
+            fieldset {
+                border-width:0px;
+                padding:5px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1><a href="/"><img src="/img/home_orange.png" /></a> テーブルのエクスポートとインポート</h1>
+            <p class="comment">TSV 形式のファイルをエクスポートとインポートします。</p>
+        </header>
+        <article id="app">
+            <fieldset class="form_item">
+                <label><input type="radio" name="operation" value="export" v-model="operation" /> エクスポート</label>
+                &nbsp;&nbsp;
+                <label><input type="radio" name="operation" value="import" v-model="operation" /> インポート</label>
+            </fieldset>
+            <fieldset>
+                <div class="form_item">エクスポート先あるいはインポート元のファイル</div>
+                <div class="form_item"><input type="text" v-model="fileName" size="120" /></div>
+            </fieldset>
+            <fieldset>
+                <div class="form_item">テーブル</div>
+                <select v-model="tableName">
+                    <option value="Albums">Albums</option>
+                    <option value="Pictures">Pictures</option>
+                    <option value="Videos">Videos</option>
+                    <option value="Music">Music</option>
+                    <option value="Projects">Projects</option>
+                    <option value="Documents">Documents</option>
+                    <option value="Playlists">Playlists</option>
+                    <option value="Marks">Marks</option>
+                </select>
+            </fieldset>
+            <fieldset>
+                <input type="button" value=" 実行する " v-on:click="execButton_Click" />
+            </fieldset>
+            <br />
+            <p class="message" v-text="message"></p>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+        </footer>
+        <script>
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    operation: "export",
+                    fileName: "",
+                    tableName: "",
+                    message: ""
+                },
+                methods: {
+                    execButton_Click: () => {
+                        let data = {
+                            "operation": app.operation,
+                            "fileName": app.fileName,
+                            "tableName": app.tableName
+                        };
+                        fetch("/extra/exportImportTable", {"method":"POST", "headers":{"Content-Type":"application/json"}, "body":JSON.stringify(data)})
+                        .then(res => res.text())
+                        .then(text => {
+                            app.message = text;
+                        })
+                        .catch(err => this.apply.message = err.message);
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
