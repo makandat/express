@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `Pictures` (
   KEY `pictures_mark` (`mark`),
   KEY `pictures_date` (`date`),
   KEY `pictures_sn` (`sn`)
-) ENGINE=InnoDB AUTO_INCREMENT=21043 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- 動画 (Videos)
 CREATE TABLE IF NOT EXISTS `Videos` (
@@ -69,7 +69,7 @@ CREATE TABLE `Music` (
   UNIQUE KEY `path` (`path`),
   KEY `music_title` (`title`),
   KEY `music_path` (`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
 -- プロジェクト (Projects)

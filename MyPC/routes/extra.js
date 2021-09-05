@@ -286,7 +286,13 @@ router.post("/bindataForm", upload.single('dataFileClient'), async (req, res) =>
         original = req.file.originalname;  // アップロードされた画像ファイルを使うとき
     }
     else if (value.dataFileServer) {
-        original = value.dataFileServer;  // サーバ側の画像ファイルを使うとき
+        if (fso.exists(value.dataFileServer)) {
+            original = value.dataFileServer;  // サーバ側の画像ファイルを使うとき
+        }
+        else {
+            res.render("showInfo", {title:"エラー", message:"存在しないパスが指定されました。", icon:"cancel.png"});
+            return;
+        }
     }
     else {
         original = null;  // 画像データが変更ないとき

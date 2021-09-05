@@ -581,6 +581,7 @@ router.get("/extract/:id", async (req, res) => {
       type = "image/jpeg";
       break;
     default:
+      type = row.datatype;
       break;
   }
   res.set("Content-Type", type);

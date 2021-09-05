@@ -30,6 +30,16 @@
                     }
                 });
             });
+
+            function reloadPage() {
+                if (location.href.includes('move=')) {
+                    let newlocation = location.href.replace(/move=.+/, 'move=0');
+                    location.href = newlocation;
+                }
+                else {
+                    location.reload();
+                }
+            }
         </script>
     </head>
 
@@ -39,7 +49,7 @@
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <a href="/music/showContent?reset=true"><img src="/img/home.png"> 表示リセット</a>&nbsp;|&nbsp;
-                <a href="javascript:location.href='/music/showContent?move=0'"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
+                <a href="javascript:reloadPage()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/music/musicForm/" target="_blank"><img src="/img/form.png" /> 音楽の追加・修正</a>&nbsp;|&nbsp;
                 <a href="/music/musicPlForm/" target="_blank"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
                 <a href="/music/showContent?fav=1" target="_blank"><img src="/img/heart2.png" /> 好き</a>&nbsp;|&nbsp;
@@ -61,11 +71,6 @@
                 <img src="/img/sortdir.png" />&nbsp;
                 (<a href="/music/showContent?sortdir=asc"><%= dirasc %>昇順</a>&nbsp;/&nbsp;
                 <a href="/music/showContent?sortdir=desc"><%= dirdesc %>降順</a>&nbsp;
-                <select id="orderby" style="display:none;">
-                    <option value="id">id</option>
-                    <option value="title">タイトル</option>
-                    <option value="date">日付</option>
-                </select>)
             </div>
         </header>
         <article>

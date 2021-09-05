@@ -33,6 +33,16 @@
                     location.href = "/pictures/showContent?mark=" + $("#marks").val();
                 });
             });
+
+            function reloadPage() {
+                if (location.href.includes('move=')) {
+                    let newlocation = location.href.replace(/move=.+/, 'move=0');
+                    location.href = newlocation;
+                }
+                else {
+                    location.reload();
+                }
+            }
         </script>
     </head>
 
@@ -42,7 +52,7 @@
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <a href="/pictures/showContent?reset=true"><img src="/img/clear2.png"> 表示リセット</a>&nbsp;|&nbsp;
-                <a href="javascript:location.href='/pictures/showContent?move=0'"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
+                <a href="javascript:reloadPage();"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/pictures/picturesForm/" target="_blank"><img src="/img/form.png" /> 画像フォルダの追加・修正</a>&nbsp;|&nbsp;
                 <a href="/pictures/creators/" target="_blank"><img src="/img/photo2.png" /> 作者一覧</a>&nbsp;|&nbsp;
                 <a href="/pictures/showContent?fav=1" target="_blank"><img src="/img/heart2.png" /> 好き</a>&nbsp;|&nbsp;

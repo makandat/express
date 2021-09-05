@@ -3,12 +3,11 @@
 const express = require('express');
 const session = require('express-session');
 const mysql = require('./MySQL.js');
-const dto = require('./DateTime.js');
 const fso = require('./FileSystem.js');
 const os = require("os");
 const router = express.Router();
 const LIMIT = 1000;
-const ENDLIMIT = 1000000;
+const SELECT = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music";
 
 // Music アルバム一覧表示
 router.get('/', async (req, res) => {
@@ -16,108 +15,80 @@ router.get('/', async (req, res) => {
     session.music_orderby = null;
     session.music_sortdir = null;
     session.music_search = null;
-    session.music_start = 1;
+    session.music_offset = 0;
     res.render('music', {title:"Music " + os.hostname(), message:""});
 });
 
 // Music 項目一覧表示
 router.get('/showContent', async (req, res) => {
     let title = "音楽の一覧 ";
+    session.music_orderby = "id";
+    if (req.query.fav) {
+        showFavlist(res);
+        return;
+    }
+    if (req.query.series) {
+        showWithSeries(req.query.series, res);
+        return;
+    }
+    if (!session.music_offset) {
+        session.music_offset = 0;
+    }
     let album = req.query.album;
-    if (album == undefined) {
+    if (!album) {
         album = 0;
     }
-    let ms = await mysql.query_p("SELECT DISTINCT mark FROM Music");
-    let marks = [];
-    for (let m of ms) {
-        marks.push(m.mark);
-    }
-    let fav = req.query.fav;
-    if (fav) {
-        const FAVSQL = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music WHERE fav > 0 ORDER BY fav DESC";
-        let result = [];
-        try {
-            mysql.query(FAVSQL, (row) => {
-                if (row) {
-                    result.push(row);
-                }
-                else {
-                    res.render('musiclist', {"title":"好きな" + title, "album":"",  "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:"", dirdesc:"●", search:""});
-                }
-            });   
-        }
-        catch (err) {
-            res.render('showInfo', {"title":"Fatal Error", "icon":"cancel.png", "message":"致命的エラー：" + err.message});
-        }
-        return;
-    }
-    let artist = req.query.artist;
-    if (artist) {
-        const ARTSQL = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music WHERE artist = '" +artist +"' ORDER BY artist";
-        let result = [];
-        try {
-            mysql.query(ARTSQL, (row) => {
-                if (row) {
-                    result.push(row);
-                }
-                else {
-                    res.render('musiclist', {"title":"アーティスト一覧", "album":"", "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "●", dirasc:"", dirdesc:"", search:""});
-                }
-            });    
-        }
-        catch (err) {
-            res.render('showInfo', {"title":"Fatal Error", "icon":"cancel.png", "message":"致命的エラー：" + err.message});
-        }
-        return;
-    }
-
+    let albumName = "";
     if (album > 0) {
-        session.music_orderby = "id";
-        session.music_sortdir = session.music_sortdir ? session.music_sortdir : "asc";
-        session.music_search = null;
-        session.music_start = 1;
-        session.music_mark = null;
-        session.music_album = album;
         title += ` (アルバム=${album})`;
+        session.music_orderby = "id";
+        session.music_sortdir = session.music_sortdir ? session.music_sortdir : "desc";
+        session.music_search = null;
+        session.music_album = album;
+        albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " AND mark='music'");
     }
     if (req.query.reset) {
         session.music_album = 0;
         session.music_orderby = "id";
-        session.music_sortdir = "asc";
+        session.music_sortdir = "desc";
         session.music_search = null;
         session.music_mark = null;
-        session.music_start = 1;
-        session.music_end = ENDLIMIT;
+        session.music_offset = 0;
     }
     if (req.query.sortdir) {
-        session.videos_sortdir = req.query.sortdir;
+        session.music_sortdir = req.query.sortdir;
+        session.music_offset = 0;
     }
+    let dirasc = "";
+    let dirdesc = "●";
+    if (session.music_sortdir == "desc") {
+        dirasc = "";
+        dirdesc = "●";
+    }
+    else {
+        session.music_sortdir = "asc";
+        dirasc = "●";
+        dirdesc = "";
+    }
+    // クエリーを行う。
     try {
         let sql = await makeSQL(req);
-        let result = [];
-        mysql.query(sql, (row) => {
-            if (row) {
-                result.push(row);
-            }
-            else {
-                let dirasc = "●";
-                let dirdesc = "";
-                if (req.query.sortdir == "desc") {
-                    dirasc = "";
-                    dirdesc = "●";
-                    session.music_start = 1000000;
-                }
-                else {
-                    dirasc = "●";
-                    dirdesc = "";
-                    session.music_start = 1;
-                }
-                res.render('musiclist', {"title":title, "album":album,  "result": result, "marks":marks, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});
-            }
-        });    
+        let result = await mysql.query_p(sql);
+        if (result.length > 0) {
+            session.music_end = result[result.length - 1].id;
+        }
+        // 結果を返す。
+        let rows = await mysql.query_p("SELECT DISTINCT mark FROM Music");
+        let marks = [];
+        for (let row of rows) {
+            marks.push(row.mark);
+        }
+        res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "marks":marks,
+            "message": result.length == 0 ? "条件に合う結果がありません。" : "",
+            dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});    
     }
     catch (err) {
-        res.render('showInfo', {"title":"Fatal Error", "icon":"cancel.png", "message":"致命的エラー：" + err.message});
+        res.render("showInfo", {"title":"Fatal Error", "icon":"cancel.png", "message":"エラー：" + err.message});
     }
 });
 
@@ -377,213 +348,82 @@ router.get('/getmusic', (req, res) => {
     res.sendFile(path);
 });
 
-// SQL を構築する。
+// SQL を作成する。
 async function makeSQL(req) {
-    // アルバム指定あり？
-    if (!session.music_album) {
-        session.music_album = 0;
+    if (req.query.artiest) {
+        return SELECT + ` WHERE artist='${req.query.artist}' ORDER BY id DESC`;
     }
-    // 並び順のフィールド
-    if (req.query.orderby) {
-        session.music_orderby = req.query.orderby;
+    if (req.query.album) {
+        return SELECT + ` WHERE album=${req.query.album} ORDER BY id DESC`;
     }
-    else {
-        session.music_orderby = "id";
+    if (session.music_offset == undefined) {
+        session.music_offset = 0;
     }
-    // 並び替えの方向
-    if (req.query.sortdir) {
-        session.music_sortdir = req.query.sortdir;
-        if (session.music_sortdir == "desc") {
-            // 降順
-            session.music_start = ENDLIMIT;
-            session.music_end = 1;
+    if (session.music_sortdir == undefined) {
+        session.music_sortdir = "desc";
+    }
+
+    if (req.query.reset) {
+        session.music_offset = 0;
+        session.music_sortdir = "desc";
+        session.music_mark = undefined;
+    }
+    if (req.query.move) {
+        let sql2 = 'SELECT count(*) AS n FROM Pictures';
+        if (session.music_mark) {
+            sql2 += ` WHERE mark='${session.music_mark}'`;
         }
-        else {
-            // 昇順
-            session.music_start = 1;
-            session.music_end = ENDLIMIT;
+        let n = await mysql.getValue_p(sql2);
+        switch (req.query.move) {
+            case 'first':
+                session.music_offset = 0;
+                break;
+            case 'prev':
+                session.music_offset -= LIMIT;
+                if (session.music_offset < 0) {
+                    session.music_offset = 0;
+                }    
+                break;
+            case 'next':
+                session.music_offset += LIMIT;
+                if (session.music_offset >= n) {
+                    session.music_offset = n - 1;
+                }    
+                break;
+            case 'last':
+                session.music_offset = n - 1;
+                break;
+            default:  // '0'
+                break;
         }
     }
-    else {
-        session.music_start = 1;
-        session.music_end = ENDLIMIT;
-    }
-    // 検索文字列
-    if (req.query.search) {
-        session.music_search = req.query.search;
-    }
-    // 検索開始位置あり
-    if (req.query.start) {
-        session.music_start = req.query.start;
-        if (session.music_sortdir == "desc") {
-            session.music_end = 1;
-        }
-        else {
-            session.music_end = ENDLIMIT;
-        }
-    }
-    // マーク指定あり
+    let sql = SELECT;
+    let where = true;
     if (req.query.mark) {
+        sql += ` WHERE mark='${req.query.mark}'`;
         session.music_mark = req.query.mark;
+        session.music_offset = 0;
+        session.music_sortdir = "desc";
+        where = false;
+    }
+    else if (session.music_mark) {
+        sql += ` WHERE mark='${session.music_mark}'`;
+        where = false;
     }
     else {
-        session.music_mark = "";
+        // 何もしない。
     }
-    // 最大 id
-    let lastid = await mysql.getValue_p("SELECT MAX(id) From Music");
-
-    // ページ移動
-    if (req.query.move == "first") {
-        // 最初のページへ移動
-        session.music_start = session.music_sortdir == "asc" ? 1 : lastid;
-        session.music_end = ENDLIMIT;
-    }
-    else if (req.query.move == "last") {
-        // 最後のページへ移動
-        if (session.music_sortdir) {
-            if (session.music_sortdir == "asc") {
-                // 昇順
-                session.music_start = lastid;
-                session.music_end = ENDLIMIT;
-            }
-            else {
-                // 降順
-                let minId = await mysql.getValue_p("SELECT MIN(id) FROM Music");
-                session.music_start = minId;
-                session.music_end = minId;
-            }
+    if (req.query.search) {
+        let search = req.query.search.replace(/'/g, "''");
+        if (where) {
+            sql += ' WHERE ';
         }
         else {
-            session.music_sortdir = "asc";
-            session.music_start = lastid;
-            session.music_end = ENDLIMIT;
+            sql += ' AND ';
         }
+        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR artiest LIKE '%${search}%' OR info LIKE '%${search}%')`;        
     }
-    else if (req.query.move == "prev") {
-        // 前のページへ移動
-        if (session.music_sortdir == "desc") {
-            // 降順の場合 (100, 99, 98, ...)
-            session.music_end = session.music_start;
-            let rows = await mysql.query_p(`SELECT id FROM Music WHERE id > ${session.music_start}`);
-            if (rows) {
-                let i = 0;
-                if (rows.length > LIMIT) {
-                    for (let a of rows) {
-                        if (i == LIMIT - 1) {
-                            session.music_start = a.id;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-                else {
-                    session.music_start = lastid;
-                    session.music_end = 1;
-                }
-            }
-            else {
-                session.music_end = 1;
-            }
-        }
-        else {
-            // 昇順の場合 (1, 2, 3, ...)
-            session.music_end = session.music_start;
-            let rows = await mysql.query_p(`SELECT id FROM Music WHERE id < ${session.music_start}`);
-            if (rows) {
-                let i = 0;
-                if (rows.length > LIMIT) {
-                    for (let a of rows) {
-                        if (rows.length - LIMIT == i) {
-                            session.music_start = a.id;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-                else {
-                    session.music_start = 1;
-                }
-            }
-            else {
-                session.music_start = 1;
-            }
-        }
-    }
-    else if (req.query.move == "next") {
-        // 次のページへ移動
-        if (session.music_sortdir == "desc") {
-            // 降順
-            session.music_start = session.music_end;
-        }
-        else {
-            // 昇順
-            session.music_sortdir = "asc";
-            session.music_start = session.music_end;
-        }
-    }
-    else {
-        // その他 そのまま
-    }
-
-    // SQL 文作成
-    let sql = "SELECT id, album, title, `path`, artist, media, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Music";
-    let needWhere = true;
-    let needAnd = true;
-    if (session.music_album > 0) {
-        // アルバム指定あり
-        sql += ` WHERE album=${session.music_album}`;
-        needWhere = false;
-        if (session.music_sortdir == "desc") {
-            sql += " AND id <= " + session.music_start;
-        }
-        else {
-            sql += " AND id >= " + session.music_start;
-        }
-        if (session.music_search || session.music_mark) {
-            sql += " AND " + getCriteria(session.music_search, session.music_mark);
-        }
-        else {
-            // そのまま
-        }
-    }
-    else {
-        // アルバム指定なし
-        if (session.music_sortdir == "desc") {
-            // 降順
-            sql += " WHERE id <= " + session.music_start;
-        }
-        else {
-            // 昇順
-            sql += " WHERE id >= " + session.music_start;
-        }
-        if (session.music_search || session.music_mark) {
-            sql += " AND " + getCriteria(session.music_search, session.music_mark);
-        }
-        else {
-            // そのまま
-        }
-    }
-    if (session.music_orderby) {
-        // 並び順指定あり
-        sql += " ORDER BY " + session.music_orderby;
-        if (session.music_sortdir) {
-            sql += " " + session.music_sortdir;
-        }
-        else {
-            // そのまま
-        }
-    }
-    else {
-        // 並び順指定なしは id とする。
-        sql += " ORDER BY id";
-        if (session.music_sortdir) {
-            sql += " " + session.music_sortdir;
-        }
-        else {
-            // そのまま
-        }
-    }
-    sql += ` LIMIT ${LIMIT}`;
+    sql += ` ORDER BY id ${session.music_sortdir} LIMIT ${LIMIT} OFFSET ${session.music_offset}`;
     return sql;
 }
 

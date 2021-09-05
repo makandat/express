@@ -8,7 +8,7 @@ const fso = require('./FileSystem.js');
 const os = require("os");
 const router = express.Router();
 const LIMIT = 1000;
-const ENDLIMIT = 10000000;
+const SELECT = "SELECT `id`, `album`, `title`, `creator`, `path`, `media`, `mark`, `info`, `fav`, `count`, `bindata`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
 
 // pictures アルバム一覧表示
 router.get('/', async (req, res) => {
@@ -16,8 +16,7 @@ router.get('/', async (req, res) => {
     session.pictures_orderby = null;
     session.pictures_sortdir = null;
     session.pictures_search = null;
-    session.pictures_start = 1;
-    session.pictures_end = ENDLIMIT;
+    session.pictures_offset = 0;
     res.render('pictures', {title:"画像管理 " + os.hostname(), message:""});
 });
 
@@ -32,10 +31,10 @@ router.get('/showContent', async (req, res) => {
         showWithCreator(req.query.creator, res);
         return;
     }
-    if (!session.pictures_start) {
-        session.pictures_start = 1;
-        session.pictures_end = ENDLIMIT;
+    if (!session.pictures_offset) {
+        session.pictures_offset = 0;
     }
+
     let album = req.query.album;
     if (!album) {
         album = 0;
@@ -47,23 +46,24 @@ router.get('/showContent', async (req, res) => {
         session.pictures_sortdir = session.pictures_sortdir ? session.pictures_sortdir : "asc";
         session.pictures_search = null;
         session.pictures_mark = null;
+        session.pictures_offset = 0;
         session.pictures_album = album;
         albumName = await mysql.getValue_p(`SELECT name FROM Album WHERE id = ${album} AND mark='picture'`);
     }
     if (req.query.reset) {
         session.pictures_album = 0;
         session.pictures_orderby = "id";
-        session.pictures_sortdir = "asc";
+        session.pictures_sortdir = "desc";
         session.pictures_search = null;
         session.pictures_mark = null;
-        session.pictures_start = 1;
-        session.pictures_end = ENDLIMIT;
+        session.pictures_offset = 0;
     }
     if (req.query.sortdir) {
         session.pictures_sortdir = req.query.sortdir;
+        session.pictures_offset = 0;
     }
-    let dirasc = "●";
-    let dirdesc = "";
+    let dirasc = "";
+    let dirdesc = "●";
     if (session.pictures_sortdir == "desc") {
         dirasc = "";
         dirdesc = "●";
@@ -78,11 +78,7 @@ router.get('/showContent', async (req, res) => {
         let marks = await mysql.query_p("SELECT DISTINCT mark FROM Pictures");
         // クエリーを行う。
         let sql = await makeSQL(req);
-        //console.log(sql);
         let result = await mysql.query_p(sql);
-        if (result.length > 0) {
-            session.pictures_end = result[result.length - 1].id;
-        }
         // 結果を返す。
         res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});    
     }
@@ -167,7 +163,7 @@ async function getNavIndex(dir, path) {
 
 // 「好き」の付いた画像フォルダ一覧
 function showFavlist(res) {
-    let sql = "SELECT id, album, title, creator, path, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures WHERE fav > 0 ORDER BY fav DESC";
+    let sql = SELECT + " WHERE fav > 0 ORDER BY fav DESC";
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
@@ -182,7 +178,7 @@ function showFavlist(res) {
 
 // 作者ごとの画像フォルダ一覧
 function showWithCreator(creator, res) {
-    let sql = "SELECT id, album, title, creator, path, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures WHERE creator = '" + creator + "'";
+    let sql = SELECT + " WHERE creator = '" + creator + "'";
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
@@ -385,208 +381,86 @@ router.get("/creators", (req, res) => {
     });
 });
 
-// SQL を構築する。
+
+// SQL を作成する。
 async function makeSQL(req) {
-    // アルバム指定あり？
-    if (!session.pictures_album) {
-        session.pictures_album = 0;
+    if (req.query.creator) {
+        return SELECT + ` WHERE creator='${req.query.creator}' ORDER BY id DESC`;
     }
-    // 並び順のフィールド
-    if (req.query.orderby) {
-        session.pictures_orderby = req.query.orderby;
+    if (req.query.album) {
+        return SELECT + ` WHERE album=${req.query.album} ORDER BY id DESC`;
     }
-    else {
-        session.pictures_orderby = "id";
+    if (session.pictures_offset == undefined) {
+        session.pictures_offset = 0;
     }
-    // 並び替えの方向
-    if (req.query.sortdir) {
-        session.pictures_sortdir = req.query.sortdir;
-        if (session.pictures_sortdir == "desc") {
-            // 降順
-            session.pictures_start = ENDLIMIT;
-            session.pictures_end = 1;
+    if (session.pictures_sortdir == undefined) {
+        session.pictures_sortdir = "desc";
+    }
+
+    if (req.query.reset) {
+        session.pictures_offset = 0;
+        session.pictures_sortdir = "desc";
+        session.pictures_mark = undefined;
+    }
+    if (req.query.move) {
+        let sql2 = 'SELECT count(*) AS n FROM Pictures';
+        if (session.pictures_mark) {
+            sql2 += ` WHERE mark='${session.pictures_mark}'`;
         }
-        else {
-            // 昇順
-            session.pictures_start = 1;
-            session.pictures_end = ENDLIMIT;
+        let n = await mysql.getValue_p(sql2);
+        switch (req.query.move) {
+            case 'first':
+                session.pictures_offset = 0;
+                break;
+            case 'prev':
+                session.pictures_offset -= LIMIT;
+                if (session.pictures_offset < 0) {
+                    session.pictures_offset = 0;
+                }    
+                break;
+            case 'next':
+                session.pictures_offset += LIMIT;
+                if (session.pictures_offset >= n) {
+                    session.pictures_offset = n - 1;
+                }    
+                break;
+            case 'last':
+                session.pictures_offset = n - 1;
+                break;
+            default:  // '0'
+                break;
         }
     }
-    // 検索文字列
-    if (req.query.search) {
-        session.pictures_search = req.query.search;
-    }
-    // 検索開始位置あり
-    if (req.query.start) {
-        session.pictures_start = req.query.start;
-        if (session.pictures_sortdir == "desc") {
-            session.pictures_end = 1;
-        }
-        else {
-            session.pictures_end = ENDLIMIT;
-        }
-    }
-    // マーク指定あり
+    let sql = SELECT;
+    let where = true;
     if (req.query.mark) {
+        sql += ` WHERE mark='${req.query.mark}'`;
         session.pictures_mark = req.query.mark;
+        session.pictures_offset = 0;
+        session.pictures_sortdir = "desc";
+        where = false;
+    }
+    else if (session.pictures_mark) {
+        sql += ` WHERE mark='${session.pictures_mark}'`;
+        where = false;
     }
     else {
-        session.pictures_mark = "";
+        // 何もしない。
     }
-    // 最大 id
-    let lastid = await mysql.getValue_p("SELECT MAX(id) From Pictures");
-
-    // ページ移動
-    if (req.query.move == "first") {
-        // 最初のページへ移動
-        session.pictures_start = session.pictures_sortdir == "asc" ? 1 : lastid;
-        session.pictures_end = ENDLIMIT;
-    }
-    else if (req.query.move == "last") {
-        // 最後のページへ移動
-        if (session.pictures_sortdir) {
-            if (session.pictures_sortdir == "asc") {
-                // 昇順
-                session.pictures_start = lastid;
-                session.pictures_end = ENDLIMIT;
-            }
-            else {
-                // 降順
-                let minId = await mysql.getValue_p("SELECT MIN(id) FROM Pictures");
-                session.pictures_start = minId;
-                session.pictures_end = minId;
-            }
+    if (req.query.search) {
+        let search = req.query.search.replace(/'/g, "''");
+        if (where) {
+            sql += ' WHERE ';
         }
         else {
-            session.pictures_sortdir = "asc";
-            session.pictures_start = lastid;
-            session.pictures_end = ENDLIMIT;
+            sql += ' AND ';
         }
+        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR creator LIKE '%${search}%' OR info LIKE '%${search}%')`;        
     }
-    else if (req.query.move == "prev") {
-        // 前のページへ移動
-        if (session.pictures_sortdir == "desc") {
-            // 降順の場合 (100, 99, 98, ...)
-            session.pictures_end = session.pictures_start;
-            let rows = await mysql.query_p(`SELECT id FROM Pictures WHERE id > ${session.pictures_start}`);
-            if (rows) {
-                let i = 0;
-                if (rows.length > LIMIT) {
-                    for (let a of rows) {
-                        if (i == LIMIT - 1) {
-                            session.pictures_start = a.id;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-                else {
-                    session.pictures_start = lastid;
-                    session.pictures_end = 1;
-                }
-            }
-            else {
-                session.pictures_end = 1;
-            }
-        }
-        else {
-            // 昇順の場合 (1, 2, 3, ...)
-            session.pictures_end = session.pictures_start;
-            let rows = await mysql.query_p(`SELECT id FROM Pictures WHERE id < ${session.pictures_start}`);
-            if (rows) {
-                let i = 0;
-                if (rows.length > LIMIT) {
-                    for (let a of rows) {
-                        if (rows.length - LIMIT == i) {
-                            session.pictures_start = a.id;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-                else {
-                    session.pictures_start = 1;
-                }
-            }
-            else {
-                session.pictures_start = 1;
-            }
-        }
-    }
-    else if (req.query.move == "next") {
-        // 次のページへ移動
-        if (session.pictures_sortdir == "desc") {
-            // 降順
-            session.pictures_start = session.pictures_end;
-        }
-        else {
-            // 昇順
-            session.pictures_sortdir = "asc";
-            session.pictures_start = session.pictures_end;
-        }
-    }
-    else {
-        // その他 そのまま
-    }
-
-    // SQL 文作成
-    let sql = "SELECT id, `album`, title, creator, `path`, `media`, `mark`, `info`, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
-    if (session.pictures_album > 0) {
-        // アルバム指定あり
-        sql += ` WHERE album=${session.pictures_album}`;
-        if (session.pictures_sortdir == "desc") {
-            sql += " AND id <= " + session.pictures_start;
-        }
-        else {
-            sql += " AND id >= " + session.pictures_start;
-        }
-        if (session.pictures_search || session.pictures_mark) {
-            sql += " AND " + getCriteria(session.pictures_search, session.pictures_mark);
-        }
-        else {
-            // そのまま
-        }
-    }
-    else {
-        // アルバム指定なし
-        if (session.pictures_sortdir == "desc") {
-            // 降順
-            sql += " WHERE id <= " + session.pictures_start;
-        }
-        else {
-            // 昇順
-            sql += " WHERE id >= " + session.pictures_start;
-        }
-        if (session.pictures_search || session.pictures_mark) {
-            sql += " AND " + getCriteria(session.pictures_search, session.pictures_mark);
-        }
-        else {
-            // そのまま
-        }
-    }
-    if (session.pictures_orderby) {
-        // 並び順指定あり
-        sql += " ORDER BY " + session.pictures_orderby;
-        if (session.pictures_sortdir) {
-            sql += " " + session.pictures_sortdir;
-        }
-        else {
-            // そのまま
-        }
-    }
-    else {
-        // 並び順指定なしは id とする。
-        sql += " ORDER BY id";
-        if (session.pictures_sortdir) {
-            sql += " " + session.pictures_sortdir;
-        }
-        else {
-            // そのまま
-        }
-    }
-    sql += ` LIMIT ${LIMIT}`;
+    sql += ` ORDER BY id ${session.pictures_sortdir} LIMIT ${LIMIT} OFFSET ${session.pictures_offset}`;
     return sql;
 }
+
 
 // 指定された id の fav を ＋１する。
 router.get('/favorite/:id', (req, res) => {

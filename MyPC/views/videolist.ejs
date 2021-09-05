@@ -7,9 +7,10 @@
         <script src="/js/jquery.min.js"></script>
         <script>
             $(() => {
-                $("#orderby").change(() => {
-                    location.href = "/videos/showContent?orderby=" + $("#orderby").val();
+                $("#marks").change(() => {
+                    location.href = "/videos/showContent?mark=" + $("#marks").val();
                 });
+            
                 $("#findButton").click(() => {
                     let val = $("#find").val();
                     if (val) {
@@ -29,6 +30,16 @@
                     }
                 });
             });
+
+            function reloadPage() {
+                if (location.href.includes('move=')) {
+                    let newlocation = location.href.replace(/move=.+/, 'move=0');
+                    location.href = newlocation;
+                }
+                else {
+                    location.reload();
+                }
+            }
         </script>
     </head>
 
@@ -38,13 +49,21 @@
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <a href="/videos/showContent?reset=true"><img src="/img/clear2.png"> 表示リセット</a>&nbsp;|&nbsp;
-                <a href="javascript:location.href='/videos/showContent?move=0'"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
+                <a href="javascript:reloadPage()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/videos/videosForm/" target="_blank"><img src="/img/form.png" /> 動画の追加・修正</a>&nbsp;|&nbsp;
                 <!-- 
                 <a href="/videos/playlistForm/"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
                 -->
                 <a href="/videos/series/" target="_blank"><img src="/img/list2.png" /> シリーズ一覧</a>&nbsp;|&nbsp;
                 <a href="/videos/showContent?fav=1/"><img src="/img/heart2.png" /> 好き</a>&nbsp;|&nbsp;
+                マーク <select id="marks">
+                    <option value="0">-- Select --</option>
+                    <% for (let m of marks) { %>
+                        <% if (m) { %>
+                            <option value="<%= m %>"><%= m %></option>
+                        <% } %>
+                    <% } %>
+                </select>&nbsp;|&nbsp;
                 <img src="/img/find2.png" /> 検索 <input type="text" id="find" size="22" /> <input type="button" id="findButton" value=" 検索 " />&nbsp;|&nbsp;
                 <img src="/img/find_go.png" /> id の指定 <input type="text" id="directID" size="5" /> <input type="button" id="idButton" value=" 移動 " />&nbsp;|&nbsp;
                 <a href="/videos/showContent?move=first"><img src="/img/first.svg" /> 先頭</a>&nbsp
@@ -53,13 +72,7 @@
                 <a href="/videos/showContent?move=last">最後 <img src="/img/last.svg" /></a>&nbsp;|&nbsp;
                 <img src="/img/sortdir.png" />&nbsp;
                 (<a href="/videos/showContent?sortdir=asc"><%= dirasc %>昇順</a>&nbsp;/&nbsp;
-                <a href="/videos/showContent?sortdir=desc"><%= dirdesc %>降順</a>&nbsp;
-                <!-- 表示中止 -->
-                <select id="orderby" style="display: none;">
-                    <option value="id">id</option>
-                    <option value="title">タイトル</option>
-                    <option value="date">日付</option>
-                </select>)
+                <a href="/videos/showContent?sortdir=desc"><%= dirdesc %>降順</a>)&nbsp;
             </div>
         </header>
         <article>

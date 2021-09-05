@@ -6,7 +6,7 @@ const mysql = require('./MySQL.js');
 const fso = require('./FileSystem.js');
 const router = express.Router();
 const LIMIT = 1000;
-const ENDLIMIT = 1000000;
+const SELECT = "SELECT id, album, title, path, media, series, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Videos";
 
 // 動画アルバム一覧表示
 router.get('/', async (req, res) => {
@@ -14,8 +14,7 @@ router.get('/', async (req, res) => {
     session.videos_orderby = "id";
     session.videos_sortdir = "asc";
     session.videos_search = null;
-    session.videos_start = 1;
-    session.videos_end = ENDLIMIT;
+    session.videos_offset = 0;
     let result = await mysql.query_p("SELECT a.id, a.name, COUNT(v.album) cnt, a.info, a.bindata, a.groupname, a.date FROM Album a, Videos v WHERE a.id = v.album AND a.mark = 'video' GROUP BY a.name ORDER BY cnt DESC");
     res.render('videos', {message:"", result:result});
 });
@@ -32,9 +31,8 @@ router.get('/showContent', async (req, res) => {
         showWithSeries(req.query.series, res);
         return;
     }
-    if (!session.videos_start) {
-        session.videos_start = 1;
-        session.videos_end = ENDLIMIT;
+    if (!session.videos_offset) {
+        session.videos_offset = 0;
     }
     let album = req.query.album;
     if (!album) {
@@ -44,7 +42,7 @@ router.get('/showContent', async (req, res) => {
     if (album > 0) {
         title += ` (アルバム=${album})`;
         session.videos_orderby = "id";
-        session.videos_sortdir = session.videos_sortdir ? session.videos_sortdir : "asc";
+        session.videos_sortdir = session.videos_sortdir ? session.videos_sortdir : "desc";
         session.videos_search = null;
         session.videos_album = album;
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id = " + album + " AND mark='video'");
@@ -52,17 +50,17 @@ router.get('/showContent', async (req, res) => {
     if (req.query.reset) {
         session.videos_album = 0;
         session.videos_orderby = "id";
-        session.videos_sortdir = "asc";
+        session.videos_sortdir = "desc";
         session.videos_search = null;
         session.videos_mark = null;
-        session.videos_start = 1;
-        session.videos_end = ENDLIMIT;
+        session.videos_offset = 0;
     }
     if (req.query.sortdir) {
         session.videos_sortdir = req.query.sortdir;
+        session.video_offset = 0;
     }
-    let dirasc = "●";
-    let dirdesc = "";
+    let dirasc = "";
+    let dirdesc = "●";
     if (session.videos_sortdir == "desc") {
         dirasc = "";
         dirdesc = "●";
@@ -74,225 +72,104 @@ router.get('/showContent', async (req, res) => {
     }
     // クエリーを行う。
     try {
+        let rows = await mysql.query_p("SELECT DISTINCT mark FROM Videos ORDER BY mark");
+        let marks = [];
+        for (let row of rows) {
+            marks.push(row.mark);
+        }
         let sql = await makeSQL(req);
-        //console.log(sql);
         let result = await mysql.query_p(sql);
         if (result.length > 0) {
             session.videos_end = result[result.length - 1].id;
         }
         // 結果を返す。
-        res.render('videolist', {"title":title, "albumName":albumName, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});    
+        res.render('videolist', {"title":title, "albumName":albumName, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "",
+         dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});    
     }
     catch (err) {
         res.render("showInfo", {"title":"Fatal Error", "icon":"cancel.png", "message":"エラー：" + err.message});
     }
 });
 
-// SQL を構築する。
+// SQL を作成する。
 async function makeSQL(req) {
-    // アルバム指定あり？
-    if (!session.videos_album) {
-        session.videos_album = 0;
+    if (req.query.series) {
+        return SELECT + ` WHERE series='${req.query.series}' ORDER BY id DESC`;
     }
-    // 並び順のフィールド
-    if (req.query.orderby) {
-        session.videos_orderby = req.query.orderby;
+    if (req.query.album) {
+        return SELECT + ` WHERE album=${req.query.album} ORDER BY id DESC`;        
     }
-    else {
-        session.videos_orderby = "id";
+    if (session.videos_offset == undefined) {
+        session.videos_offset = 0;
     }
-    // 並び替えの方向
-    if (req.query.sortdir) {
-        session.videos_sortdir = req.query.sortdir;
-        if (session.videos_sortdir == "desc") {
-            // 降順
-            session.videos_start = ENDLIMIT;
-            session.videos_end = 1;
+    if (session.videos_sortdir == undefined) {
+        session.videos_sortdir = "desc";
+    }
+
+    if (req.query.reset) {
+        session.videos_offset = 0;
+        session.videos_sortdir = "desc";
+        session.videos_mark = undefined;
+    }
+    if (req.query.move) {
+        let sql2 = 'SELECT count(*) AS n FROM Pictures';
+        if (session.videos_mark) {
+            sql2 += ` WHERE mark='${session.videos_mark}'`;
         }
-        else {
-            // 昇順
-            session.videos_start = 1;
-            session.videos_end = ENDLIMIT;
+        let n = await mysql.getValue_p(sql2);
+        switch (req.query.move) {
+            case 'first':
+                session.videos_offset = 0;
+                break;
+            case 'prev':
+                session.videos_offset -= LIMIT;
+                if (session.videos_offset < 0) {
+                    session.videos_offset = 0;
+                }    
+                break;
+            case 'next':
+                session.videos_offset += LIMIT;
+                if (session.videos_offset >= n) {
+                    session.videos_offset = n - 1;
+                }    
+                break;
+            case 'last':
+                session.videos_offset = n - 1;
+                break;
+            default:  // '0'
+                break;
         }
     }
-    // 検索文字列
-    if (req.query.search) {
-        session.videos_search = req.query.search;
-    }
-    // 検索開始位置あり
-    if (req.query.start) {
-        session.videos_start = req.query.start;
-        if (session.videos_sortdir == "desc") {
-            session.videos_end = 1;
-        }
-        else {
-            session.videos_end = ENDLIMIT;
-        }
-    }
-    // マーク指定あり
+    let sql = SELECT;
+    let where = true;
     if (req.query.mark) {
+        sql += ` WHERE mark='${req.query.mark}'`;
         session.videos_mark = req.query.mark;
+        session.videos_offset = 0;
+        session.videos_sortdir = "desc";
+        where = false;
+    }
+    else if (session.videos_mark) {
+        sql += ` WHERE mark='${session.videos_mark}'`;
+        where = false;
     }
     else {
-        session.videos_mark = "";
+        // 何もしない。
     }
-    // 最大 id
-    let lastid = await mysql.getValue_p("SELECT MAX(id) From Videos");
-
-    // ページ移動
-    if (req.query.move == "first") {
-        // 最初のページへ移動
-        session.videos_start = session.videos_sortdir == "asc" ? 1 : lastid;
-        session.videos_end = ENDLIMIT;
-    }
-    else if (req.query.move == "last") {
-        // 最後のページへ移動
-        if (session.videos_sortdir) {
-            if (session.videos_sortdir == "asc") {
-                // 昇順
-                session.videos_start = lastid;
-                session.videos_end = ENDLIMIT;
-            }
-            else {
-                // 降順
-                let minId = await mysql.getValue_p("SELECT MIN(id) FROM Videos");
-                session.videos_start = minId;
-                session.videos_end = minId;
-            }
+    if (req.query.search) {
+        let search = req.query.search.replace(/'/g, "''");
+        if (where) {
+            sql += ' WHERE ';
         }
         else {
-            session.videos_sortdir = "asc";
-            session.videos_start = lastid;
-            session.videos_end = ENDLIMIT;
+            sql += ' AND ';
         }
+        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR series LIKE '%${search}%' OR info LIKE '%${search}%')`;        
     }
-    else if (req.query.move == "prev") {
-        // 前のページへ移動
-        if (session.videos_sortdir == "desc") {
-            // 降順の場合 (100, 99, 98, ...)
-            session.videos_end = session.videos_start;
-            let rows = await mysql.query_p(`SELECT id FROM Videos WHERE id > ${session.videos_start}`);
-            if (rows) {
-                let i = 0;
-                if (rows.length > LIMIT) {
-                    for (let a of rows) {
-                        if (i == LIMIT - 1) {
-                            session.videos_start = a.id;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-                else {
-                    session.videos_start = lastid;
-                    session.videos_end = 1;
-                }
-            }
-            else {
-                session.videos_end = 1;
-            }
-        }
-        else {
-            // 昇順の場合 (1, 2, 3, ...)
-            session.videos_end = session.videos_start;
-            let rows = await mysql.query_p(`SELECT id FROM Videos WHERE id < ${session.videos_start}`);
-            if (rows) {
-                let i = 0;
-                if (rows.length > LIMIT) {
-                    for (let a of rows) {
-                        if (rows.length - LIMIT == i) {
-                            session.videos_start = a.id;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-                else {
-                    session.videos_start = 1;
-                }
-            }
-            else {
-                session.videos_start = 1;
-            }
-        }
-    }
-    else if (req.query.move == "next") {
-        // 次のページへ移動
-        if (session.videos_sortdir == "desc") {
-            // 降順
-            session.videos_start = session.videos_end;
-        }
-        else {
-            // 昇順
-            session.videos_sortdir = "asc";
-            session.videos_start = session.videos_end;
-        }
-    }
-    else {
-        // その他 そのまま
-    }
-
-    // SQL 文作成
-    let sql = "SELECT id, album, title, path, media, series, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Videos";
-    let needWhere = true;
-    let needAnd = true;
-    if (session.videos_album > 0) {
-        // アルバム指定あり
-        sql += ` WHERE album=${session.videos_album}`;
-        needWhere = false;
-        if (session.videos_sortdir == "desc") {
-            sql += " AND id <= " + session.videos_start;
-        }
-        else {
-            sql += " AND id >= " + session.videos_start;
-        }
-        if (session.videos_search || session.videos_mark) {
-            sql += " AND " + getCriteria(session.videos_search, session.videos_mark);
-        }
-        else {
-            // そのまま
-        }
-    }
-    else {
-        // アルバム指定なし
-        if (session.videos_sortdir == "desc") {
-            // 降順
-            sql += " WHERE id <= " + session.videos_start;
-        }
-        else {
-            // 昇順
-            sql += " WHERE id >= " + session.videos_start;
-        }
-        if (session.videos_search || session.videos_mark) {
-            sql += " AND " + getCriteria(session.videos_search, session.videos_mark);
-        }
-        else {
-            // そのまま
-        }
-    }
-    if (session.videos_orderby) {
-        // 並び順指定あり
-        sql += " ORDER BY " + session.videos_orderby;
-        if (session.videos_sortdir) {
-            sql += " " + session.videos_sortdir;
-        }
-        else {
-            // そのまま
-        }
-    }
-    else {
-        // 並び順指定なしは id とする。
-        sql += " ORDER BY id";
-        if (session.videos_sortdir) {
-            sql += " " + session.videos_sortdir;
-        }
-        else {
-            // そのまま
-        }
-    }
-    sql += ` LIMIT ${LIMIT}`;
+    sql += ` ORDER BY id ${session.videos_sortdir} LIMIT ${LIMIT} OFFSET ${session.videos_offset}`;
     return sql;
 }
+
 
 // サーチワードからSQLの条件に変換する。
 function getCriteria(search, mark) {
@@ -317,7 +194,7 @@ function showFavlist(res) {
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('videolist', {"title":"好きな画像フォルダ一覧", "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('videolist', {"title":"好きな画像フォルダ一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
             return;
         }
         else {
@@ -332,7 +209,7 @@ function showWithSeries(series, res) {
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('videolist', {"title":series + "の画像フォルダ一覧", "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('videolist', {"title":series + "の画像フォルダ一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
             return;
         }
         else {

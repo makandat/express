@@ -31,7 +31,7 @@
             <fieldset>
                 <div class="form_item">テーブル</div>
                 <select v-model="tableName">
-                    <option value="Albums">Albums</option>
+                    <option value="Album">Album</option>
                     <option value="Pictures">Pictures</option>
                     <option value="Videos">Videos</option>
                     <option value="Music">Music</option>
@@ -63,7 +63,7 @@
                     execButton_Click: () => {
                         let data = {
                             "operation": app.operation,
-                            "fileName": app.fileName,
+                            "fileName": app.fileName.replace(/\\/g, '/'),
                             "tableName": app.tableName
                         };
                         fetch("/extra/exportImportTable", {"method":"POST", "headers":{"Content-Type":"application/json"}, "body":JSON.stringify(data)})
