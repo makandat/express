@@ -27,10 +27,6 @@ router.get('/showContent', async (req, res) => {
         showFavlist(res);
         return;
     }
-    if (req.query.series) {
-        showWithSeries(req.query.series, res);
-        return;
-    }
     if (!session.music_offset) {
         session.music_offset = 0;
     }
@@ -74,9 +70,6 @@ router.get('/showContent', async (req, res) => {
     try {
         let sql = await makeSQL(req);
         let result = await mysql.query_p(sql);
-        if (result.length > 0) {
-            session.music_end = result[result.length - 1].id;
-        }
         // 結果を返す。
         let rows = await mysql.query_p("SELECT DISTINCT mark FROM Music");
         let marks = [];
@@ -85,7 +78,7 @@ router.get('/showContent', async (req, res) => {
         }
         res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "marks":marks,
             "message": result.length == 0 ? "条件に合う結果がありません。" : "",
-            dirasc:dirasc, dirdesc:dirdesc, search:session.music_search});    
+            dirasc:dirasc, dirdesc:dirdesc, search:req.query.search ? req.query.search : ""});    
     }
     catch (err) {
         res.render("showInfo", {"title":"Fatal Error", "icon":"cancel.png", "message":"エラー：" + err.message});
@@ -350,7 +343,7 @@ router.get('/getmusic', (req, res) => {
 
 // SQL を作成する。
 async function makeSQL(req) {
-    if (req.query.artiest) {
+    if (req.query.artist) {
         return SELECT + ` WHERE artist='${req.query.artist}' ORDER BY id DESC`;
     }
     if (req.query.album) {
@@ -421,7 +414,7 @@ async function makeSQL(req) {
         else {
             sql += ' AND ';
         }
-        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR artiest LIKE '%${search}%' OR info LIKE '%${search}%')`;        
+        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR artist LIKE '%${search}%' OR info LIKE '%${search}%')`;        
     }
     sql += ` ORDER BY id ${session.music_sortdir} LIMIT ${LIMIT} OFFSET ${session.music_offset}`;
     return sql;
