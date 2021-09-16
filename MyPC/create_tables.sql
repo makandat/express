@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `Pictures` (
   KEY `pictures_mark` (`mark`),
   KEY `pictures_date` (`date`),
   KEY `pictures_sn` (`sn`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21043 DEFAULT CHARSET=utf8;
 
 -- 動画 (Videos)
 CREATE TABLE IF NOT EXISTS `Videos` (
@@ -69,7 +69,7 @@ CREATE TABLE `Music` (
   UNIQUE KEY `path` (`path`),
   KEY `music_title` (`title`),
   KEY `music_path` (`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 
 
 -- プロジェクト (Projects)
@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS `Documents` (
   `album` int(11) DEFAULT 0,
   `title` varchar(100) NOT NULL,
   `revision` varchar(10) DEFAULT NULL,
+  `media` varchar(50) NOT NULL,
   `path` varchar(400) NOT NULL,
   `writer` varchar(50) DEFAULT NULL,
   `mark` varchar(20) DEFAULT NULL,
@@ -120,6 +121,7 @@ CREATE TABLE IF NOT EXISTS `Album` (
   `bindata` int(11) DEFAULT 0,
   `groupname` varchar(30) DEFAULT NULL,
   `date` date DEFAULT NULL,
+  `flag` char(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `album_name` (`name`)
@@ -157,5 +159,6 @@ CREATE TABLE `Marks` (
   `tablename` varchar(20) NOT NULL,
   `info` varchar(150) NOT NULL,
   `date` date DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE (mark, tablename)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -19,6 +19,7 @@ router.get("/documentForm", (req, res) => {
         album: 0,
         title: "",
         revision: "0",
+        media: "",
         path: "",
         writer: "",
         mark: "",
@@ -60,6 +61,7 @@ router.post("/documentForm", (req, res) => {
     let title = req.body.title.replace(/'/g, "''");
     let revision = req.body.revision ? req.body.revision : "";
     let path = req.body.path.replace(/'/g, "''").replace(/\\/g, "/");
+    let media = req.body.media.replace(/'/g, "''");
     let writer = req.body.writer ? req.body.writer : "";
     let mark = req.body.mark ? req.body.mark : "";
     let info = req.body.info ? req.body.info.replace(/'/g, "''") : "";
@@ -71,6 +73,7 @@ router.post("/documentForm", (req, res) => {
         album:album,
         title:title,
         revision:revision,
+        media:media,
         path:path,
         writer:writer,
         mark:mark,
@@ -94,7 +97,7 @@ router.post("/documentForm", (req, res) => {
         else {
             if (id) {
                 // 更新
-                let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
+                let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', media='${media}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
                 mysql.execute(update, (err) => {
                     if (err) {
                         message = err.message;
@@ -107,7 +110,7 @@ router.post("/documentForm", (req, res) => {
             }
             else {
                 // 挿入
-                let insert = `INSERT INTO Documents VALUES(NULL, ${album}, '${title}', '${revision}', '${path}', '${writer}', '${mark}', '${info}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
+                let insert = `INSERT INTO Documents VALUES(NULL, ${album}, '${title}', '${revision}', '${media}', '${path}', '${writer}', '${mark}', '${info}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
                 mysql.execute(insert, (err) => {
                     if (err) {
                         message = err.message;
