@@ -119,9 +119,9 @@ router.get('/viewimgfolder', (req, res) => {
 // アルバム一覧を返す。(markごと)
 router.get('/getAlbums/:kind', async (req, res) => {
   let kind = req.params.kind;
-  let sql = "SELECT id, `name`, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album";
+  let sql = "SELECT id, `name`, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0' ";
   if (kind) {
-    sql +=  ` WHERE mark='${kind}'`;
+    sql +=  ` AND mark='${kind}'`;
   }
   let result = await mysql.query_p(sql);
   res.json(result);
@@ -147,7 +147,7 @@ router.get("/playlist", (req, res) => {
 //    (/music/showContent/?album=... などを使う方がよい)
 router.get('/showAlbumContent/:id', async (req, res) => {
   let id = req.params.id;
-  let sql = "SELECT mark FROM Album WHERE id=" + id;
+  let sql = `SELECT mark FROM Album WHERE id=${id}`;
   let mark = await mysql.getValue_p(sql);
   let tableName = getTableName(mark);
   sql = `SELECT * FROM ${tableName} WHERE album=${id}`;
@@ -182,20 +182,20 @@ router.get('/getAlbumTitle/:id' ,async (req, res) => {
   let id = req.params.id;
   let name = "";
   if (id) {
-    let sql = "SELECT name FROM Album WHERE id=" + id;
+    let sql = `SELECT name FROM Album WHERE id=${id} AND flag='0'`;
     let name = await mysql.getValue_p(sql);
   }
   res.sendText(name);
 });
 
 // 指定したアルバムのデータを返す。
-router.get('/getAlbum/:id', async (req, res) => {
+router.get('/getAlbum/:id', (req, res) => {
   let id = req.params.id;
-  let name = "";
+  let sql = "SELECT id, `name`, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE id=" + id + " AND flag='0'";
   if (id) {
-    let sql = "SELECT id, `name`, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE id=" + id;
-    let row = await mysql.getRow_p(sql);
-    res.json(row);
+    mysql.getRow(sql, (err, row) => {
+      res.json(row);
+    });
   }
   else {
     res.json({});
@@ -244,18 +244,18 @@ router.get('/showAlbums/:mark', async (req, res) => {
   else {
     session.album_view = session.album_view ? session.album_view : "detail";
   }
-  let sql = "SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album";
+  let sql = "SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
   let markName = "";
-  let groupnames = await mysql.query_p("SELECT DISTINCT groupname FROM Album");
+  let groupnames = await mysql.query_p("SELECT DISTINCT groupname FROM Album WHERE flag='0'");
   switch (mark) {
     case "0": {
       if (groupname) {
-        sql += ` WHERE groupname='${groupname}' ORDER BY id ${session.album_sortdir}`;
+        sql += ` AND groupname='${groupname}' AND flag='0' ORDER BY id ${session.album_sortdir}`;
         let result = await mysql.query_p(sql);
-        res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result, groupnames:groupnames});
+        res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result, groupnames:groupnames, view:session.album_view});
       }
       else {
-        res.render('showAlbums', {message:"", mark:"", groupnames:groupnames, result:[]});
+        res.render('showAlbums', {message:"", mark:"", groupnames:groupnames, result:[], view:session.album_view});
       }
       return;
     }
@@ -267,32 +267,32 @@ router.get('/showAlbums/:mark', async (req, res) => {
           break;
         case "picture":
           markName = "画像フォルダ";
-          sql += " WHERE mark = 'picture'";
+          sql += " AND mark = 'picture'";
           session.album_mark = "picture";
           break;
         case "video":
           markName = "動画";
-          sql += " WHERE mark = 'video'";
+          sql += " AND mark = 'video'";
           session.album_mark = "video";
           break;
         case "music":
           markName = "音楽";
-          sql += " WHERE mark = 'music'";
+          sql += " AND mark = 'music'";
           session.album_mark = "music";
           break;
         case "project":
           markName = "プロジェクト";
-          sql += " WHERE mark = 'project'";
+          sql += " AND mark = 'project'";
           session.album_mark = "project";
           break;
         case "document":
           markName = "文書";
-          sql += " WHERE mark = 'document'";
+          sql += " AND mark = 'document'";
           session.album_mark = "document";
           break;
         default: // other
           markName = "その他";
-          sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+          sql += " AND NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
           session.album_mark = "other";
           break;    
       }
@@ -304,32 +304,32 @@ router.get('/showAlbums/:mark', async (req, res) => {
       break;
     case "picture":
       markName = "画像フォルダ";
-      sql += " WHERE mark = 'picture'";
+      sql += " AND mark = 'picture'";
       session.album_mark = "picture";
       break;
     case "video":
       markName = "動画";
-      sql += " WHERE mark = 'video'";
+      sql += " AND mark = 'video'";
       session.album_mark = "video";
       break;
     case "music":
       markName = "音楽";
-      sql += " WHERE mark = 'music'";
+      sql += " AND mark = 'music'";
       session.album_mark = "music";
       break;
     case "project":
       markName = "プロジェクト";
-      sql += " WHERE mark = 'project'";
+      sql += " AND mark = 'project'";
       session.album_mark = "project";
       break;
     case "document":
       markName = "文書";
-      sql += " WHERE mark = 'document'";
+      sql += " AND mark = 'document'";
       session.album_mark = "document";
       break;
     default: // other
       markName = "その他";
-      sql += " WHERE NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+      sql += " AND NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
       session.album_mark = "other";
       break;
   }
@@ -345,7 +345,7 @@ router.get('/showAlbums/:mark', async (req, res) => {
 // アルバムグループ一覧の表示
 router.get('/showAlbumGroups', (req, res) => {
   let groupNames = [];
-  mysql.query('SELECT DISTINCT groupname FROM Album ORDER BY groupname', (row, fields) => {
+  mysql.query("SELECT DISTINCT groupname FROM Album WHERE flag='0' ORDER BY groupname", (row, fields) => {
     if (row == null) {
       res.render('showAlbumGroups', {message:"", result:groupNames});
     }
@@ -370,10 +370,10 @@ router.get('/addModifyAlbum', (req, res) => {
   let groups = [];
   let sql = "";
   if (values.mark == "") {
-    sql = "SELECT DISTINCT groupname FROM Album ORDER BY groupname";
+    sql = "SELECT DISTINCT groupname FROM Album WHERE flag='0' ORDER BY groupname";
   }
   else {
-    sql = `SELECT DISTINCT groupname FROM Album WHERE mark='${values.mark}' ORDER BY groupname`;
+    sql = `SELECT DISTINCT groupname FROM Album WHERE mark='${values.mark}' AND flag='0' ORDER BY groupname`;
   }
   mysql.query(sql, (row) => {
     if (row) {
@@ -383,7 +383,7 @@ router.get('/addModifyAlbum', (req, res) => {
     }
     else {
       if (values.id) {
-        mysql.getRow("SELECT * FROM Album WHERE id=" + values.id, (err, row) => {
+        mysql.getRow(`SELECT * FROM Album WHERE id=${values.id} AND flag='0'`, (err, row) => {
           if (err) {
             res.render('showInfo', {title:"エラー", message:err.message, incon:"cancel.png"});
           }
@@ -417,7 +417,7 @@ router.post('/addModifyAlbum', async (req, res) => {
   };
   // グループ名一覧を得る。
   let groups = [];
-  mysql.query(`SELECT DISTINCT groupname AS gn FROM Album where mark='${values.mark}' ORDER BY groupname`, (row) => {
+  mysql.query(`SELECT DISTINCT groupname AS gn FROM Album where mark='${values.mark}' AND flag='0' ORDER BY groupname`, (row) => {
     if (row) {
       groups.push(row.gn);
     }
@@ -437,13 +437,13 @@ router.post('/addModifyAlbum', async (req, res) => {
       else {
         // 新規作成
         let today = dto.getDateString();
-        let insert = `INSERT INTO Album VALUES(NULL, '${values.name}', '${values.mark}', '${values.info}', ${values.bindata}, '${values.groupname}', '${today}')`;
+        let insert = `INSERT INTO Album VALUES(NULL, '${values.name}', '${values.mark}', '${values.info}', ${values.bindata}, '${values.groupname}', '${today}', '0')`;
         mysql.execute(insert, (err) => {
           if (err) {
             res.render('addModifyAlbum', {message:err.message, values:values, groupnames:groups});
           }
           else {
-            mysql.getValue("SELECT MAX(id) FROM Album WHERE mark='" + values.mark +"'", (maxId) => {
+            mysql.getValue(`SELECT MAX(id) FROM Album WHERE mark='${values.mark}' AND flag='0'`, (maxId) => {
               let msg = "(id" + maxId + ") \"" + values.name + "\" が作成されました。";
               res.render('addModifyAlbum', {message:msg, values:values, groupnames:groups});
             });
@@ -463,11 +463,12 @@ router.get('/confirmAlbum/:id', async (req, res) => {
     mark:"",
     info:"",
     bindata:0,
-    groupname:""
+    groupname:"",
+    flag:0
   };
-  let sql = `SELECT mark FROM Album WHERE id=${id}`;
+  let sql = `SELECT mark FROM Album WHERE id=${id} AND flag='0'`;
   values.mark = await mysql.getValue_p(sql);
-  sql = `SELECT DISTINCT groupname FROM Album where mark='${values.mark}' ORDER BY groupname`;
+  sql = `SELECT DISTINCT groupname FROM Album where mark='${values.mark}' AND flag='0' ORDER BY groupname`;
   let rows = await mysql.query_p(sql);
   let groups = [];
   for (let row of rows) {
@@ -476,7 +477,7 @@ router.get('/confirmAlbum/:id', async (req, res) => {
     }
   }
   let message = "";
-  mysql.getRow("SELECT * FROM Album WHERE id=" + id, (err, row) => {
+  mysql.getRow(`SELECT * FROM Album WHERE id=${id} AND flag='0'`, (err, row) => {
     if (row) {
       values.id = row.id;
       values.name = row.name;
@@ -484,6 +485,7 @@ router.get('/confirmAlbum/:id', async (req, res) => {
       values.info = row.info;
       values.bindata = row.bindata;
       values.groupname = row.groupname;
+      values.flag = row.flag;
     }
     else {
       message = err.message;

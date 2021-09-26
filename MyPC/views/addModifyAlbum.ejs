@@ -33,17 +33,16 @@
             function confirm() {
                 let id = document.getElementById('id').value;
                 fetch('/getAlbum/' + id)
-                .catch(err => document.getElementById('message').value = err.message)
-                .then(data => data.json())
-                .catch(err => document.getElementById('message').value = err.message)
-                .then((values) => {
-                    document.getElementById('id').value = values.id;
-                    document.getElementById('name').value = values.name;
-                    document.getElementById('mark').value = values.mark;
-                    document.getElementById('info').value = values.info;
-                    document.getElementById('bindata').value = values.bindata;
-                    document.getElementById('groupname').value = values.groupname;
-                });
+                .then(res => res.json())
+                .then(data => {
+                    form1.id.value = data.id;
+                    form1.name.value = data.name;
+                    form1.mark.value = data.mark;
+                    form1.info.value = data.info;
+                    form1.bindata.value = data.bindata;
+                    form1.groupname.value = data.groupname;
+                })
+                .catch(err => document.getElementById('message').value = err.message);
             }
         </script>
     </head>
@@ -87,7 +86,7 @@
                     <input type="button" id="button_clear" value=" クリア " onclick="javascript:clear()" />&nbsp;
                 </fieldset>
                 <br />
-                <p class="message"><%= message %></p>
+                <p id="message" class="message"><%= message %></p>
             </form>
             <p style="margin-left:10%;">「マーク」は任意の文字列を指定できますが、標準として次のように決められています。</p>
             <ul style="margin-left:10%;font-size:11pt;color:darkviolet;">
