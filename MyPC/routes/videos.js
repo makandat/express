@@ -83,6 +83,9 @@ router.get('/showContent', async (req, res) => {
             session.videos_end = result[result.length - 1].id;
         }
         // 結果を返す。
+        if (req.query.mark) {
+            title += ` (${req.query.mark})`;
+        }
         res.render('videolist', {"title":title, "albumName":albumName, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "",
          dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});    
     }
