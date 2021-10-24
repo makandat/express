@@ -10,7 +10,7 @@
                 $("#marks").change(() => {
                     location.href = "/videos/showContent?mark=" + $("#marks").val();
                 });
-            
+
                 $("#findButton").click(() => {
                     let val = $("#find").val();
                     if (val) {
@@ -45,13 +45,13 @@
 
     <body>
         <header>
-            <h1><%= title %></h1>
+            <h1><img src="/img/video0.png" /> <%= title %></h1>
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <a href="/videos/showContent?reset=true"><img src="/img/clear2.png"> 表示リセット</a>&nbsp;|&nbsp;
                 <a href="javascript:reloadPage()"><img src="/img/refresh2.png"> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/videos/videosForm/" target="_blank"><img src="/img/form.png" /> 動画の追加・修正</a>&nbsp;|&nbsp;
-                <!-- 
+                <!--
                 <a href="/videos/playlistForm/"><img src="/img/form.png" /> プレイリストの追加・修正</a>&nbsp;|&nbsp;
                 -->
                 <a href="/videos/series/" target="_blank"><img src="/img/list2.png" /> シリーズ一覧</a>&nbsp;|&nbsp;
@@ -91,7 +91,7 @@
                         <% if (row.album > 0) { %>
                             <td><a href="/videos/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>
                         <% } else { %>
-                            <td><%= row.album %></td>        
+                            <td><%= row.album %></td>
                         <% } %>
                         <td><a href="/videos/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>

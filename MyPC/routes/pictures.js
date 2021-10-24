@@ -80,7 +80,7 @@ router.get('/showContent', async (req, res) => {
         let sql = await makeSQL(req);
         let result = await mysql.query_p(sql);
         // 結果を返す。
-        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});    
+        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
     }
     catch (err) {
         res.render('showInfo', {"title":"Fatal Error", "message":"エラー:" + err.message, "icon":"cancel.png"});
@@ -90,6 +90,8 @@ router.get('/showContent', async (req, res) => {
 // サムネール形式で画像一覧を表示する。
 router.get("/showthumb", async (req, res) => {
     let path = req.query.path;
+    let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
+    session.navdir = sortdir;
     let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
     if (!title) {
         title = path;
@@ -102,7 +104,7 @@ router.get("/showthumb", async (req, res) => {
     }
     let id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
     countup(id, res);
-    res.render("showthumb", {title:title, message:"", dir:path, files:files});
+    res.render("showthumb", {title:title, message:"", dir:path, files:files, sortdir:sortdir});
 });
 
 // ナビゲーション形式で画像表示する。
@@ -117,25 +119,45 @@ router.get("/showNavImage", async (req, res) => {
     else if (req.query.nav) {
         switch (req.query.nav) {
             case "first":
-                session.pictures_nav = 0;
+                session.pictures_nav = session.navdir == "asc" ? 0 : session.pictures_nfiles - 1;
                 break;
             case "last":
-                session.pictures_nav = session.pictures_nfiles - 1;
+                session.pictures_nav = session.navdir == "asc" ? session.pictures_nfiles - 1 : 0;
                 break;
             case "prev":
-                if (session.pictures_nav > 0) {
-                    session.pictures_nav--;
+                if (session.navdir == "asc") {
+                    if (session.pictures_nav > 0) {
+                        session.pictures_nav--;
+                    }
+                    else {
+                        session.pictures_nav = 0;
+                    }
                 }
                 else {
-                    session.pictures_nav = 0;
+                    if (session.pictures_nav < session.pictures_nfiles - 1) {
+                        session.pictures_nav++;
+                    }
+                    else {
+                        session.pictures_nav = session.pictures_nfiles - 1;
+                    }
                 }
                 break;
             default: // next
-                if (session.pictures_nav < session.pictures_nfiles) {
-                    session.pictures_nav++;
+                if (session.navdir == "asc") {
+                    if (session.pictures_nav < session.pictures_nfiles - 1) {
+                        session.pictures_nav++;
+                    }
+                    else {
+                        session.pictures_nav = session.pictures_nfiles - 1;
+                    }
                 }
                 else {
-                    session.pictures_nav = session.pictures_nfiles - 1;
+                    if (session.pictures_nav > 0) {
+                        session.pictures_nav--;
+                    }
+                    else {
+                        session.pictures_nav = 0;
+                    }
                 }
                 break;
         }
@@ -201,11 +223,23 @@ router.get("/getCreatorInfo", async (req, res) => {
 // 指定したフォルダ内の画像一覧を返す。
 router.get("/showPictures", async (req, res) => {
     let path = req.query.path;
+    let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
+    session.navdir = sortdir;
     let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
     let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
     let result = [];
-    for (let i = 0; i < files.length; i++) {
-        result.push(files[i].replace(/\\/g, '/'));
+    if (sortdir == "asc") {
+        for (let i = 0; i < files.length; i++) {
+            result.push(files[i].replace(/\\/g, '/'));
+        }
+    }
+    else if (sortdir == "desc") {
+        for (let i = files.length - 1; i >= 0; i--) {
+            result.push(files[i].replace(/\\/g, '/'));
+        }
+    }
+    else {
+        throw "Fatal error";
     }
     // id を得る。
     mysql.getValue(`SELECT id FROM Pictures WHERE path='${path}'`, (id) =>{
@@ -416,13 +450,13 @@ async function makeSQL(req) {
                 session.pictures_offset -= LIMIT;
                 if (session.pictures_offset < 0) {
                     session.pictures_offset = 0;
-                }    
+                }
                 break;
             case 'next':
                 session.pictures_offset += LIMIT;
                 if (session.pictures_offset >= n) {
                     session.pictures_offset = n - 1;
-                }    
+                }
                 break;
             case 'last':
                 session.pictures_offset = n - 1;
@@ -455,7 +489,7 @@ async function makeSQL(req) {
         else {
             sql += ' AND ';
         }
-        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR creator LIKE '%${search}%' OR info LIKE '%${search}%')`;        
+        sql += `(title LIKE '%${search}%' OR path LIKE '%${search}%' OR creator LIKE '%${search}%' OR info LIKE '%${search}%')`;
     }
     sql += ` ORDER BY id ${session.pictures_sortdir} LIMIT ${LIMIT} OFFSET ${session.pictures_offset}`;
     return sql;

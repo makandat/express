@@ -10,22 +10,29 @@
                 margin-bottom: 10px;
                 width:18%;
             }
-        </style>   
+        </style>
     </head>
 
     <body>
         <h1><%= title %></h1>
         <div class="menu">
             <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
-            <a href="/pictures/showPictures?path=<%= dir %>"><img src="/img/image2.png" /> 画像一覧表示</a>
-            
+            <a href="/pictures/showPictures?path=<%= dir %>"><img src="/img/image2.png" /> 画像一覧表示</a>&nbsp;|&nbsp;
+            <a href="/pictures/showthumb?sortdir=asc&path=<%= dir %>">昇順で表示</a>&nbsp;|&nbsp;
+            <a href="/pictures/showthumb?sortdir=desc&path=<%= dir %>">降順で表示</a>
         </div>
         <br />
         <p class="message"><%= message %></p>
         <br />
-        <% for (let p of files) { %>
-            <a href="/pictures/showNavImage?path=<%= p %>" target="_blank"><img src="/sendfile?path=<%= p %>" class="item" /></a>
-        <% } %>       
+        <% if (sortdir == "asc") { %>
+            <% for (let i = 0; i < files.length; i++) { %>
+                <a href="/pictures/showNavImage?path=<%= files[i] %>&sortdir=asc" target="_blank"><img src="/sendfile?path=<%= files[i] %>" class="item" /></a>
+            <% } %>
+        <% } else { %>
+            <% for (let i = files.length - 1; i >= 0; i--) { %>
+                <a href="/pictures/showNavImage?path=<%= files[i] %>&sortdir=desc" target="_blank"><img src="/sendfile?path=<%= files[i] %>" class="item" /></a>
+            <% } %>
+        <% } %>
         <!-- フッター -->
         <p>&nbsp;</p>
         <p style="text-align:center;"><a href="#top">TOP</a></p>

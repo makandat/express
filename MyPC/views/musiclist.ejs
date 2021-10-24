@@ -10,7 +10,7 @@
                 $("#marks").change(() => {
                     location.href = "/music/showContent?mark=" + $("#marks").val();
                 });
-            
+
                 $("#findButton").click(() => {
                     let val = $("#find").val();
                     if (val) {
@@ -45,7 +45,7 @@
 
     <body>
         <header>
-            <h1><%= title %></h1>
+            <h1><img src="/img/music.png" width="48px" /> <%= title %></h1>
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
                 <a href="/music/showContent?reset=true"><img src="/img/home.png"> 表示リセット</a>&nbsp;|&nbsp;
@@ -82,7 +82,7 @@
                 <% for (let row of result) { %>
                     <a>
                         <td><a href="/music/confirmMusic/<%= row.id %>" target="_blank"><%= row.id %></a></td>
-                        <td><a href="/music/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>                        
+                        <td><a href="/music/showContent?album=<%= row.album %>" target="_blank"><%= row.album %></a></td>
                         <td><a href="/music/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
                         <td><a href="/music/showContent?artist=<%= row.artist %>" target="_blank"><%= row.artist %></a></td>
