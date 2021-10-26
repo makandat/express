@@ -34,6 +34,32 @@
                     $("#info").val("");
                 });
             });
+
+            // アルバムのタイトルを得る。
+            function checkAlbum() {
+                const id = $("#album").val();
+                if (id <= 0) {
+                    alert("id=0はアルバム未登録を意味します。");
+                }
+                else {
+                    fetch("/index/getAlbumTitle/" + id)
+                    .then(res => res.text())
+                    .then(name => alert(`アルバムタイトルは "${name}" です。`))
+                    .catch(err => alert(err.message));
+                }
+            }
+
+            // サムネール画像を得る。
+            function checkBINDATA() {
+                const id = $("#bindata").val();
+                if (id <= 0) {
+                    alert("id=0はサムネール画像未登録を意味します。");
+                }
+                else {
+                    $("#thumb").attr("src", "/index/extract/" + id)
+                    $("#divthumb").css("display", "block");
+                }
+            }
         </script>
     </head>
     <body>
@@ -50,7 +76,7 @@
                     <div class="form_item"><input type="number" id="id" name="id" size="8" value="<%= value.id %>" /></div>
                 </div>
                 <div class="form_row">
-                    <div class="form_item">アルバム番号</div>
+                    <div class="form_item">アルバム番号&nbsp;<a href="javascript:checkAlbum()">[チェック]</a></div>
                     <div class="form_item"><input type="number" id="album" name="album" size="8" value="<%= value.album %>" /></div>
                 </div>
                 <div class="form_row">
@@ -82,8 +108,9 @@
                     <div class="form_item"><input type="number" id="fav" name="fav" size="4" value="<%= value.fav %>" /></div>
                 </div>
                 <div class="form_row">
-                    <div class="form_item">サムネール</div>
+                    <div class="form_item">サムネール&nbsp;<a href="javascript:checkBINDATA()">[チェック]</a></div>
                     <div class="form_item"><input type="number" id="bindata" name="bindata" size="8" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
+                    <div style="display:none" id="divthumb"><img src="" id="thumb" /></div>
                 </div>
                 <div style="margin-top:20px;">
                     <input type="button" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;

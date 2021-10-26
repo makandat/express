@@ -31,6 +31,33 @@
                 let el = document.getElementsByClassName("message");
                 el[0].innerText = "クリアされました。";
             }
+            // アルバムのタイトルを得る。
+            function checkAlbum() {
+                const id = document.getElementById("album").value;
+                if (id <= 0) {
+                    alert("id=0はアルバム未登録を意味します。");
+                }
+                else {
+                    fetch("/index/getAlbumTitle/" + id)
+                    .then(res => res.text())
+                    .then(name => alert(`アルバムタイトルは "${name}" です。`))
+                    .catch(err => alert(err.message));
+                }
+            }
+
+            // サムネール画像を得る。
+            function checkBINDATA() {
+                const id = document.getElementById("bindata").value;
+                if (id <= 0) {
+                    alert("id=0はサムネール画像未登録を意味します。");
+                }
+                else {
+                    const thumb = document.getElementById("thumb");
+                    const divthumb = document.getElementById("divthumb");
+                    thumb.setAttribute("src", "/index/extract/" + id);
+                    divthumb.style.display = "block";
+                }
+            }
         </script>
     </head>
 
@@ -38,7 +65,7 @@
         <header>
             <h1><a href="/"><img src="/img/home_orange.png" /></a>&nbsp;音楽の追加・修正</h1>
             <p class="comment">id を空欄にしたときは「追加」となります。データ確認を行う場合は必ず id を設定します。</p>
-            <hr />  
+            <hr />
         </header>
 
         <article>
@@ -49,7 +76,7 @@
                     <div class="form_item"><input type="number" id="id" name="id" size="8" value="<%= value.id %>" /></div>
                 </fieldset>
                 <fieldset>
-                    <div class="form_item">アルバム</div>
+                    <div class="form_item">アルバム&nbsp;<a href="javascript:checkAlbum()">[チェック]</a></div>
                     <div class="form_item"><input type="number" id="album" name="album" size="8" value="<%= value.album %>" /></div>
                 </fieldset>
                 <fieldset>
@@ -81,8 +108,9 @@
                     <div class="form_item"><input type="text" id="fav" name="fav" size="8" value="<%= value.fav %>" /></div>
                 </fieldset>
                 <fieldset>
-                    <div class="form_item">サムネール</div>
-                    <div><input type="number" id="bindata" name="bindata" size="8" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
+                    <div class="form_item">サムネール&nbsp;<a href="javascript:checkBINDATA()">[チェック]</a></div>
+                    <div style="font-size:10pt"><input type="number" id="bindata" name="bindata" size="8" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div>
+                    <div style="display:none" id="divthumb"><img src="" id="thumb" /></div>
                 </fieldset>
                 <fieldset>
                     <input type="submit" id="submit" name="submit" value=" 送信する " />&nbsp;

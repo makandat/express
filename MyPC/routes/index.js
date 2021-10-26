@@ -56,7 +56,7 @@ async function checkEnv() {
         if (row.table_name) {
           if (row.table_name.toLowerCase() == "pictures") {
             n++;
-          }  
+          }
         }
         else {
           // row.table_name == undefined の場合のエラー回避策
@@ -172,7 +172,7 @@ router.get('/showAlbumContent/:id', async (req, res) => {
       default:
         break;
     }
-  
+
   }
   res.render('showAlbumContent', {title:"id:" + id + " アルバムの内容一覧", message:"番号" + id + "のアルバム内容が検索されました。", result:result, mark:mark});
 });
@@ -180,12 +180,15 @@ router.get('/showAlbumContent/:id', async (req, res) => {
 // アルバムのタイトルを返す。
 router.get('/getAlbumTitle/:id' ,async (req, res) => {
   let id = req.params.id;
-  let name = "";
+  res.set("Content-Type", "text/plain");
   if (id) {
     let sql = `SELECT name FROM Album WHERE id=${id} AND flag='0'`;
     let name = await mysql.getValue_p(sql);
+    res.send(name);
   }
-  res.sendText(name);
+  else {
+    res.send("Error");
+  }
 });
 
 // 指定したアルバムのデータを返す。
@@ -244,12 +247,13 @@ router.get('/showAlbums/:mark', async (req, res) => {
   else {
     session.album_view = session.album_view ? session.album_view : "detail";
   }
-  let sql = "SELECT id, name, mark, info, bindata, groupname, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
+  let sql = "SELECT Album.id, Album.name, Album.mark, Album.info, Album.bindata, Album.groupname, (SELECT count(*) FROM tableName WHERE tableName.album=Album.id) AS `count`, DATE_FORMAT(Album.`date`, '%Y-%m-%d') AS `date` FROM Album WHERE Album.flag='0'";
   let markName = "";
   let groupnames = await mysql.query_p("SELECT DISTINCT groupname FROM Album WHERE flag='0'");
   switch (mark) {
     case "0": {
       if (groupname) {
+        sql = "SELECT id, name, mark, info, bindata, groupname, 0 AS `count`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
         sql += ` AND groupname='${groupname}' AND flag='0' ORDER BY id ${session.album_sortdir}`;
         let result = await mysql.query_p(sql);
         res.render('showAlbums', {message:`グループ "${groupname}" が検索されました。`, mark:"", result:result, groupnames:groupnames, view:session.album_view});
@@ -262,83 +266,92 @@ router.get('/showAlbums/:mark', async (req, res) => {
     case "keep": {
       switch (session.album_mark) {
         case "all":
+          sql = "SELECT id, name, mark, info, bindata, groupname, 0 AS `count`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
           markName = "すべて";
           session.album_mark = "all";
           break;
         case "picture":
           markName = "画像フォルダ";
-          sql += " AND mark = 'picture'";
+          sql += " AND Album.mark = 'picture'";
           session.album_mark = "picture";
           break;
         case "video":
           markName = "動画";
-          sql += " AND mark = 'video'";
+          sql += " AND Album.mark = 'video'";
           session.album_mark = "video";
           break;
         case "music":
           markName = "音楽";
-          sql += " AND mark = 'music'";
+          sql += " AND Album.mark = 'music'";
           session.album_mark = "music";
           break;
         case "project":
           markName = "プロジェクト";
-          sql += " AND mark = 'project'";
+          sql += " AND Album.mark = 'project'";
           session.album_mark = "project";
           break;
         case "document":
           markName = "文書";
-          sql += " AND mark = 'document'";
+          sql += " AND Album.mark = 'document'";
           session.album_mark = "document";
           break;
         default: // other
           markName = "その他";
-          sql += " AND NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+          sql = "SELECT id, name, mark, info, bindata, groupname, 0 AS `count`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
+          sql += " AND NOT(Album.mark='picture' OR Album.mark='video' OR Album.mark='music' OR Album.mark='project' OR Album.mark='document')";
           session.album_mark = "other";
-          break;    
+          break;
       }
     }
     break;
     case "all":
       markName = "すべて";
+      sql = "SELECT id, name, mark, info, bindata, groupname, 0 AS `count`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
       session.album_mark = "all";
       break;
     case "picture":
       markName = "画像フォルダ";
-      sql += " AND mark = 'picture'";
+      sql += " AND Album.mark = 'picture'";
+      sql = sql.replace(/tableName/g, 'Pictures');
       session.album_mark = "picture";
       break;
     case "video":
       markName = "動画";
-      sql += " AND mark = 'video'";
+      sql += " AND Album.mark = 'video'";
+      sql = sql.replace(/tableName/g, 'Videos');
       session.album_mark = "video";
       break;
     case "music":
       markName = "音楽";
-      sql += " AND mark = 'music'";
+      sql += " AND Album.mark = 'music'";
+      sql = sql.replace(/tableName/g, 'Music');
       session.album_mark = "music";
       break;
     case "project":
       markName = "プロジェクト";
-      sql += " AND mark = 'project'";
+      sql += " AND Album.mark = 'project'";
+      sql = sql.replace(/tableName/g, 'Projects');
       session.album_mark = "project";
       break;
     case "document":
       markName = "文書";
-      sql += " AND mark = 'document'";
+      sql += " AND Album.mark = 'document'";
+      sql = sql.replace(/tableName/g, 'Documents');
       session.album_mark = "document";
       break;
     default: // other
       markName = "その他";
-      sql += " AND NOT(mark='picture' OR mark='video' OR mark='music' OR mark='project' OR mark='document')";
+      sql = "SELECT id, name, mark, info, bindata, groupname, 0 AS `count`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Album WHERE flag='0'";
+      sql += " AND NOT(Album.mark='picture' OR Album.mark='video' OR Album.mark='music' OR Album.mark='project' OR Album.mark='document')";
       session.album_mark = "other";
       break;
   }
-  sql += " ORDER BY id " + session.album_sortdir;
+  sql += " ORDER BY Album.id " + session.album_sortdir;
   let result = await mysql.query_p(sql);
   if (result.length == 0) {
     message = "アルバムが登録されていません。";
   }
-  
+
   res.render('showAlbums', {message:message, result:result, mark:markName, groupnames:groupnames, view:session.album_view});
 });
 
@@ -394,12 +407,12 @@ router.get('/addModifyAlbum', (req, res) => {
               values.bindata = row.bindata ? row.bindata : 0;
               values.groupname = row.groupname ? row.groupname : "";
             }
-            res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});  
+            res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});
           }
-        }); 
+        });
       }
       else {
-        res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});  
+        res.render('addModifyAlbum', {message:"", values:values, groupnames:groups});
       }
     }
   });
@@ -529,13 +542,13 @@ router.post('/addModifyPlaylist', (req, res) => {
       let sql = `INSERT INTO Playlists(title, items, info, date) VALUES('${title}', '${items}', '${info}', CURRENT_DATE())`;
       mysql.execute(sql, (err) => {
         if (err) {
-          res.render('playlistForm', {message:err.message, result:null, value:value});  
+          res.render('playlistForm', {message:err.message, result:null, value:value});
         }
         else {
-          res.render('playlistForm', {message:`${title} が新規作成されました。`, result:null, value:value});  
+          res.render('playlistForm', {message:`${title} が新規作成されました。`, result:null, value:value});
         }
       });
-    } 
+    }
   }
   else {
     if (id > 0) {
@@ -548,7 +561,7 @@ router.post('/addModifyPlaylist', (req, res) => {
             info:"",
             items:""
           };
-          res.render('playlistForm', {message: "エラーを検出", value:value, result:[]});  
+          res.render('playlistForm', {message: "エラーを検出", value:value, result:[]});
         }
         else {
           let result = [];
