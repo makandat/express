@@ -1,4 +1,4 @@
-/* MySQL.js v1.30 */
+/* MySQL.js v1.40 */
 "use strict";
 var mysql = require("mysql");
 var fs = require("fs");
@@ -10,6 +10,33 @@ var getConf = () => {
   return conf;
 }
 
+var connection;
+
+/* 接続が切れたとき再接続する。*/
+function handleDisconnect() {
+  const conf = getConf();
+  connection = mysql.createConnection(conf);
+  
+  //connection取得
+  connection.connect(function(err) {
+      if (err) {
+          console.log('ERROR.CONNECTION_DB: ', err);
+          setTimeout(handleDisconnect, 1000);
+      }
+  });
+
+  //error('PROTOCOL_CONNECTION_LOST')時に再接続
+  connection.on('error', function(err) {
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+          console.log('ERROR.CONNECTION_LOST: ', err);
+          handleDisconnect();
+      } else {
+          throw err;
+      }
+  });
+}
+
+handleDisconnect();
 
 /* 結果セットを返すクエリー関数 */
 /*  callback は結果の行数回コールされ、最後に null が返される。*/

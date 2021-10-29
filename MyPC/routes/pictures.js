@@ -48,7 +48,13 @@ router.get('/showContent', async (req, res) => {
         session.pictures_mark = null;
         session.pictures_offset = 0;
         session.pictures_album = album;
-        albumName = await mysql.getValue_p(`SELECT name FROM Album WHERE id = ${album} AND mark='picture'`);
+        const c = await mysql.getValue_p(`SELECT COUNT(name) FROM Album WHERE id = ${album} AND mark='picture'`);
+        if (c == 0) {
+            albumName = "NOT EXISTS";
+        }
+        else {
+            albumName = await mysql.getValue_p(`SELECT name FROM Album WHERE id = ${album} AND mark='picture'`);
+        }
     }
     if (req.query.reset) {
         session.pictures_album = 0;
@@ -223,6 +229,10 @@ router.get("/getCreatorInfo", async (req, res) => {
 // 指定したフォルダ内の画像一覧を返す。
 router.get("/showPictures", async (req, res) => {
     let path = req.query.path;
+    if (!fso.exists(path)) {
+        res.render("showPictures", {title:"エラー", path:path, message:"パスが存在しません。", result:[]});
+        return;
+    }
     let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
     session.navdir = sortdir;
     let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
@@ -478,8 +488,11 @@ async function makeSQL(req) {
         sql += ` WHERE mark='${session.pictures_mark}'`;
         where = false;
     }
-    else {
-        // 何もしない。
+    else if (req.query.start) {
+        if (session.pictures_sortdir == "asc")
+            sql += ` WHERE id >= ${req.query.start}`;
+        else
+            sql += ` WHERE id <= ${req.query.start}`;
     }
     if (req.query.search) {
         let search = req.query.search.replace(/'/g, "''");

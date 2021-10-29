@@ -76,7 +76,10 @@
         </header>
         <article>
             <br />
-            <p>検索ワード：<%= search %></p>
+            <p><% if (search) { %>
+                検索ワード：<%= search %></p>
+            <% } %>
+            <%= message %>
             <table>
                 <tr><th>id</th><th>アルバム</th><th>タイトル</th><th>パス</th><th>アーティスト</th><th>メディア</th><th>マーク</th><th>情報</th><th>好き</th><th>カウント</th><th>サムネール</th><th>登録日</th></tr>
                 <% for (let row of result) { %>
