@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title><%= title %></title>
         <link rel="stylesheet" href="/css/style.css" />
         <style>
@@ -92,7 +93,7 @@
             <ul style="list-style-type:none;">
                 <% let i = 1 %>
                 <% for (let a of result) { %>
-                    <li class="img"><img src="/sendfile/?path=<%= a %>" /><br /><%= i %>&nbsp;<%= a %></li>
+                    <li class="img"><img src="/sendfile/?path=<%= a.replace(/#/g, '%23') %>" /><br /><%= i %>&nbsp;<%= a %></li>
                     <% i++ %>
                 <% } %>
             </ul>

@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title><%= title %></title>
         <link rel="stylesheet" href="/css/style.css" />
         <script src="/js/jquery.min.js"></script>
@@ -95,7 +96,7 @@
                             <td><%= row.album %></td>
                         <% } %>
                         <td><a href="/videos/playForm/<%= row.id %>" target="_blank"><%= row.title %></a></td></a></td>
-                        <td><a href="/download?path=<%= row.path %>"><%= row.path %></a></td>
+                        <td><a href="/download?path=<%= row.path.replace(/#/g, '%23') %>"><%= row.path %></a></td>
                         <td><%= row.media %></td>
                         <td><a href="/videos/showContent?series=<%= row.series %>" target="_blank"><%= row.series %></a></td>
                         <td><%= row.mark %></td>

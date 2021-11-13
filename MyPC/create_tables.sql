@@ -162,3 +162,17 @@ CREATE TABLE `Marks` (
   PRIMARY KEY (`id`),
   UNIQUE (mark, tablename)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Wiki
+CREATE TABLE `Wiki` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL,
+  `author` varchar(20) DEFAULT NULL,
+  `date` date NOT NULL,
+  `content` text NOT NULL,
+  `info` varchar(100) DEFAULT NULL,
+  `hidden` char(1) DEFAULT '0',
+  `type` varchar(20) DEFAULT 'text',
+  `revision` tinyint(4) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;

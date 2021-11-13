@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>その他</title>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>その他</title>
         <link rel="stylesheet" href="/css/style.css" />
         <script src="/js/vue.js"></script>
         <style>
@@ -36,7 +37,7 @@
         </header>
         <article>
             <!-- データベース -->
-            <h2><a id="データベース">データベース</a></h2>
+            <h2><a id="データベース">MySQL データベース</a></h2>
             <ul>
                 <li><a href="/extra/mysqlExecCommand" target="_blank">SQL 文の実行</a></li>
                 <li><a href="/extra/mysqlExecFile" target="_blank">SQL ファイルの実行</a></li>
@@ -574,7 +575,7 @@
                             replaceBatchForm.message = text;
                             replaceBatchForm.replaceVisible = true;
                         });
-                        
+
                     },
                     replaceButton: async () => {
                         let url = `/extra/replacePathBatch?table=${replaceBatchForm.replaceTable}&before=${replaceBatchForm.before}&after=${replaceBatchForm.after}`;

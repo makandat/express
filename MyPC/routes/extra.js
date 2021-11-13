@@ -12,8 +12,7 @@ const log4js = require('log4js');
 const {exec} = require("child_process");
 const aws = require('aws-sdk');
 const router = express.Router();
-const LIMIT = 200;
-const ENDLIMIT = 1000000;
+const LIMIT = 1000;
 
 // Log4JS 初期化 (ログファイル ./tmp/mypc.log)
 const logger = log4js.getLogger();
@@ -56,7 +55,7 @@ router.get("/bindatalist", async (req, res) => {
     let jumpid = req.query.id;
     let findword = req.query.find;
     let move = req.query.move;
-    
+
     if (req.query.reset) {
         session.bindata_sortdir = "asc";
         session.bindata_start = 1;
@@ -441,8 +440,8 @@ router.get("/createBackupTables", async (req, res) => {
         createTable("Music", age);
         createTable("Projects", age);
         createTable("Documents", age);
-        createTable("BINDATA", age);  
-        createTable("Playlists", age);  
+        createTable("BINDATA", age);
+        createTable("Playlists", age);
         res.send("OK: バックアップテーブルを作成しました。");
     }
     catch (err) {
@@ -479,7 +478,7 @@ router.post("/removeBackupTables", async (req, res) => {
             let sql = `DROP TABLE ${tableName}`;
             await mysql.execute_p(sql);
         }
-        res.send("OK: 指定したテーブルを削除しました。");    
+        res.send("OK: 指定したテーブルを削除しました。");
     }
     catch (err) {
         res.send(err.message);
@@ -682,7 +681,7 @@ async function readdirRecursively(dir, files=[]) {
     for (let d of dirs) {
         files = await readdirRecursively(d, files);
     }
-    return Promise.resolve(files);    
+    return Promise.resolve(files);
 }
 
 // テーブルと id を指定してタイトルとパスを得る。
@@ -720,7 +719,7 @@ router.get("/bulkCheck", async (req, res) => {
                     let n = await mysql.getValue_p(sql);
                     if (n == 0) {
                         nopath.push(dir2);
-                    }    
+                    }
                 }
             }
             res.json(nopath);
@@ -945,7 +944,7 @@ router.post('/insertFileList', (req, res) => {
                     break;
                 default:
                     break;
-            }    
+            }
         }
     }
     sql = sql.substring(0, sql.length - 2);
@@ -966,7 +965,7 @@ router.get("/deleteBatch", async (req, res) => {
     let tableName = req.query.table;
     let idFrom = req.query.idFrom;
     let idTo = req.query.idTo;
-    
+
     if (confirm) {
         let sql = `SELECT title FROM ${tableName} WHERE id=${idFrom}`;
         let title = await mysql.getValue_p(sql);
@@ -974,10 +973,10 @@ router.get("/deleteBatch", async (req, res) => {
         let n = await mysql.getValue_p(sql);
         if (title) {
             let msg = `"${title}" から ${n} 件のデータが削除されます。`;
-            res.send(msg);            
+            res.send(msg);
         }
         else {
-            res.send("${n} 件のデータが削除されます。");            
+            res.send("${n} 件のデータが削除されます。");
         }
     }
     else {
@@ -1051,7 +1050,7 @@ router.get("/marksInsert", async (req, res) => {
             let sql2 = `REPLACE INTO Marks VALUES(NULL, '${a.mark}', '${a.tableName}', '', CURRENT_DATE())`;
             await mysql.execute_p(sql2);
         }
-        res.send("OK: 一括登録が終了しました。");    
+        res.send("OK: 一括登録が終了しました。");
     }
     catch (err) {
         res.send(err.message);
@@ -1098,7 +1097,7 @@ const getConf = () => {
     let conf = JSON.parse(confstr);
     return conf;
 }
-  
+
 // MySQL: ファイル実行 (GET)
 router.get("/mysqlExecFile", (req, res) => {
     res.render("mysqlExecFile", {});
@@ -1263,6 +1262,7 @@ router.get("/awsS3", (req, res) => {
     res.render("awsS3", {});
 });
 
+
 // AWS S3 (POST)
 router.post("/awsS3", async (req, res) => {
     let key = req.body.key;
@@ -1309,10 +1309,142 @@ router.post("/awsS3", async (req, res) => {
     }
 });
 
-// Google Drive
-router.get("/googleDrive", (req, res) => {
-    res.render("googleDrive", {});
+// Wiki 投稿一覧
+router.get("/wiki", async (req, res) => {
+    let types = await mysql.query_p("SELECT DISTINCT `type` FROM Wiki");
+    let sql = "SELECT id, title, author, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date`, info, hidden, `type`, `revision`  FROM Wiki WHERE hidden='0'";
+    if (req.query.word) {
+        const word = req.query.word;
+        sql += ` AND (INSTR(title, '${word}') OR INSTR(content, '${word}') OR INSTR(info, '${word}') OR INSTR(author, '${word}'))`;
+    }
+    else if (req.query.type) {
+        sql += ` AND type='${req.query.type}'`;
+    }
+    else {
+        // 何もしない。
+    }
+    sql += " ORDER BY id DESC";
+    let result = await mysql.query_p(sql);
+    let message = "";
+    if (result.length > 0) {
+        message = result.length + " 件の投稿が検索されました。";
+        if (req.query.word) {
+            message += " 検索ワード：" + req.query.word;
+        }
+        else if (req.query.type) {
+            message += " 区分：" + req.query.type;
+        }
+        else {
+            // 何もしない。
+        }
+    }
+    else {
+        message = "投稿がありません。";
+    }
+    res.render("wiki", {message:message, result:result, types:types});
 });
+
+// Wiki のデータを得る。
+router.get("/getWikiData", async (req, res) => {
+    const id = req.query.id;
+    const sql = "SELECT * FROM Wiki WHERE id=" + id;
+    let data = await mysql.getRow_p(sql);
+    res.json(data);
+});
+
+// 最新の Wiki のデータ n 件を得る。
+router.get("/getWikiData2", async (req, res) => {
+    const n = req.query.n;
+    const sql = "SELECT * FROM Wiki ORDER BY id DESC LIMIT " + n;
+    let data = await mysql.query_p(sql);
+    res.json(data);
+});
+
+// Wiki フォーム GET
+router.get("/wikiForm", async (req, res) => {
+    let data = {};
+    let message = "";
+    if (req.query.id) {
+        const result = await mysql.getRow_p("SELECT id,title,author,content,hidden,info,type,revision FROM Wiki WHERE id=" + req.query.id);
+        if (result.id) {
+            data.id = result.id;
+            data.title = result.title;
+            data.author = result.author;
+            data.content = result.content;
+            data.hidden = result.hidden;
+            data.info = result.info;
+            data.type = result.type;
+            data.revision = result.revision;
+            message = "検索されました。";
+        }
+        else {
+            message = "id に対するデータが見つかりません。";
+        }
+    }
+    else {
+        data.id = "";
+        data.title = "";
+        data.author = "";
+        data.date = "";
+        data.content = "";
+        data.info = "";
+        data.hidden = '0';
+        data.type = "";
+        data.revision = 0;
+    }
+    res.render("wikiForm", {message:"", data:data});
+});
+
+// Wiki フォーム POST
+router.post("/wikiForm", async (req, res) => {
+    const title = req.body.title.replace(/'/g, "''");
+    const content = req.body.content.replace(/'/g, "''").replace(/\r/g, "");
+    let info = "";
+    if (req.body.info) {
+        info = req.body.info.replace(/'/g, "''");
+    }
+    let data = {
+        id: req.body.id,
+        title: title,
+        author: req.body.author,
+        date:Date.now(),
+        content:content,
+        info: info,
+        hidden: req.body.hidden ? '1' : '0',
+        type: req.body.type,
+        revision: req.body.revision
+    };
+    let sql = "";
+    let message = "";
+    data.id = req.body.id;
+    if (data.id) {
+        // 更新
+        sql = `UPDATE Wiki SET title='${data.title}', author='${data.author}', date=CURRENT_DATE(), content='${data.content}', info='${data.info}', hidden='${data.hidden}', type='${data.type}', revision=${data.revision} WHERE id=${data.id}`;
+        message = `id=${data.id} のデータが更新されました。`;
+    }
+    else {
+        // 挿入
+        let id = await mysql.getValue_p("SELECT max(id) FROM Wiki");
+        sql = `INSERT INTO Wiki VALUES(NULL, '${data.title}', '${data.author}', CURRENT_DATE(), '${data.content}', '${data.info}', '${data.hidden}', '${data.type}', ${data.revision})`;
+        message = `id=${id+1} のデータが挿入されました。`;
+    }
+    await mysql.execute_p(sql);
+    res.render("wikiForm", {message:message, data:data});
+});
+
+// Wiki 内容表示
+router.get("/wikiContent", async (req, res) => {
+    const id = req.query.id;
+    let result = await mysql.getRow_p("SELECT title, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date`, content FROM Wiki WHERE id=" + id);
+    if (result) {
+        res.render("wikiContent", {id:id, date:result.date, title:result.title, message:"id: " + id + " に対する内容が見つかりました。", content:result.content});
+    }
+    else {
+        res.render("wikiContent", {id:"", date:"", title:"エラー", message:"エラー id: " + id + " に対する内容が見つかりませんでした。", content:result.content});
+    }
+});
+
+
 
 
 /* エクスポート */

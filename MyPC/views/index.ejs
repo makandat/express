@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
     <title><%= title %></title>
     <link rel='stylesheet' href='/css/style.css' />
 	<style>
@@ -19,9 +21,79 @@
 	  .iconpad {
 		padding: 5px;
 	  }
+	  .info {
+		  margin-left:15%;
+		  font-size: 11pt;
+	  }
+	  .info2 {
+		  margin-left:18%;
+		  font-size: 11pt;
+	  }
 	</style>
+	<script src="/js/private.js"></script>
+	<script>
+		// ページがロードされたとき
+		function getWikiData2() {
+			fetch("/extra/getWikiData2?n=5")
+			.then(res => res.json())
+			.then(data => {
+				if (!data) {
+					setElValue("message", "Wiki データがありません。");
+					setElValue("wiki", "Wiki データがありません。");
+					return;
+				}
+				let html = "<ul>\n";
+				for (const row of data) {
+					const url = "/extra/wikiContent/?id=" + row.id;
+					html += `<li><a href="${url}" target="_blank">`;
+						html += row.title;
+					html += "</a></li>\n";
+				}
+				html += "</ul>\n"
+				setElValue("message", "");
+				setElValue("wiki", html, false);
+			})
+			.catch(err => setElValue("message", err.message));
+		}
+
+		// データの追加 Select が変化したとき
+		function addData() {
+			const tableName = getElValue("addData");
+			switch (tableName) {
+				case "Album":
+					window.open("/index/addModifyAlbum/");
+					break;
+				case "Pictures":
+					window.open("/pictures/picturesForm/");
+					break;
+				case "Videos":
+					window.open("/videos/videosForm/");
+					break;
+				case "Music":
+					window.open("/music/musicForm/");
+					break;
+				case "Playlists":
+					window.open("/music/musicPlForm/");
+					break;
+				case "Projects":
+					window.open("/projects/projectForm/");
+					break;
+				case "Documents":
+					window.open("/documents/documentForm/");
+					break;
+				case "BINDATA":
+					window.open("/extra/bindataForm");
+					break;
+				case "Wiki":
+					window.open("/extra/wikiForm");
+					break;
+				default:
+					break;
+			}
+		}
+	</script>
   </head>
-  <body>
+  <body onload="javascript:getWikiData2()">
     <h1><%= title %></h1>
     <p style="text-align:center;color:indigo;">ようこそ！ <%= title %></p>
 	<br />
@@ -35,6 +107,7 @@
 		<a href="/pictures/showContent?reset=1" target="_blank"><img src="/img/image2.png" /> 画像</a>&nbsp;/&nbsp;
 		<a href="/videos/showContent?reset=1" target="_blank"><img src="/img/video2.png" /> 動画</a>&nbsp;/&nbsp;
 		<a href="/music/showContent?reset=1" target="_blank"><img src="/img/song16.png" /> 音楽</a>&nbsp;|&nbsp;
+		<a href="/extra/wiki" target="_blank"><img src="/img/folder2.png" /> Wiki</a>&nbsp;/&nbsp;
 		<a href="/help_index.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>&nbsp;
 	</div>
 	<article class="horblock">
@@ -47,8 +120,47 @@
 	  <figure><a href="/extra" target="_blank"><img src="/img/settings.png" alt="その他"  class="iconpad" /><figcaption>その他</figcaption></a></figure>
 	  <br />
 	</article>
-	<p class="message"><%= message %></p>
+	<p id="message" class="message"><%= message %></p>
     <br />
+	<div style="display: flex;" class="info">
+		<div>
+			<h4 >データの追加</h4>
+			<div class="info2">
+				項目の選択： <select id="addData" onchange="javascript:addData()">
+					<option value="0">--- Select ---</option>
+					<option value="Album">アルバム</option>
+					<option value="Pictures">画像</option>
+					<option value="Videos">動画</option>
+					<option value="Music">音楽</option>
+					<option value="Playlists">プレイリスト</option>
+					<option value="Projects">プロジェクト</option>
+					<option value="Documents">文書</option>
+					<option value="BINDATA">サムネール</option>
+					<option value="Wiki">WIKI</option>
+				</select>
+			</div>
+        </div>
+		<div>
+			<h4 class="info">MySQL</h4>
+			<ul>
+				<li><a href="/extra/mysqlMetaInfo" target="_blank">MySQL 情報</a></li>
+				<li><a href="/extra/mysqlExecFile" target="_blank">SQL 実行</a></li>
+				<li><a href="/extra/mysqlExecFile" target="_blank">SQL ファイル実行</a></li>
+			</ul>
+		</div>
+		<div>
+			<h4 class="info">データの削除</h4>
+			<ul>
+				<li><a href="/extra#%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8A%E9%99%A4" target="_blank">テーブル項目の削除</a></li>
+				<li><a href="http://localhost:3000/extra#%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E4%B8%80%E6%8B%AC%E5%89%8A%E9%99%A4" target="_blank">テーブル項目の一括削除</a></li>
+			</ul>
+		</div>
+	</div>
+	<br />
+	<div style="display:block;">
+		<h4 class="info">最新の Wiki 情報</h4>
+		<div class="info2" id="wiki"></div>
+	</div>
 	<p>&nbsp;</p>
 	<p class="footer_text">Version: <%= version %>, Release Date: <%= release_date %></p>
 	<p>&nbsp;</p>

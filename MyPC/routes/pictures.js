@@ -230,12 +230,16 @@ router.get("/getCreatorInfo", async (req, res) => {
 router.get("/showPictures", async (req, res) => {
     let path = req.query.path;
     if (!fso.exists(path)) {
-        res.render("showPictures", {title:"エラー", path:path, message:"パスが存在しません。", result:[]});
+        res.render("showInfo", {message:"エラー： パスが存在しません。", title:"エラー", icon:"cancel.png"});
         return;
     }
     let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
     session.navdir = sortdir;
-    let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
+    const title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
+    if (title == undefined) {
+        res.render("showInfo", {message:"エラー： データが登録されていません。", title:"エラー", icon:"cancel.png"});
+        return;
+    }
     let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
     let result = [];
     if (sortdir == "asc") {
