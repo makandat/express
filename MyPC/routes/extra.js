@@ -78,7 +78,7 @@ router.get("/bindatalist", async (req, res) => {
     }
     if (!session.bindata_start) {
         session.bindata_start = 1;
-        session.bindata_end = ENDLIMIT;
+        session.bindata_end = 10000;
     }
     if (jumpid) {
         session.bindata_start = jumpid;

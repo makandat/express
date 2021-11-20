@@ -134,6 +134,7 @@ CREATE TABLE IF NOT EXISTS `Playlists` (
   `items` text DEFAULT NULL,
   `info` varchar(100) DEFAULT NULL,
   `date` date DEFAULT NULL,
+  BINDATA int DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

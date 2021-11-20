@@ -92,6 +92,9 @@
                         let html = "";
                         for (let a of data) {
                             let image ="/img/playlist64.png";
+                            if (a.BINDATA > 0) {
+                                image = "/extract/" + a.BINDATA;
+                            }
                             html += `<figure style="display:inline-block;text-align:center;"><a href="/playlist/?list=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.title}</figcaption></a></figure>\n`;
                         }
                         $("#playlists").html(html);

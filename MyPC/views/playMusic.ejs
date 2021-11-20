@@ -11,6 +11,7 @@
                 padding:10px;
                 margin-left:20%;
             }
+
             ol {
                 font-size: 11pt;
                 color:blue;
@@ -29,6 +30,8 @@
                 }
                 let player = document.getElementById('player');
                 player.src = "/sendfile?path=" + list[0].replace(/&/g, '%26').replace(/#/g, '%23');
+                let message = document.getElementById('message');
+                message.innerText = "";
                 player.addEventListener('ended', () => {
                     if (mp < list.length) {
                         player.src = "/sendfile?path=" + list[mp].replace(/&/g, '%26').replace(/#/g, '%23');
@@ -37,7 +40,6 @@
                         message.innerText = mp + " 曲目";
                     }
                     else {
-                        let message = document.getElementById('message');
                         message.innerHTML = "終わり <a href=\"javascript:ready()\">もう一度 (再生ボタンのクリックが必要)。</a>";
                     }
                 });
@@ -52,11 +54,16 @@
         </header>
         <article>
             <br />
-            <audio id="player" controls></audio>
+            <audio id="player" controls>
+            </audio>
+            &nbsp;
+            <% if (BINDATA > 0) { %>
+                <img src="/extract/<%= BINDATA %>" />
+            <% }  %>
             <p class="message" id="message"></p>
             <br />
-            <h3>曲目</h3>
-            <ol id="musicList">
+            <h3 style="margin-left:5%;">曲目</h3>
+            <ol id="musicList" style="margin-left:5%;">
                 <% for (let item of items) { %>
                     <% if (item) { %>
                         <li><%= item %></li>

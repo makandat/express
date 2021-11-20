@@ -129,7 +129,7 @@ router.get('/getAlbums/:kind', async (req, res) => {
 
 // プレイリスト一覧を返す。
 router.get('/getPlaylists', async (req, res) => {
-  let sql = "SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Playlists";
+  let sql = "SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date`, BINDATA FROM Playlists";
   let result = await mysql.query_p(sql);
   res.json(result);
 });
@@ -137,9 +137,9 @@ router.get('/getPlaylists', async (req, res) => {
 // プレイリストを演奏する
 router.get("/playlist", (req, res) => {
   let pid = req.query.list;
-  mysql.getRow("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Playlists WHERE id=" + pid, (err,row) => {
+  mysql.getRow("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date`, BINDATA FROM Playlists WHERE id=" + pid, (err,row) => {
     let list = row.items.split("\n");
-    res.render("playMusic", {title:row.title, items:list});
+    res.render("playMusic", {title:row.title, items:list, BINDATA:row.BINDATA});
   });
 });
 
@@ -519,16 +519,18 @@ router.post('/addModifyPlaylist', (req, res) => {
   let title = req.body.title.replace(/'/g, "''");
   let items = req.body.items.replace(/\\/g, "/").replace(/'/g, "''").replace(/\r\n/g, "\n");
   let info = req.body.info.replace(/'/g, "''");
+  let bindata = req.body.BINDATA;
   let value = {
     id:id,
     title:title,
     items:items,
-    info:info
+    info:info,
+    BINDATA:bindata
   };
 
   if (req.body.submit) {
     if (id) {
-      let sql = `UPDATE Playlists SET title='${title}', items='${items}', info='${info}' WHERE id = ${id}`;
+      let sql = `UPDATE Playlists SET title='${title}', items='${items}', info='${info}', BINDATA=${bindata} WHERE id = ${id}`;
       mysql.execute(sql, (err) => {
         if (err) {
           res.render('playlistForm', {message:err.message, result:null, value:value});
@@ -539,7 +541,7 @@ router.post('/addModifyPlaylist', (req, res) => {
       });
     }
     else {
-      let sql = `INSERT INTO Playlists(title, items, info, date) VALUES('${title}', '${items}', '${info}', CURRENT_DATE())`;
+      let sql = `INSERT INTO Playlists(title, items, info, date, BINDATA) VALUES('${title}', '${items}', '${info}', CURRENT_DATE(), ${bindata})`;
       mysql.execute(sql, (err) => {
         if (err) {
           res.render('playlistForm', {message:err.message, result:null, value:value});

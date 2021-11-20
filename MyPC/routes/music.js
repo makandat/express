@@ -323,14 +323,14 @@ router.get('/musicPlForm', async (req, res) => {
         info:"",
         items:""
     };
-    let result = await mysql.query_p("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Playlists");
+    let result = await mysql.query_p("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date`, BINDATA FROM Playlists");
     res.render('playlistForm', {message:"", result:result,value:value});
 });
 
 // プレイリストの内容
 router.get('/showPlaylist/:id', async (req, res) =>{
     let id = req.params.id;
-    let row = await mysql.getRow_p("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Playlists WHERE id=" + id);
+    let row = await mysql.getRow_p("SELECT id, title, items, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date`, BINDATA FROM Playlists WHERE id=" + id);
     let items = row.items.split("\n");
     res.render('showPlaylist', {title:`id: ${id} ${row.title}`, message:"", result:items});
 });

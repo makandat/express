@@ -35,6 +35,19 @@ router.get('/showContent', async (req, res) => {
         session.pictures_offset = 0;
     }
 
+    let message = "";
+    if (req.query.search) {
+        message = "検索ワード： " + req.query.search;
+    }
+    else if (req.query.mark) {
+        message = "区分マーク： " + req.query.mark;
+    }
+    else if (req.query.fav) {
+        message = "「お気に入り」フラグがセットされた項目";
+    }
+    else {
+        // そのまま
+    }
     let album = req.query.album;
     if (!album) {
         album = 0;
@@ -86,7 +99,7 @@ router.get('/showContent', async (req, res) => {
         let sql = await makeSQL(req);
         let result = await mysql.query_p(sql);
         // 結果を返す。
-        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "", dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
+        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : message, dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
     }
     catch (err) {
         res.render('showInfo', {"title":"Fatal Error", "message":"エラー:" + err.message, "icon":"cancel.png"});

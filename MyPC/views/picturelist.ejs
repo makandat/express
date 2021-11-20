@@ -79,12 +79,14 @@
                 <% if (albumName) { %>
                     アルバム: <%= albumName %>&nbsp;&nbsp;
                 <% } %>
+<!--
                 <% if (mark) { %>
                     識別マーク: <%= mark %>&nbsp;&nbsp;
                 <% } %>
                 <% if (search) { %>
                     検索ワード： <%= search %>&nbsp;&nbsp;
                 <% } %>
+-->
                 <%= message %>
             </h4>
             <br />
@@ -98,7 +100,7 @@
                         <% } else { %>
                             <td><%= row.album %></td>
                         <% } %>
-                        <td><a href="/pictures/showPictures/?path=<%= row.path %>" target="_blank"><%= row.title %></a></td></a></td>
+                        <td><a href="/pictures/showPictures/?path=<%= row.path.replace(/#/g, '%23').replace(/&/g, '%26') %>" target="_blank"><%= row.title %></a></td></a></td>
                         <td><a href="/pictures/showContent?creator=<%= row.creator %>" target="_blank"><%= row.creator %></a></td>
                         <td><a href="/pictures/showthumb/?path=<%= row.path %>" target="_blank"><%= row.path %></a></td>
                         <td><%= row.media %></td>
