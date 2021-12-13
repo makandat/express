@@ -13,11 +13,19 @@
                         alert("タイトルが空欄です。");
                         return;
                     }
-                    if (!$("#path").val()) {
+                    let path = $("#path").val();
+                    let endp = path.length - 1;
+                    if (!path) {
                         alert("パスが空欄です。");
                         return;
                     }
-                    document.form1.submit();
+                    else if (path[0] == '"' && path[endp] == '"') {
+                        $("#path").val(path.substring(1, endp));
+                    }
+                    else {
+                        // そのまま
+                    }
+                    form1.submit();
                 });
                 $("#confirmButton").click(() => {
                     let id = $("#id").val();

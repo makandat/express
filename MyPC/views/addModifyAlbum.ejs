@@ -17,7 +17,7 @@
                     alert("アルバム名が空欄です。");
                     return;
                 }
-                document.form1.submit();
+                form1.submit();
             }
 
             // すべてのコントロールをクリアする。
@@ -51,7 +51,7 @@
     <body>
         <header>
             <h1><a href="/"><img src="/img/home_orange.png" /></a> アルバムの作成・修正</h1>
-            <hr />    
+            <hr />
         </header>
         <article>
             <p class="comment">id が空欄の場合は新規作成となります。そうでない場合は当該 id のアルバムが修正されます。<br />id を入力して「データ確認」をクリックするとその id のデータが表示されます。</p>

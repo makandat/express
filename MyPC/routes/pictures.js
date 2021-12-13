@@ -123,7 +123,7 @@ router.get("/showthumb", async (req, res) => {
     }
     let id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
     countup(id, res);
-    res.render("showthumb", {title:title, message:"", dir:path, files:files, sortdir:sortdir});
+    res.render("showthumb", {title:title, message:path, dir:path, files:files, sortdir:sortdir});
 });
 
 // ナビゲーション形式で画像表示する。

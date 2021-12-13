@@ -8,6 +8,37 @@
         <script src="/js/jquery.min.js"></script>
         <script>
             $(() => {
+                $("#submitButton").click(() => {
+                    if (!$("#title").val()) {
+                        alert("タイトルが空欄です。");
+                        return;
+                    }
+                    let path = "";
+                    if ($("#dataFileServer").val()) {
+                        path = $("#dataFileServer").val();
+                    }
+                    else if ($("#dataFileClient").val()) {
+                        path = $("#dataFileClient").val();
+                    }
+                    else {
+                        alert("パスが空欄です。");
+                        return;
+                    }
+                    let endp = path.length - 1;
+                    if (path[0] == '"' && path[endp] == '"') {
+                        path = path.substring(1, endp);
+                        if ($("#dataFileServer").val()) {
+                            $("#dataFileServer").val(path);
+                        }
+                        else {
+                            $("#dataFileClient").val(path);
+                        }
+                    }
+                    else {
+                        // そのまま
+                    }
+                    form1.submit();
+                });
                 $("#confirmButton").click(() => {
                     let id = $("#id").val();
                     if (id) {
@@ -29,12 +60,12 @@
         <header>
             <h1><a href="/"><img src="/img/home_orange.png" /></a>&nbsp;サムネール画像情報の追加・更新</h1>
             <p class="comment">id が空欄の場合は新規追加、そうでない場合は更新となります。<br />
-                サムネールにする画像ファイルはローカル側（アップロードするファイル) またはサーバ側の画像ファイルのどちらか片方を指定します。<br /> 
+                サムネールにする画像ファイルはローカル側（アップロードするファイル) またはサーバ側の画像ファイルのどちらか片方を指定します。<br />
                 両方指定した場合はアップロードしたファイルを使用します。
             </p>
         </header>
         <article>
-            <form method="POST" enctype="multipart/form-data" action="/extra/bindataForm">
+            <form id="form1" method="POST" enctype="multipart/form-data" action="/extra/bindataForm">
                 <div class="form_row">
                     <div class="form_item">id</div>
                     <div class="form_item"><input type="number" id="id" name="id" value="<%= value.id %>" /></div>
@@ -66,7 +97,7 @@
                 <div class="form_row" style="margin-top:10px;">
                     <div class="form_item"></div>
                     <div class="form_item">
-                        <input type="submit" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
+                        <input type="button" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
                         <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " />&nbsp;
                         <input type="button" id="clearButton" name="clearButton" value=" クリア " />&nbsp;
                     </div>

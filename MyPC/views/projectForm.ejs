@@ -10,6 +10,22 @@
             }
         </style>
         <script>
+            function submitClick() {
+                let path = form1.path.value;
+                let endp = path.length - 1;
+                if (endp < 0) {
+                    alert("パスが空欄です。");
+                    return;
+                }
+                else if (path[0] == '"' && path[endp] == '"') {
+                    form1.path.value = path.substring(1, endp);
+                }
+                else {
+                    // そのまま
+                }
+                form1.submit();
+            }
+
             function confirmProject() {
                 let id = document.getElementById("id").value;
                 location.href = "/projects/confirmProject/" + id;
@@ -86,7 +102,7 @@
                     <div><div class="form_item">サムネール&nbsp;<a href="javascript:checkBINDATA()">[チェック]</a><div><div><input type="number" id="bindata" name="bindata" size="8" value="<%= value.bindata %>" />&nbsp;&nbsp;<a href="/extra/bindataForm" target="_blank">[サムネール画像の登録]</a></div></div>
                     <div style="display:none" id="divthumb"><img src="" id="thumb" /></div>
                     <div style="margin-top:15px;">
-                        <input type="submit" id="submitButton" name="submitButton" value=" 送信する " />&nbsp;
+                        <input type="button" id="submitButton" name="submitButton" value=" 送信する " onclick="javascript:submitClick()" />&nbsp;
                         <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " onclick="javascript: confirmProject()" />&nbsp;
                         <input type="button" id="resetButton" value=" クリアする " onclick="javascript: clearForm()" />
                     </div>
