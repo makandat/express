@@ -191,13 +191,13 @@ function getCriteria(search, mark) {
     return criteria;
 }
 
-// 「好き」の付いた画像フォルダ一覧
+// 「好き」の付いた動画一覧
 function showFavlist(res) {
     let sql = "SELECT id, album, title, path, media, series, mark, info, fav, `count`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Videos WHERE fav > 0 ORDER BY fav DESC";
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('videolist', {"title":"好きな画像フォルダ一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('videolist', {"title":"好きな動画一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
             return;
         }
         else {
@@ -212,7 +212,7 @@ function showWithSeries(series, res) {
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('videolist', {"title":series + "の画像フォルダ一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('videolist', {"title":"「" + series + "」の動画一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
             return;
         }
         else {

@@ -95,7 +95,7 @@
                             if (a.BINDATA > 0) {
                                 image = "/extract/" + a.BINDATA;
                             }
-                            html += `<figure style="display:inline-block;text-align:center;"><a href="/playlist/?list=${a.id}" taregt="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.title}</figcaption></a></figure>\n`;
+                            html += `<figure style="display:inline-block;text-align:center;"><a href="/playlist/?list=${a.id}" target="_blank"><img src="${image}" /><figcaption>(${a.id}) ${a.title}</figcaption></a></figure>\n`;
                         }
                         $("#playlists").html(html);
                         $("message").text("アルバムとプレイリスト一覧が表示されました。");
