@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>MyPC Wiki の追加・更新</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            form {
+                margin-left: 10%;
+            }
+            fieldset {
+                border-width: 0px;
+                margin-bottom: 4px;
+            }
+            .label {
+                font-size: 10pt;
+                color:royalblue;
+            }
+        </style>
+        <script src="/js/private.js"></script>
+        <script>
+            // 送信ボタンがクリックされたとき
+            function submitClick() {
+                if (!form1.title.value) {
+                    alert("タイトルが空欄です。");
+                    return;
+                }
+                if (!form1.content.value) {
+                    alert("内容が空欄です。");
+                    return;
+                }
+                form1.submit();
+            }
+
+            // データ確認ボタンがクリックされたとき
+            function confirmClick() {
+                if (!form1.id.value) {
+                    alert("id が空欄です。");
+                    return;
+                }
+                const message = document.getElementById("message");
+                fetch("/extra/getWikiData?id=" + form1.id.value)
+                .then(res => res.json())
+                .then(data => {
+                    form1.id.value = data.id;
+                    form1.title.value = data.title;
+                    form1.author.value = data.author;
+                    form1.content.value = data.content;
+                    if (data.hidden) {
+                        form1.hidden.setAttribute("checked", "checked");
+                    }
+                    else {
+                        form1.hidden.removeAttribute("checked");
+                    }
+                    form1.type.value = data.type;
+                    form1.revision.value = data.revision;
+                    message.innerText = "";
+                })
+                .catch(err => message.innerText = err.message);
+            }
+
+            // クリアボタンがクリックされたとき
+            function clearClick() {
+                form1.id.value = "";
+                form1.title.value = "";
+                form1.author.value = "";
+                form1.hidden.removeAttribute("checked");
+                form1.type.value = "";
+                form1.revision.value = "0";
+                form1.content.value = "";
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>MyPC Wiki の追加・更新</h1>
+        </header>
+        <br />
+        <form id="form1" method="POST" action="/extra/wikiForm">
+            <fieldset>
+                <div class="label">id (注意) 空欄の場合は追加になります。</div>
+                <div><input type="number" id="id" name="id" size="8" value="<%= data.id %>"></div>
+            </fieldset>
+            <fieldset>
+                <div class="label">タイトル</div>
+                <div><input type="text" id="title" name="title" size="80" value="<%= data.title %>"></div>
+            </fieldset>
+            <fieldset>
+                <div class="label">投稿者</div>
+                <div><input type="text" id="author" name="author" size="30" value="<%= data.author %>"></div>
+            </fieldset>
+            <fieldset>
+                <div class="label">内容</div>
+                <div><textarea id="content" name="content" cols="100" rows="10"><%= data.content %></textarea></div>
+            </fieldset>
+            <fieldset>
+                <% if (data.hidden == "0") { %>
+                    <div><input type="checkbox" id="hidden" name="hidden" value="hidden" /> この投稿は一覧に表示しない。</div>
+                <% } else { %>
+                    <div><input type="checkbox" id="hidden" name="hidden" value="hidden" checked="checked"> この投稿は一覧に表示しない。</div>
+                <% } %>
+            </fieldset>
+            <fieldset>
+                <div class="label">区分 (例) 画像追加、画像更新、バージョンアップ・・・</div>
+                <div><input type="text" id="type" name="type" size="20" value="<%= data.type %>"></div>
+            </fieldset>
+            <fieldset>
+                <div class="label">版数</div>
+                <div><input type="number" id="revision" name="revision" size="5" value="<%= data.revision %>"></div>
+            </fieldset>
+            <fieldset style="margin-top:4px;">
+                <div><input type="button" id="submitButton" value=" 送信 " onclick="javascript:submitClick()">&nbsp;<input type="button" id="confirmButton" value=" データ確認 " onclick="javascript:confirmClick()">&nbsp;<input type="button" id="clearButton" value=" クリア " onclick="javascript:clearClick()"></div>
+            </fieldset>
+        </form>
+        <p id="message" class="message"><%= message %></p>
+    </body>
+</html>

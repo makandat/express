@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>MyPC Wiki</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+            table {
+                width:95%;
+                margin-left:3%;
+            }
+        </style>
+        <script>
+            // 検索ボタンがクリックされたとき
+            function findClick() {
+                const w = document.getElementById("word").value;
+                if (w == "") {
+                    alert("検索ワードが空欄です。");
+                    return;
+                }
+                location.href = "/extra/wiki/?word=" + w;
+            }
+
+            // 区分セレクタが変化したとき
+            function typesChange() {
+                const t = document.getElementById("types").value;
+                if (t != '0') {
+                    location.href = "/extra/wiki/?type=" + t;
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>MyPC Wiki</h1>
+            <div class="menu">
+                <a href="/index"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
+                <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
+                <a href="/extra/wikiForm" target="_blank"><img src="/img/form.png" /> Wiki 内容の追加・更新</a>&nbsp;|&nbsp;
+                <label>ワード検索： <input type="text" id="word" size="30" />&nbsp;
+                    <input type="button" id="findButton" value=" 検索 " onclick="javascript:findClick()" /></label>&nbsp;|&nbsp;
+                <label>区分： <select id="types" onchange="javascript:typesChange()">
+                    <option value="0">--- Select ---</option>
+                    <% for (const item of types) { %>
+                        <option value="<%= item.type %>"><%= item.type %></option>
+                    <% } %>
+                </select></label>
+            </div>
+        </header>
+        <article>
+            <p class="message"><%= message %></p>
+            <table>
+                <tr><th>id</th><th>タイトル</th><th>投稿者</th><th>日付</th><th>情報</th><th>区分</th><th>版数</th></tr>
+                <% for (const row of result) { %>
+                    <tr>
+                        <td><a href="/extra/wikiForm?id=<%= row.id %>"" target="_blank"><%= row.id %></a></td>
+                        <td><a href="/extra/wikiContent?id=<%= row.id %>" target="_blank"><%= row.title %></a></td>
+                        <td><%= row.author %></td>
+                        <td><%= row.date %></td>
+                        <td><%= row.info %></td>
+                        <td><%= row.type %></td>
+                        <td><%= row.revision %></td>
+                    </tr>
+                <% } %>
+            </table>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p style="text-align:center;"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>
