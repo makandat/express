@@ -70,6 +70,75 @@
                 form1.revision.value = "0";
                 form1.content.value = "";
             }
+
+            // HTML 作成ボタンがクリックされたとき
+            function makeButtonClick() {
+                let html = "";
+                const item = form2.itemHtml.value;
+                const params = form2.params.value.trim();
+                const htmlArea = document.getElementById("html");
+                if (params == "") {
+                    alert("パラメータが空欄です。");
+                    return;
+                }
+                switch (item) {
+                    case "picture": {
+                        const paths = params.split(/\n/g);
+                        for (let p of paths) {
+                            p = p.replace(/\\/g, "/");
+                            html += `<a href="/sendfile?path=${p}"><img src="/sendfile?path=${p}" style="width:160px;" /></a>\n`;
+                        }
+                    }
+                    break;
+                    case "folder": {
+                        const paths = params.split(/\n/g);
+                        for (let p of paths) {
+                            p = p.replace(/\\/g, "/");
+                            html += `<a href="/pictures/showPictures?path=${p}">${p}</a>\n`;
+                        }
+                    }
+                    break;
+                    case "list": {
+                        const n = parseInt(params);
+                        html += "<ul>\n";
+                        for (let i = 0; i < n; i++) {
+                            html += "<li></li>\n";
+                        }
+                        html += "</ul>\n";
+                    }
+                    break;
+                    case "table": {
+                        const mn = params.split(",");
+                        const m = parseInt(mn[0]);
+                        const n = parseInt(mn[1]);
+                        html += "<table>\n<tr>";
+                        for (j = 0; j < n; j++) {
+                            html += "<th></th>";
+                        }
+                        html += "</tr>\n";
+                        for (let i = 0; i < m; i++) {
+                            html += "<tr>";
+                            for (let j = 0; j < n; j++) {
+                                html += "<td></td>";
+                            }
+                            html += "</tr>\n";
+                        }
+                        html += "</table>\n";
+                    }
+                    break;
+                    default:
+                        alert("Fatal error");
+                    break;
+                }
+                htmlArea.innerText = html;
+            }
+
+            // HTML クリアボタンがクリックされたとき
+            function clearButtonClick() {
+                form2.params.value = "";
+                const htmlArea = document.getElementById("html");
+                htmlArea.innerText = "";
+            }
         </script>
     </head>
 
@@ -115,5 +184,39 @@
             </fieldset>
         </form>
         <p id="message" class="message"><%= message %></p>
+        <br />
+        <h2 style="margin-left:10%;">HTML 要素の作成</h2>
+        <form id="form2">
+            <fieldset>
+                <div>作成項目</div>
+                <div><ul style="list-style-type: none;">
+                    <li><input type="radio" id="itemHtml1" name="itemHtml" value="picture" checked="true" /> 画像表示</li>
+                    <li><input type="radio" id="itemHtml2" name="itemHtml" value="folder" /> フォルダ内画像一覧</li>
+                    <li><input type="radio" id="itemHtml3" name="itemHtml" value="list" /> リスト</li>
+                    <li><input type="radio" id="itemHtml4" name="itemHtml" value="table" /> 表</li>
+                </ul></div>
+            </fieldset>
+            <fieldset>
+                <div>パラメータ</div>
+                <div>
+                    <textarea id="params" cols="100" rows="8"></textarea>
+                </div>
+            </fieldset>
+            <fieldset>
+                <input type="button" id="makeButton" value=" 作成する " onclick="makeButtonClick()" />&nbsp;
+                <input type="button" id="clearButton" value=" クリアする " onclick="clearButtonClick()" />
+            </fieldset>
+            <br />
+            <pre id="html" style="color:firebrick;"></pre>
+        </form>
+        <h3 style="margin-left:10%;">ヘルプ</h3>
+        <ul style="margin-left:10%; font-size:10pt;">
+            <li>画像表示<br />画像の絶対パス (複数可能) をパラメータに設定する。</li>
+            <li>フォルダ内画像一覧<br />画像フォルダの絶対パス (複数可能) をパラメータに設定する。</li>
+            <li>リスト<br />リストの行数をパラメータに設定する。</li>
+            <li>テーブル<br />表の行と列数をカンマ区切りでに設定する。</li>
+        </ul>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
     </body>
 </html>
