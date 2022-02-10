@@ -86,6 +86,7 @@
                         const paths = params.split(/\n/g);
                         for (let p of paths) {
                             p = p.replace(/\\/g, "/");
+                            p = stripDblQuote(p);
                             html += `<a href="/sendfile?path=${p}"><img src="/sendfile?path=${p}" style="width:160px;" /></a>\n`;
                         }
                     }
@@ -94,7 +95,19 @@
                         const paths = params.split(/\n/g);
                         for (let p of paths) {
                             p = p.replace(/\\/g, "/");
-                            html += `<a href="/pictures/showPictures?path=${p}">${p}</a>\n`;
+                            p = stripDblQuote(p);
+                            html += `<li><a href="/pictures/showPictures?path=${p}">${p}</a></li>\n`;
+                        }
+                    }
+                    break;
+                    case "folder2": {
+                        const paths = params.split(/\n/g);
+                        for (let p of paths) {
+                            p = p.replace(/\\/g, "/");
+                            let q = p.split(",");
+                            let dir = stripDblQuote(q[0]);
+                            let img = stripDblQuote(q[1]);
+                            html += `<li><a href="/pictures/showPictures?path=${dir}"><img src="/sendfile?path=${img}" /></a></li>\n`;
                         }
                     }
                     break;
@@ -131,6 +144,14 @@
                     break;
                 }
                 htmlArea.innerText = html;
+            }
+
+            // " でパスが囲まれていたら " を取り去る。
+            function stripDblQuote(p) {
+                if (p[0] == '"' && p[p.length-1] == '"') {
+                    p = p.substring(1, p.length - 1);
+                }
+                return p;
             }
 
             // HTML クリアボタンがクリックされたとき
@@ -191,7 +212,8 @@
                 <div>作成項目</div>
                 <div><ul style="list-style-type: none;">
                     <li><input type="radio" id="itemHtml1" name="itemHtml" value="picture" checked="true" /> 画像表示</li>
-                    <li><input type="radio" id="itemHtml2" name="itemHtml" value="folder" /> フォルダ内画像一覧</li>
+                    <li><input type="radio" id="itemHtml21" name="itemHtml" value="folder" /> フォルダ内画像一覧 (リスト)</li>
+                    <li><input type="radio" id="itemHtml22" name="itemHtml" value="folder2" /> フォルダ内画像一覧 (サムネール)</li>
                     <li><input type="radio" id="itemHtml3" name="itemHtml" value="list" /> リスト</li>
                     <li><input type="radio" id="itemHtml4" name="itemHtml" value="table" /> 表</li>
                 </ul></div>
@@ -213,6 +235,7 @@
         <ul style="margin-left:10%; font-size:10pt;">
             <li>画像表示<br />画像の絶対パス (複数可能) をパラメータに設定する。</li>
             <li>フォルダ内画像一覧<br />画像フォルダの絶対パス (複数可能) をパラメータに設定する。</li>
+            <li>フォルダ内画像一覧 (サムネール)<br />画像フォルダの絶対パス (複数可能) とサムネール用画像の絶対パスをカンマ区切りでパラメータに設定する。</li>
             <li>リスト<br />リストの行数をパラメータに設定する。</li>
             <li>テーブル<br />表の行と列数をカンマ区切りでに設定する。</li>
         </ul>
