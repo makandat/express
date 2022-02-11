@@ -249,7 +249,7 @@ router.get("/showPictures", async (req, res) => {
     let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
     session.navdir = sortdir;
     const title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
-    if (title == undefined) {
+    if (title == null) {
         res.render("showInfo", {message:"エラー： データが登録されていません。", title:"エラー", icon:"cancel.png"});
         return;
     }

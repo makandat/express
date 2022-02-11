@@ -164,14 +164,19 @@ exports.getValue_p = async (sql, conf = null) => {
 */
       conn.query(sql, (error, results, fields)=> {
       if (error) {
-         reject(error);
+         resolve({"title":null});
          //conn.end();
       }
       else {
          let row = results[0];
          let key = fields[0].name;
-         let value = row[key];
-         resolve(value);
+         if (row == undefined || row[key] == undefined) {
+          resolve(null);
+        }
+         else {
+          let value = row[key];
+          resolve(value); 
+         }
          //conn.end();
       }
     });
