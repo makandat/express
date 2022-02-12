@@ -121,7 +121,7 @@
                     }
                     break;
                     case "table": {
-                        const mn = params.split(",");
+                        const mn = params.split(/,/g);
                         const m = parseInt(mn[0]);
                         const n = parseInt(mn[1]);
                         html += "<table>\n<tr>";
@@ -138,6 +138,14 @@
                         }
                         html += "</table>\n";
                     }
+                    break;
+                    case "video":
+                        const ids = params.split(/\n/g);
+                        html = "";
+                        for (let j = 0; j < ids.length; j++) {
+                            const vth = ids[j].split(/,/g);
+                            html += `<a href="/videos/playForm/${vth[0]}"><img src="/extract/${vth[1]}" /></a>\n`;
+                        }
                     break;
                     default:
                         alert("Fatal error");
@@ -216,6 +224,7 @@
                     <li><input type="radio" id="itemHtml22" name="itemHtml" value="folder2" /> フォルダ内画像一覧 (サムネール)</li>
                     <li><input type="radio" id="itemHtml3" name="itemHtml" value="list" /> リスト</li>
                     <li><input type="radio" id="itemHtml4" name="itemHtml" value="table" /> 表</li>
+                    <li><input type="radio" id="itemHtml5" name="itemHtml" value="video" /> ビデオの一覧</li>
                 </ul></div>
             </fieldset>
             <fieldset>
@@ -234,10 +243,11 @@
         <h3 style="margin-left:10%;">ヘルプ</h3>
         <ul style="margin-left:10%; font-size:10pt;">
             <li>画像表示<br />画像の絶対パス (複数可能) をパラメータに設定する。</li>
-            <li>フォルダ内画像一覧<br />画像フォルダの絶対パス (複数可能) をパラメータに設定する。</li>
+            <li>フォルダ内画像一覧<br />画像フォルダの絶対パス (複数可能) をカンマ区切りでパラメータに設定する。</li>
             <li>フォルダ内画像一覧 (サムネール)<br />画像フォルダの絶対パス (複数可能) とサムネール用画像の絶対パスをカンマ区切りでパラメータに設定する。</li>
             <li>リスト<br />リストの行数をパラメータに設定する。</li>
             <li>テーブル<br />表の行と列数をカンマ区切りでに設定する。</li>
+            <li>ビデオの一覧<br />ビデオの ID とサムネール画像の ID をカンマ区切りでパラメータに設定する。</li>
         </ul>
         <p>&nbsp;</p>
         <p>&nbsp;</p>
