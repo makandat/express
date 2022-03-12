@@ -107,7 +107,16 @@
                             let q = p.split(",");
                             let dir = stripDblQuote(q[0]);
                             let img = stripDblQuote(q[1]);
-                            html += `<li><a href="/pictures/showPictures?path=${dir}"><img src="/sendfile?path=${img}" /></a></li>\n`;
+                            html += `<li><a href="/pictures/showPictures?path=${dir}&sortdir=asc"><img src="/sendfile?path=${img}" /></a></li>\n`;
+                        }
+                    }
+                    break;
+                    case "picture2": {
+                        const paths = params.split(/\n/g);
+                        for (let p of paths) {
+                            p = p.replace(/\\/g, "/");
+                            let img = stripDblQuote(p);
+                            html += `<a href="/pictures/showNavImage?path=${img}" target="_blank"><img src="/sendfile?path=${img}" width="320px" /></a>\n`;
                         }
                     }
                     break;
@@ -222,6 +231,7 @@
                     <li><input type="radio" id="itemHtml1" name="itemHtml" value="picture" checked="true" /> 画像表示</li>
                     <li><input type="radio" id="itemHtml21" name="itemHtml" value="folder" /> フォルダ内画像一覧 (リスト)</li>
                     <li><input type="radio" id="itemHtml22" name="itemHtml" value="folder2" /> フォルダ内画像一覧 (サムネール)</li>
+                    <li><input type="radio" id="itemHtml23" name="itemHtml" value="picture2" /> 画像一覧 (サムネール Navigation)</li>
                     <li><input type="radio" id="itemHtml3" name="itemHtml" value="list" /> リスト</li>
                     <li><input type="radio" id="itemHtml4" name="itemHtml" value="table" /> 表</li>
                     <li><input type="radio" id="itemHtml5" name="itemHtml" value="video" /> ビデオの一覧</li>
@@ -245,6 +255,7 @@
             <li>画像表示<br />画像の絶対パス (複数可能) をパラメータに設定する。</li>
             <li>フォルダ内画像一覧<br />画像フォルダの絶対パス (複数可能) をカンマ区切りでパラメータに設定する。</li>
             <li>フォルダ内画像一覧 (サムネール)<br />画像フォルダの絶対パス (複数可能) とサムネール用画像の絶対パスをカンマ区切りでパラメータに設定する。</li>
+            <li>フォルダ内画像一覧 (サムネール Navigation)<br />画像ファイルの絶対パス (複数可能)パラメータに設定する。</li>
             <li>リスト<br />リストの行数をパラメータに設定する。</li>
             <li>テーブル<br />表の行と列数をカンマ区切りでに設定する。</li>
             <li>ビデオの一覧<br />ビデオの ID とサムネール画像の ID をカンマ区切りでパラメータに設定する。</li>
