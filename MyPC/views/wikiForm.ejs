@@ -116,7 +116,7 @@
                         for (let p of paths) {
                             p = p.replace(/\\/g, "/");
                             let img = stripDblQuote(p);
-                            html += `<a href="/pictures/showNavImage?path=${img}" target="_blank"><img src="/sendfile?path=${img}" width="320px" /></a>\n`;
+                            html += `<a href="/pictures/showNavImage?path=${img}&sortdir=asc" target="_blank"><img src="/sendfile?path=${img}" width="320px" /></a>\n`;
                         }
                     }
                     break;
