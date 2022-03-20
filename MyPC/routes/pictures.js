@@ -162,6 +162,9 @@ router.get("/showNavImage", async (req, res) => {
                 }
                 break;
             default: // next
+                if (session.navdir == undefined) {
+                    session.navdir = "asc";
+                }
                 if (session.navdir == "asc") {
                     if (session.pictures_nav < session.pictures_nfiles - 1) {
                         session.pictures_nav++;
