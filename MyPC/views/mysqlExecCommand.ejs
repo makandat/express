@@ -66,7 +66,7 @@
                             return;
                         }
                         let ucommand = app.command.toUpperCase();
-                        if (ucommand.startsWith('UPDATE') || ucommand.startsWith('DELETE') && ucommand.includes("WHERE") == false) {
+                        if ((ucommand.startsWith('UPDATE') || ucommand.startsWith('DELETE')) && ucommand.includes("WHERE") == false) {
                             if (!confirm("WHERE 句がありません。このまま実行すると危険です。実行しますか?"))
                                 return;
                         }
