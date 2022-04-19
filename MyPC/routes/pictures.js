@@ -128,67 +128,45 @@ router.get("/showthumb", async (req, res) => {
 
 // ナビゲーション形式で画像表示する。
 router.get("/showNavImage", async (req, res) => {
-    let path = req.query.path;
-    if (path) {
-        session.pictures_navdir = fso.getDirectory(path);
-        [session.pictures_nav, session.pictures_nfiles] = await getNavIndex(session.pictures_navdir, path);
-        let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${session.pictures_navdir}'`);
-        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:(session.pictures_nav+1) + " / " + session.pictures_nfiles, path:path});
-    }
-    else if (req.query.nav) {
-        switch (req.query.nav) {
-            case "first":
-                session.pictures_nav = session.navdir == "asc" ? 0 : session.pictures_nfiles - 1;
-                break;
-            case "last":
-                session.pictures_nav = session.navdir == "asc" ? session.pictures_nfiles - 1 : 0;
-                break;
-            case "prev":
-                if (session.navdir == "asc") {
-                    if (session.pictures_nav > 0) {
-                        session.pictures_nav--;
-                    }
-                    else {
-                        session.pictures_nav = 0;
-                    }
-                }
-                else {
-                    if (session.pictures_nav < session.pictures_nfiles - 1) {
-                        session.pictures_nav++;
-                    }
-                    else {
-                        session.pictures_nav = session.pictures_nfiles - 1;
-                    }
-                }
-                break;
-            default: // next
-                if (session.navdir == undefined) {
-                    session.navdir = "asc";
-                }
-                if (session.navdir == "asc") {
-                    if (session.pictures_nav < session.pictures_nfiles - 1) {
-                        session.pictures_nav++;
-                    }
-                    else {
-                        session.pictures_nav = session.pictures_nfiles - 1;
-                    }
-                }
-                else {
-                    if (session.pictures_nav > 0) {
-                        session.pictures_nav--;
-                    }
-                    else {
-                        session.pictures_nav = 0;
-                    }
-                }
-                break;
+    let navfiles = 0; // 対称ファイルの数
+    let navidx = 0; // 表示する画像の位置
+    let prev = 0;   // 前の画像の位置
+    let next = 0;   // 次の画像の位置
+    let last = 0;   // 最後の画像の位置
+    let path = req.query.path;  // 画像ファイルのパス名 (最初の場合のみ使用)
+    let navdir = req.query.dir;    // 画像ファイルのディレクトリ (2回目以降使用)
+    let nav = req.query.nav;    // 画像の位置 (2回目以降使用)
+    if (nav == undefined) {
+        // 位置の指定がない時 (初回)
+        navdir = fso.getDirectory(path);
+        [navidx, navfiles] = await getNavIndex(navdir, path);
+        prev = navidx > 1 ? navidx - 1 : 0;
+        next = navidx < navfiles - 1 ? navidx + 1 : navfiles - 1;
+        last = navfiles - 1;
+        let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${navdir}'`);
+        if (title == undefined) {
+            res.render("showNavImage", {title:"Error", path:path, dir:navdir, message:"ディレクトリが DB に登録されていません。", prev:prev, next:next, last:last});
         }
-        let files = await fso.getFiles_p(session.pictures_navdir);
-        let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${session.pictures_navdir}'`);
-        res.render("showNavImage", {title:title, dir:session.pictures_navdir, message:"画像位置：" + (session.pictures_nav+1) + " / " + files.length, path:files[session.pictures_nav]});
+        else {
+            res.render("showNavImage", {title:title, path:path, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last});
+        }
     }
     else {
-        res.render("showInfo", {icon:"/img/cancel.png", message:"/showNavImage のパラメータが不正です。"});
+        // 位置の指定がある時 (2回目以降)
+        let files = await fso.getFiles_p(navdir);
+        navidx = parseInt(req.query.nav);
+        path = files[navidx];
+        navfiles = files.length;
+        prev = navidx > 1 ? navidx - 1 : 0;
+        next = navidx < navfiles - 1 ? navidx + 1 : navfiles - 1;
+        last = navfiles - 1;
+        let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${navdir}'`);
+        if (title == undefined) {
+            res.render("showNavImage", {title:"Error", path:path, dir:navdir, message:"ディレクトリが DB に登録されていません。", prev:prev, next:next, last:last});
+        }
+        else {
+            res.render("showNavImage", {title:title, path:path, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last});
+        }
     }
 });
 

@@ -192,16 +192,16 @@ router.post('/musicForm', async (req, res) => {
     let fav = req.body.fav;
     let bindata = req.body.bindata;
     let value = {
-        id: req.body.id,
-        album: req.body.album,
-        title: req.body.title,
-        path: req.body.path,
-        artist: req.body.artist,
-        media: req.body.media,
-        mark: req.body.mark,
-        info: req.body.info,
-        fav: req.body.fav,
-        bindata: req.body.bindata
+        id: id,
+        album: album,
+        title: title,
+        path: path,
+        artist: artist,
+        media: media,
+        mark: mark,
+        info: info,
+        fav: fav,
+        bindata: bindata
     };
     if (!fso.exists(req.body.path)) {
         res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});

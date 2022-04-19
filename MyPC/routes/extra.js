@@ -59,7 +59,6 @@ router.get("/bindatalist", async (req, res) => {
     if (req.query.reset) {
         session.bindata_sortdir = "asc";
         session.bindata_start = 1;
-        session.bindata_end = ENDLIMIT;
         session.bindata_view = "detail";
     }
     if (req.query.sortdir) {
@@ -111,7 +110,6 @@ async function makeSQL(jumpid, findword, move) {
         if (session.bindata_sortdir == "desc") {
             sql += " WHERE id <= " + jumpid + " ORDER BY id DESC LIMIT " + LIMIT;
             session.bindata_start = jumpid;
-            session.bindata_end = ENDLIMIT;
         }
         else {
             session.bindata_sortdir = "asc";
@@ -143,7 +141,6 @@ async function makeSQL(jumpid, findword, move) {
             else {
                 session.bindata_sortdir = "asc";
                 session.bindata_start = 1;
-                session.bindata_end = ENDLIMIT;
                 sql += ` WHERE id >= 1 ORDER BY id ASC LIMIT ${LIMIT}`;
             }
             break;
@@ -156,7 +153,6 @@ async function makeSQL(jumpid, findword, move) {
             else {
                 session.bindata_sortdir = "asc";
                 session.bindata_start = lastid;
-                session.bindata_end = ENDLIMIT;
                 sql += ` WHERE id >= ${lastid} ORDER BY id ASC LIMIT ${LIMIT}`;
             }
             break;

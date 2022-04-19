@@ -91,7 +91,7 @@
 
         <article>
             <br />
-            <form id="form1" method="POST" action="/music/musicForm" style="margin-left:4%;">
+            <form id="form1" name="form1" method="POST" action="/music/musicForm" style="margin-left:4%;">
                 <fieldset>
                     <div class="form_item">id</div>
                     <div class="form_item"><input type="number" id="id" name="id" size="8" value="<%= value.id %>" /></div>
@@ -134,9 +134,9 @@
                     <div style="display:none" id="divthumb"><img src="" id="thumb" /></div>
                 </fieldset>
                 <fieldset>
-                    <input type="button" id="submit" name="submit" value=" 送信する " onclick="javascript:submitClick()" />&nbsp;
-                    <input type="button" id="confirm" name="confirm" value=" データ確認 " onclick="javascript: confirmMusic()" />&nbsp;
-                    <input type="button" id="reset" value=" クリアする " onclick="javascript: clearForm()" />
+                    <input type="button" id="submitButton" name="submitButton" value=" 送信する " onclick="javascript:submitClick()" />&nbsp;
+                    <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " onclick="javascript: confirmMusic()" />&nbsp;
+                    <input type="button" id="resetButton" value=" クリアする " onclick="javascript: clearForm()" />
                 </fieldset>
             </form>
             <br />
