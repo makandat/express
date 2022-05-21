@@ -122,7 +122,7 @@ router.get("/showthumb", async (req, res) => {
         }
     }
     let id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
-    countup(id, res);
+    countup(id);
     res.render("showthumb", {title:title, message:path, dir:path, files:files, sortdir:sortdir});
 });
 
@@ -253,7 +253,7 @@ router.get("/showPictures", async (req, res) => {
     mysql.getValue(`SELECT id FROM Pictures WHERE path='${path}'`, (id) =>{
         res.render("showPictures", {title:title, path:path, message:"", result:result});
         // 参照回数を増やす。
-        countup(id, res);
+        countup(id);
     });
 });
 
@@ -510,14 +510,14 @@ async function makeSQL(req) {
 // 指定された id の fav を ＋１する。
 router.get('/favorite/:id', (req, res) => {
     let id = req.params.id;
-    mysql.execute(`CALL user.favup(1, ${id})`, (err) => {
+    mysql.execute(`CALL user.favup(${id})`, (err) => {
         res.redirect(req.get('referer'));
     });
 });
 
 // 指定された id の count を ＋１する。
-function countup(id, res) {
-    mysql.execute(`CALL user.countup(1, ${id})`, (err) => {
+function countup(id) {
+    mysql.execute(`CALL user.countup(${id})`, (err) => {
         // res.render と競合するので不要。
         //res.status(200).send(0);
     });
