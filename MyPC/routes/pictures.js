@@ -257,6 +257,25 @@ router.get("/showPictures", async (req, res) => {
     });
 });
 
+// 指定した id のフォルダ内の画像一覧を返す。
+router.get("/showPicturesById/:id", async (req, res) => {
+    const id = req.params.id;
+    const path = await mysql.getValue_p(`SELECT path FROM Pictures WHERE id='${id}'`);
+    if (path == null) {
+        res.render("showInfo", {message:"エラー： データが登録されていません。", title:"エラー", icon:"cancel.png"});
+        return;
+    }
+    const title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE id='${id}'`);
+    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
+    let result = [];
+    for (let i = 0; i < files.length; i++) {
+        result.push(files[i].replace(/\\/g, '/'));
+    }
+    res.render("showPicturesById", {title:title, path:path, message:"", result:result});
+    // 参照回数を増やす。
+    countup(id, res);
+});
+
 // pictures 項目の追加・修正 (GET)
 router.get('/picturesForm', (req, res) => {
     let value = {
