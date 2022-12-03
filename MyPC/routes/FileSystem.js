@@ -208,7 +208,7 @@ exports.exists = (path) => {
     fs.accessSync(path);
   }
   catch (e) {
-    b = false
+    b = false;
   }
   return b;
 };

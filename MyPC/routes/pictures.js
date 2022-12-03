@@ -126,6 +126,31 @@ router.get("/showthumb", async (req, res) => {
     res.render("showthumb", {title:title, message:path, dir:path, files:files, sortdir:sortdir});
 });
 
+// id で指定したサムネール形式で画像一覧を表示する。
+router.get("/showThumbById/:id", async (req, res) => {
+    let id = req.params.id;
+    const path = await mysql.getValue_p(`SELECT path FROM Pictures WHERE id='${id}'`);
+    if (path == null) {
+        res.render("showInfo", {message:"エラー： データが登録されていません。", title:"エラー", icon:"cancel.png"});
+        return;
+    }
+    let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
+    session.navdir = sortdir;
+    let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
+    if (!title) {
+        title = path;
+    }
+    let files = await fso.getFiles_p(path, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
+    if (common.isWindows()) {
+        for (let i = 0; i < files.length; i++) {
+            files[i] = files[i].replace(/\\/g, "/");
+        }
+    }
+    id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
+    countup(id, res);
+    res.render("showthumb", {title:title, message:path, dir:path, files:files, sortdir:sortdir});
+});
+
 // ナビゲーション形式で画像表示する。
 router.get("/showNavImage", async (req, res) => {
     let navfiles = 0; // 対称ファイルの数
@@ -363,11 +388,15 @@ router.post('/picturesForm', (req, res) => {
         fav: fav,
         bindata: bindata
     };
-    if (!fso.exists(path)) {
+    if (!fso.isDirSync(path)) {
         res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
         return;
     }
-
+    const ct = mysql.getValue_p(`SELECT COUNT(*) FROM id=${bindata}`);
+    if (ct == 0) {
+        res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
+        return;
+    }
     if (id) {
         //  更新
         let update = `UPDATE Pictures SET album=${album}, title='${title}', path='${path}', creator='${creator}', media='${media}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;

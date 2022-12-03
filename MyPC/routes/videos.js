@@ -426,8 +426,14 @@ router.post('/videosForm', (req, res) => {
         bindata: bindata
     };
     // ファイルが存在するか確認する。
-    if (!fso.exists(req.body.path)) {
+    if (!fso.isFileSync(req.body.path)) {
         res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
+        return;
+    }
+    // BINDATA id を確認する。
+    const ct = mysql.getValue_p(`SELECT COUNT(*) FROM id=${bindata}`);
+    if (ct == 0) {
+        res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
         return;
     }
 
@@ -470,7 +476,16 @@ router.post('/videosForm', (req, res) => {
             });
         }
         else {
-            res.render('showInfo', {title:"エラー", message:path + " はすでに登録されています。", icon:"cancel.png"});
+            //  更新
+            let update = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', media='${media}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
+            mysql.execute(update, (c) => {
+                if (c) {
+                    res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
+                }
+                else {
+                    res.render('videosForm', {message:`${title} が更新されました。`, marks:[], value:value});
+                }
+            });
         }
     });
 });
