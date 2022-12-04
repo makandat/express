@@ -399,7 +399,7 @@ router.get('/confirmVideos/:id', (req, res) => {
 });
 
 // videos 項目の追加・修正 (POST)
-router.post('/videosForm', (req, res) => {
+router.post('/videosForm', async (req, res) => {
     let id = req.body.id;
     let album = req.body.album;
     if (!album) {
@@ -431,7 +431,7 @@ router.post('/videosForm', (req, res) => {
         return;
     }
     // BINDATA id を確認する。
-    const ct = mysql.getValue_p(`SELECT COUNT(*) FROM id=${bindata}`);
+    const ct = await mysql.getValue_p(`SELECT count(*) AS ct FROM Videos WHERE id=${bindata}`);
     if (ct == 0) {
         res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
         return;

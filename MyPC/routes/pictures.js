@@ -362,7 +362,7 @@ router.get('/confirmPictures/:id', (req, res) => {
 });
 
 // pictures 項目の追加・修正 (POST)
-router.post('/picturesForm', (req, res) => {
+router.post('/picturesForm', async (req, res) => {
     let id = req.body.id;
     let album = req.body.album;
     if (!album) {
@@ -392,7 +392,7 @@ router.post('/picturesForm', (req, res) => {
         res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
         return;
     }
-    const ct = mysql.getValue_p(`SELECT COUNT(*) FROM id=${bindata}`);
+    const ct = await mysql.getValue_p(`SELECT COUNT(*) FROM Pictures WHERE id=${bindata}`);
     if (ct == 0) {
         res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
         return;
