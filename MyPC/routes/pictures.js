@@ -173,6 +173,7 @@ router.get("/showNavImage", async (req, res) => {
             res.render("showNavImage", {title:"Error", path:path, dir:navdir, message:"ディレクトリが DB に登録されていません。", prev:prev, next:next, last:last});
         }
         else {
+            title = title + ' (' + (navidx + 1).toString() + " / " + navfiles + ")";
             res.render("showNavImage", {title:title, path:path, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last});
         }
     }
@@ -190,6 +191,7 @@ router.get("/showNavImage", async (req, res) => {
             res.render("showNavImage", {title:"Error", path:path, dir:navdir, message:"ディレクトリが DB に登録されていません。", prev:prev, next:next, last:last});
         }
         else {
+            title = title + ' (' + (navidx + 1).toString() + " / " + navfiles + ")";
             res.render("showNavImage", {title:title, path:path, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last});
         }
     }
