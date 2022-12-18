@@ -13,6 +13,10 @@
                         alert("タイトルが空欄です。");
                         return;
                     }
+                    if ($('#title').val().includes("\\")) {
+                        alert("タイトルに'\\'が含まれていますが、許可されません。");
+                        return;
+                    }
                     let path = $("#path").val();
                     let endp = path.length - 1;
                     if (!path) {

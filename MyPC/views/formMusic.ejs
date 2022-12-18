@@ -18,6 +18,10 @@
                     alert("タイトルが空欄です。");
                     return;
                 }
+                if (form1.title.value.ncludes("\\")) {
+                    alert("タイトルに'\\'が含まれていますが、許可されません。");
+                    return;
+                }
                 let path = form1.path.value;
                 let endp = path.length - 1;
                 if (endp < 0) {
