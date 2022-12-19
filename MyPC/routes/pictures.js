@@ -179,7 +179,7 @@ router.get("/showNavImage", async (req, res) => {
     }
     else {
         // 位置の指定がある時 (2回目以降)
-        let files = await fso.getFiles_p(navdir);
+        let files = await fso.getFiles_p(navdir, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
         navidx = parseInt(req.query.nav);
         path = files[navidx];
         navfiles = files.length;
@@ -199,7 +199,7 @@ router.get("/showNavImage", async (req, res) => {
 
 // フォルダ内の画像の位置を返す。
 async function getNavIndex(dir, path) {
-    let files = await fso.getFiles_p(dir);
+    let files = await fso.getFiles_p(dir, [".jpg", ".png", ".gif", ".JPG", ".PNG", ".GIF", ".jpeg"]);
     let i = 0;
     for (let p of files) {
         if (p.replace(/\\/g, "/") == path) {
