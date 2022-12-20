@@ -27,19 +27,11 @@
         <br />
         <% if (sortdir == "asc") { %>
             <% for (let i = 0; i < files.length; i++) { %>
-                <% if (i < files.length -1) { %>
-                    <a href="/pictures/showNavImage?path=<%= files[i] %>&sortdir=asc" target="_blank"><img src="/sendfile?path=<%= files[i] %>" class="item" /></a>
-                <% } else { %>
-                    <img src="/sendfile?path=<%= files[i] %>" class="item" />
-                <% } %>
+                <a href="/pictures/showNavImage?path=<%= files[i] %>&sortdir=asc" target="_blank"><img src="/sendfile?path=<%= files[i] %>" class="item" /></a>
             <% } %>
         <% } else { %>
             <% for (let i = files.length - 1; i >= 0; i--) { %>
-                <% if (i > 0) { %>
-                    <a href="/pictures/showNavImage?path=<%= files[i] %>&sortdir=desc" target="_blank"><img src="/sendfile?path=<%= files[i] %>" class="item" /></a>
-                <% } else { %>
-                    <img src="/sendfile?path=<%= files[i] %>" class="item" />                
-                <% } %>
+                <img src="/sendfile?path=<%= files[i] %>" class="item" />                
             <% } %>
         <% } %>
         <!-- フッター -->
