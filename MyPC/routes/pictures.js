@@ -395,7 +395,7 @@ router.post('/picturesForm', async (req, res) => {
         return;
     }
     const ct = await mysql.getValue_p(`SELECT COUNT(*) FROM BINDATA WHERE id=${bindata}`);
-    if (ct == 0) {
+    if (ct == 0 && bindata > 0) {
         res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
         return;
     }
