@@ -5,6 +5,8 @@ const session = require('express-session');
 const mysql = require('./MySQL.js');
 const dto = require('./DateTime.js');
 const fso = require('./FileSystem.js');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 
 // プロジェクトアルバム一覧表示
@@ -164,11 +166,14 @@ router.get("/confirmProject/:id", (req, res) => {
 });
 
 // プロジェクトの一覧
-router.get("/showContent", (req, res) => {
+router.get("/showContent", async (req, res) => {
     let result = [];
     let marks = [];
-    let album = req.query.album;
+    const album = req.query.album;
+    const mark = req.query.mark;
     let message = "";
+    let title = "プロジェクト一覧";
+    let albums = await mysql.query_p("SELECT id, name FROM Album WHERE mark='project' ORDER BY id");
     mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
         if (row) {
             if (row.mark) {
@@ -181,6 +186,11 @@ router.get("/showContent", (req, res) => {
             let sql = "SELECT * FROM Projects";
             if (album) {
                 sql += ` WHERE album=${album}`;
+                title += " (album: " + album + ")";
+            }
+            else if (mark) {
+                sql += ` WHERE mark='${mark}'`;
+                title += " (mark: " + mark + ")";
             }
             if (req.query.sortdir) {
                 session.projects_sortdir = req.query.sortdir;
@@ -208,7 +218,10 @@ router.get("/showContent", (req, res) => {
                         if (album) {
                             message = "アルバム番号： " + album;
                         }
-                        res.render("projectlist", {message:message, result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc});
+                        else if (mark) {
+                            message = "マーク： " + mark;
+                        }
+                        res.render("projectlist", {title:title, message:message, result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc, albums:albums});
                     }
                 });    
             }
@@ -228,6 +241,22 @@ router.get("/infoView/:id", (req, res) => {
         let message = "Version " + row.version + "/ Release " + dto.getDateString(row.release);
         res.render("projectInfoView", {title:row.title, message:message, info:row.info});
     });
+});
+
+// ソースの表示
+router.get("/showSource", (req, res) => {
+    const filePath = req.query.path;
+    if (filePath == undefined) {
+        res.render('showInfo', {title:"エラー", message:"パラメータ (ソースの指定) が存在しません。", icon:"cancel.png"});
+        return;
+    }
+    if (!fso.isFileSync(filePath)) {
+        res.render('showInfo', {title:"エラー", message:"指定したファイルが存在しません。", icon:"cancel.png"});
+        return;
+    }
+    let content = fs.readFileSync(filePath).toString();
+    //const src = content.replace(/&/g, '&amp;').replace(/</, '&lt;').replace(/>/g, '&gt;').replace(/\\/g, '\\');
+    res.render('showSource', {title:path.basename(filePath), path:filePath, content:content});
 });
 
 // エクスポート
