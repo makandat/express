@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/styles/vs.min.css">
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/highlight.min.js"></script>
+        <!-- and it's easy to individually load additional languages 
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/languages/go.min.js"></script>
+        -->
+        <style>
+            pre {
+                border: dotted thin gray;
+                padding: 4px;
+                margin: 1%;
+            }
+        </style>
+        <script>
+            hljs.highlightAll();
+        </script>
+    </head>
+
+    <body>
+        <h1><%= title %></h1>
+        <p style="text-align:center">パス： <%= path %></p>
+        <pre><code>
+<%= content %>
+        </code></pre>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>
