@@ -14,7 +14,7 @@
                 $("#marks").change(() => {
                     let m = $("#marks").val();
                     if (!m.startsWith('-')) {
-                        location.href = "/projects/projectlist?mark=" + $("#marks").val();
+                        location.href = "/projects/showContent?mark=" + $("#marks").val();
                     }
                 });
             });
@@ -23,10 +23,11 @@
 
     <body>
         <header>
-            <h1><img src="/img/business.png" width="48px" /> プロジェクト一覧</h1>
+            <h1><img src="/img/business.png" width="48px" /> <%= title %></h1>
             <p class="comment">Ctrl+F で検索できます。</p>
             <div class="menu">
                 <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
+                <a href="/projects/showContent"><img src="/img/clear2.png" /> 表示リセット</a>&nbsp;|&nbsp;
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/projects/projectForm" target="_blank"><img src="/img/form.png" /> プロジェクトの追加・修正</a>&nbsp;|&nbsp;
                 <a href="/addModifyAlbum?mark=project" target="_blank"><img src="/img/form.png" /> アルバムの追加・修正</a>&nbsp;|&nbsp;
@@ -38,29 +39,35 @@
                 </select>&nbsp;|&nbsp;
                 <img src="/img/sortdir.png" />&nbsp;(&nbsp;
                 <a href="/projects/showContent?sortdir=asc"><%= sortasc %> 昇順で表示</a>&nbsp;|&nbsp;
-                <a href="/projects/showContent?sortdir=desc"><%= sortdesc %> 降順で表示</a> )
+                <a href="/projects/showContent?sortdir=desc"><%= sortdesc %> 降順で表示</a> )&nbsp;|&nbsp;
+                <a href="#AlbumList">アルバム一覧</a>
             </div>
         </header>
         <article>
             <p class="message"><%= message %></p>
             <table>
-                <tr><th>id</th><th>album番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>所有者</th><th>マーク</th><th>情報</th><th>リポジトリ(github)</th><th>バックアップ</th><th>最新版リリース日</th><th>サムネール</th><th>登録日</th></tr>
-                <% for (let a of result) { %>
+                <tr><th>id</th><th>album番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>所有者</th><th>マーク</th><th>リポジトリ(github)</th><th>最新版リリース日</th><th>登録日</th></tr>
+                <% for (const a of result) { %>
                     <tr>
                         <td><a href="/projects/confirmProject/<%= a.id %>" target="_blank"><%= a.id %></a></td>
-                        <td><%= a.album %></td>
+                        <td><a href="/projects/showContent?album=<%= a.album %>"><%= a.album %></a></td>
                         <td><a href="/projects/infoView/<%= a.id %>" target="_blank"><%= a.title %></a></td>
                         <td><%= a.version %></td>
                         <td><a href="/computer/folder?folder=<%= a.path %>" target="_blank"><%= a.path %></a></td>
                         <td><%= a.owner %></td>
-                        <td><%= a.mark %></td>
-                        <td><%= a.info.length > 100 ? a.info.substring(0, 100) + " ....." : a.info %></td>
+                        <td><a href="/projects/showContent?mark=<%= a.mark %>"><%= a.mark %></a></td>
                         <td><%= a.git %></td>
-                        <td><%= a.backup %></td>
                         <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.release.getDate()).substring(0, 2) %></td>
-                        <td><%= a.bindata %></td>
                         <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.date.getDate()).substring(0, 2) %></td>
                     </tr>
+                <% } %>
+            </table>
+            <br />
+            <h3><a id="AlbumList">アルバム一覧</a></h3>
+            <table>
+                <tr><th>id</th><th>アルバム名称</th></tr>
+                <% for (const a of albums) { %>
+                    <tr><td><%=a.id %></td><td><%= a.name %></td></tr>
                 <% } %>
             </table>
         </article>
