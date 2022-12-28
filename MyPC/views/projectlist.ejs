@@ -67,7 +67,7 @@
             <table>
                 <tr><th>id</th><th>アルバム名称</th></tr>
                 <% for (const a of albums) { %>
-                    <tr><td><%=a.id %></td><td><%= a.name %></td></tr>
+                    <tr><td><a href="/projects/showContent?album=<%= a.id %>" target=""><%=a.id %></a></td><td><%= a.name %></td></tr>
                 <% } %>
             </table>
         </article>
