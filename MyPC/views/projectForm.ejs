@@ -74,6 +74,28 @@
                     divthumb.style.display = "block";
                 }
             }
+
+            // 情報にひな型を挿入
+            function insertInfo(t) {
+                const PRE_HERE = `<h2>機能</h2>
+<p></p>
+<h2>使用方法</h2>
+<p></p>
+<ul>
+    <li></li>
+</ul>
+<h2>ソース</h2>
+`;
+                const info = document.getElementById('info');
+                info.value = PRE_HERE;
+                if (t == 0) {
+                    info.value += `<pre style="margin:1%;padding:3px;background-color:white">
+</pre>`;
+                }
+                else {
+                    info.value += `<h2 style="margin-left:2%;"><a href="/projects/showSource?path=" target="_blank">リンク</a></h2>`;
+                }
+            }
         </script>
     </head>
 
@@ -95,7 +117,7 @@
                     <div><div class="form_item">パス<div><div><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div></div>
                     <div><div class="form_item">所有者<div><div><input type="text" id="owner" name="owner" size="20" value="<%= value.owner %>" /></div></div>
                     <div><div class="form_item">マーク<div><div><input type="text" id="mark" name="mark" size="20" value="<%= value.mark %>" /></div></div>
-                    <div><div class="form_item">情報 (<a href="/projects/infoView/<%= value.id %>" target="_blank">詳細表示</a>)<div><div><textarea id="info" name="info" cols="150" rows="8"><%= value.info %></textarea></div></div>
+                    <div><div class="form_item">情報 (HTML) (<a href="/projects/infoView/<%= value.id %>" target="_blank">詳細表示</a>)<div><div><textarea id="info" name="info" cols="150" rows="8"><%= value.info %></textarea></div></div>
                     <div><div class="form_item">リポジトリ(git)<div><div><input type="text" id="git" name="git" size="150" value="<%= value.git %>" /></div></div>
                     <div><div class="form_item">バックアップ<div><div><input type="text" id="backup" name="backup" size="150" value="<%= value.backup %>" /></div></div>
                     <div><div class="form_item">リリース日<div><div><input type="text" id="release" name="release" size="10" value="<%= value.release %>" /></div></div>
@@ -105,6 +127,8 @@
                         <input type="button" id="submitButton" name="submitButton" value=" 送信する " onclick="javascript:submitClick()" />&nbsp;
                         <input type="button" id="confirmButton" name="confirmButton" value=" データ確認 " onclick="javascript: confirmProject()" />&nbsp;
                         <input type="button" id="resetButton" value=" クリアする " onclick="javascript: clearForm()" />
+                        <input type="button" id="insertButton" value=" ひな型を挿入 (pre)" onclick="javascript:insertInfo(0)" />
+                        <input type="button" id="insertButton" value=" ひな型を挿入 (showSource)" onclick="javascript:insertInfo(1)" />
                     </div>
                 </div>
             </form>
