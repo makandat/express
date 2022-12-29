@@ -169,11 +169,15 @@ router.get("/confirmProject/:id", (req, res) => {
 router.get("/showContent", async (req, res) => {
     let result = [];
     let marks = [];
+    let albumName = "";
     const album = req.query.album;
     const mark = req.query.mark;
     let message = "";
     let title = "プロジェクト一覧";
     let albums = await mysql.query_p("SELECT id, name FROM Album WHERE mark='project' ORDER BY id");
+    if (album) {
+        albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id=" + album);
+    }
     mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
         if (row) {
             if (row.mark) {
@@ -216,7 +220,7 @@ router.get("/showContent", async (req, res) => {
                     }
                     else {
                         if (album) {
-                            message = "アルバム番号： " + album;
+                            message = "アルバム： " + albumName;
                         }
                         else if (mark) {
                             message = "マーク： " + mark;
