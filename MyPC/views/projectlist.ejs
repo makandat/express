@@ -53,7 +53,11 @@
                         <td><a href="/projects/showContent?album=<%= a.album %>"><%= a.album %></a></td>
                         <td><a href="/projects/infoView/<%= a.id %>" target="_blank"><%= a.title %></a></td>
                         <td><%= a.version %></td>
-                        <td><a href="/computer/folder?folder=<%= a.path %>" target="_blank"><%= a.path %></a></td>
+                        <% if (a.path.endsWith("/")) { %>
+                            <td><a href="/computer/folder?folder=<%= a.path %>" target="_blank"><%= a.path %></a></td>
+                        <% } else { %>
+                            <td><a href="/projects/showSource?path=<%= a.path %>" target="_blank"><%= a.path %></a></td>
+                        <% } %>
                         <td><%= a.owner %></td>
                         <td><a href="/projects/showContent?mark=<%= a.mark %>"><%= a.mark %></a></td>
                         <td><%= a.git %></td>

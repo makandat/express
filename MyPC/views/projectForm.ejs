@@ -116,7 +116,7 @@
                     <div><div class="form_item">アルバム<div><div><input type="number" id="album" name="album" size="8" value="<%= value.album %>" />&nbsp;<a href="javascript:checkAlbum()">[チェック]</a></div></div>
                     <div><div class="form_item">タイトル<div><div><input type="text" id="title" name="title" size="80" value="<%= value.title %>" /></div></div>
                     <div><div class="form_item">バージョン<div><div><input type="text" id="version" name="version" size="10" value="<%= value.version %>" /></div></div>
-                    <div><div class="form_item">パス<div><div><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div></div>
+                    <div><div class="form_item">パス (ディレクトリの場合は / で終わること)<div><div><input type="text" id="path" name="path" size="150" value="<%= value.path %>" /></div></div>
                     <div><div class="form_item">所有者<div><div><input type="text" id="owner" name="owner" size="20" value="<%= value.owner %>" /></div></div>
                     <div><div class="form_item">マーク<div><div><input type="text" id="mark" name="mark" size="20" value="<%= value.mark %>" /></div></div>
                     <div><div class="form_item">情報 (HTML) (<a href="/projects/infoView/<%= value.id %>" target="_blank">詳細表示</a>)<div><div><textarea id="info" name="info" cols="150" rows="8"><%= value.info %></textarea></div></div>
