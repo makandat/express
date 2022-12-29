@@ -23,6 +23,8 @@
                 else {
                     // そのまま
                 }
+                // \\, ' を置換する。
+                form1.info.value = form1.info.value.replace(/\\/g, "\\\\").replace(/'/, "''");
                 form1.submit();
             }
 
