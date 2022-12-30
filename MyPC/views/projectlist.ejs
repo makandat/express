@@ -61,8 +61,8 @@
                         <td><%= a.owner %></td>
                         <td><a href="/projects/showContent?mark=<%= a.mark %>"><%= a.mark %></a></td>
                         <td><%= a.git %></td>
-                        <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.release.getDate()).substring(0, 2) %></td>
-                        <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.date.getDate()).substring(0, 2) %></td>
+                        <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).toString().slice(-2) + "-" + ("0" + a.release.getDate()).toString().slice(-2) %></td>
+                        <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).toString().slice(-2) + "-" + ("0" + a.date.getDate()).toString().slice(-2) %></td>
                     </tr>
                 <% } %>
             </table>
