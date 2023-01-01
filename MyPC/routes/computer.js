@@ -310,8 +310,9 @@ function isImage(file) {
 
 // file がテキストファイルかどうかを判別する。
 function isText(file) {
-    let exts = ['.txt', '.html', '.css', '.xml', '.json', '.js', '.c', '.cpp', '.py', '.pl', '.php', '.rb', '.h', '.hpp', '.log', '.ini', '.sql'];
-    if (fso.exists('textfiles.json')) {
+    // ** テキストファイルの拡張子を定義 ***
+    let exts = ['.txt', '.html', '.css', '.xml', '.json', '.js', '.c', '.cpp', '.py', '.pl', '.php', '.rb', '.h', '.hpp', '.java', '.log', '.ini', '.sql', '.jl', '.rs', '.toml', '.scala', '.groovy'];
+    if (fso.exists('textfiles.json')) {  // textfiles.json が存在する場合は、上の exts は使用せず textfiles.json の内容に従う。
         let pstr = fs.readFileSync("textfiles.json", "utf-8");
         exts = JSON.parse(pstr);    
     }
