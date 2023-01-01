@@ -3,6 +3,7 @@
   ".html",
   ".css",
   ".js",
+  ".ts",
   ".xml",
   ".json",
   ".csv",
@@ -23,5 +24,11 @@
   ".sh",
   ".rs",
   ".cs",
-  ".vb"
+  ".vb",
+  ".vbs",
+  ".ps1",
+  ".jl",
+  ".toml",
+  ".groovy",
+  ".scala"
 ]
