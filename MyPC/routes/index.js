@@ -644,6 +644,7 @@ router.get("/objectView", (req, res) => {
   let path = req.query.path;
   let ext = fso.getExtension(path);
   let title = req.query.title;
+  let content = "";
   switch (ext) {
     case ".pdf":
       res.render("objectView", {title:title, message:"", path:path, mime:"application/pdf"});
@@ -658,16 +659,39 @@ router.get("/objectView", (req, res) => {
         res.render("objectView", {title:title, message:"", path:path, mime:"text/css"});
         break;
       case ".csv":
-        res.render("objectView", {title:title, message:"", path:path, mime:"text/csv"});
+        content = readCsvSync(path);
+        res.render("csvView", {title:title, message:"", path:path, content:content});
+        break;
+      case ".tsv":
+        content = readCsvSync(path, true);
+        res.render("csvView", {title:title, message:"", path:path, content:content});
         break;
       case ".json":
         res.render("objectView", {title:title, message:"", path:path, mime:"application/json"});
         break;
       default:
-        res.render("showInfo", {title:"エラー", icon:"cancel.png", message:"サポートされない形式です。" + ext + "。パスをクリックしてダウンロードしてからアプリで表示してください。"});
+        res.render("showInfo", {title:"エラー", icon:"cancel.png", message:"直接表示のサポートされない形式です。" + ext + "。パスをクリックしてダウンロードしてからアプリで表示してください。"});
         break;
   }
 });
+
+// CSV/TSV ファイルを読む。
+function readCsvSync(path, tsv=false) {
+  let separator = ",";
+  if (tsv) {
+    separator = "\t";
+  }
+  let lines = fso.readFileSync(path).split("\n");
+  let content = [];
+  for (let line of lines) {
+    line = line.trimEnd();
+    const row = line.split(separator);
+    if (row.length > 0 && row[0] != "") {
+      content.push(row);
+    }
+  }
+  return content;
+}
 
 // アルバムの mark からテーブル名に変換する。
 function getTableName(mark) {

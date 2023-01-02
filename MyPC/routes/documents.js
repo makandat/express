@@ -174,9 +174,17 @@ router.get("/confirmDocument", (req, res) => {
 });
 
 // 文書の一覧
-router.get("/showContent", (req, res) => {
+router.get("/showContent", async (req, res) => {
     let result = [];
     let marks = [];
+    let message = "";
+    let title = "文書一覧";
+    const album = req.query.album;
+    let albumName = "";
+    if (album != undefined) {
+        albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id=" + album);
+    }
+    let albumList = await mysql.query_p("SELECT id, name FROM Album WHERE mark='document' ORDER BY id");
     mysql.query("SELECT DISTINCT mark FROM Documents", (row) => {
         if (row) {
             if (row.mark) {
@@ -187,8 +195,15 @@ router.get("/showContent", (req, res) => {
             let sortasc = "";
             let sortdesc = "";
             let sql = "SELECT * FROM Documents";
-            if (req.query.album) {
-                sql += ` WHERE album=${req.query.album}`;
+            if (album) {
+                sql += ` WHERE album=${album}`;
+                message = "アルバム： " + albumName;
+                title += " (album: " + album + ")"
+            }
+            else if (req.query.mark) {
+                sql += ` WHERE mark='${req.query.mark}'`;
+                message = "マーク： " + req.query.mark;
+                title += " (mark: " + req.query.mark + ")"
             }
             if (req.query.sortdir) {
                 session.projects_sortdir = req.query.sortdir;
@@ -213,7 +228,7 @@ router.get("/showContent", (req, res) => {
                         result.push(row);
                     }
                     else {
-                        res.render("documentlist", {message:"", result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc});
+                        res.render("documentlist", {title:title, message:message, result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc, albumList:albumList});
                     }
                 });    
             }
