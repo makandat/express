@@ -161,6 +161,7 @@ router.get("/showNavImage", async (req, res) => {
     let path = req.query.path;  // 画像ファイルのパス名 (最初の場合のみ使用)
     let navdir = req.query.dir;    // 画像ファイルのディレクトリ (2回目以降使用)
     let nav = req.query.nav;    // 画像の位置 (2回目以降使用)
+    let message = "";
     if (nav == undefined) {
         // 位置の指定がない時 (初回)
         navdir = fso.getDirectory(path);
@@ -192,7 +193,11 @@ router.get("/showNavImage", async (req, res) => {
         }
         else {
             title = title + ' (' + (navidx + 1).toString() + " / " + navfiles + ")";
-            res.render("showNavImage", {title:title, path:path, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last});
+            message = (navidx+1) + " / " + navfiles;
+            if (navidx + 1 == navfiles) {
+                message = "<span style='font-weight:bold;color:red;'>" + message + "</span>";
+            }
+            res.render("showNavImage", {title:title, path:path, dir:navdir, message:message, prev:prev, next:next, last:last});
         }
     }
 });
