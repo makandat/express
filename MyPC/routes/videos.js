@@ -341,7 +341,15 @@ router.get('/videosForm', (req, res) => {
             marks.push(row.mark);
         }
         else {
-            res.render('videosForm', {message:"", marks:marks, value:value});
+            let medias = [];
+            mysql.query("SELECT name FROM Medias", (row) => {
+                if (row) {
+                    medias.push(row.name);
+                }
+                else {
+                    res.render('videosForm', {message:"", marks:marks, value:value, medias:medias});
+                }
+            });
         }
     });
 });
@@ -383,12 +391,21 @@ router.get('/confirmVideos/:id', (req, res) => {
             };
             // マーク一覧を得る。
             let marks = [];
+            let medias = [];
             mysql.query("SELECT DISTINCT mark FROM Videos", (row) => {
                 if (row) {
                     marks.push(row.mark);
                 }
                 else {
-                    res.render('videosForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value});
+                    let medias = [];
+                    mysql.query("SELECT name FROM Medias", (row) => {
+                        if (row) {
+                            medias.push(row.name);
+                        }
+                        else {
+                            res.render('videosForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value, medias:medias});
+                        }
+                    });
                 }
             });
         }
@@ -432,11 +449,18 @@ router.post('/videosForm', async (req, res) => {
     }
     // BINDATA id を確認する。
     const ct = await mysql.getValue_p(`SELECT count(*) AS ct FROM BINDATA WHERE id=${bindata}`);
-    if (ct == 0) {
+    if (ct == 0 && bindata > 0) {
         res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
         return;
     }
 
+    // メディア一覧を得る。
+    let medias = [];
+    const med = await mysql.query_p("SELECT `name` FROM Medias");
+    for (const m of med) {
+        medias.push(m.name);
+    }
+    
     // 二重登録の有無を確認する。
     mysql.getValue(`SELECT count(*) AS cnt FROM Videos WHERE path='${path}'`, (c) => {
         if (c == 0) {
@@ -456,7 +480,7 @@ router.post('/videosForm', async (req, res) => {
                                 res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
                             }
                             else {
-                                res.render('videosForm', {message:`${title} が更新されました。`, marks:marks, value:value});
+                                res.render('videosForm', {message:`${title} が更新されました。`, marks:marks, value:value, medias:medias});
                             }
                         });
                     }
@@ -468,7 +492,7 @@ router.post('/videosForm', async (req, res) => {
                                 res.render('showInfo', {'title':'エラー', 'message':insert, 'icon':'cancel.png', 'link':null});
                             }
                             else {
-                                res.render('videosForm', {message:`${title} が追加されました。`, marks:marks, value:value});
+                                res.render('videosForm', {message:`${title} が追加されました。`, marks:marks, value:value, medias:medias});
                             }
                         });
                     }
@@ -483,7 +507,7 @@ router.post('/videosForm', async (req, res) => {
                     res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
                 }
                 else {
-                    res.render('videosForm', {message:`${title} が更新されました。`, marks:[], value:value});
+                    res.render('videosForm', {message:`${title} が更新されました。`, marks:[], value:value, medias:[]});
                 }
             });
         }

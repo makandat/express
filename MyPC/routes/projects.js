@@ -196,6 +196,12 @@ router.get("/showContent", async (req, res) => {
                 sql += ` WHERE mark='${mark}'`;
                 title += " (mark: " + mark + ")";
             }
+            else if (req.query.search) {
+                const search = `'${req.query.search}'`;
+                sql += ` WHERE INSTR(title, ${search}) or INSTR(path, ${search}) or INSTR(info, ${search})`;
+                message = "検索： " + req.query.search;
+                title += " (" + req.query.search + ")";
+            }
             if (req.query.sortdir) {
                 session.projects_sortdir = req.query.sortdir;
                 if (session.projects_sortdir == "desc") {

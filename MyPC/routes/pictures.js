@@ -323,12 +323,21 @@ router.get('/picturesForm', (req, res) => {
     };
     // マーク一覧を得る。
     let marks = [];
+    let medias = [];
     mysql.query("SELECT DISTINCT mark FROM Pictures", (row) => {
         if (row) {
             marks.push(row.mark);
         }
         else {
-            res.render('picturesForm', {message:"", marks:marks, value:value});
+            // メディア一覧を得る。
+            mysql.query("SELECT name FROM Medias", (row) => {
+                if (row) {
+                    medias.push(row.name);
+                }
+                else {
+                    res.render('picturesForm', {message:"", marks:marks, medias:medias, value:value});
+                }
+            });
         }
     });
 });
@@ -353,12 +362,21 @@ router.get('/confirmPictures/:id', (req, res) => {
             };
             // マーク一覧を得る。
             let marks = [];
+            let medias = [];
             mysql.query("SELECT DISTINCT mark FROM Pictures", (row) => {
                 if (row) {
                     marks.push(row.mark);
                 }
                 else {
-                    res.render('picturesForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value});
+                    // メディア一覧を得る。
+                    mysql.query("SELECT name FROM Medias", (row) => {
+                        if (row) {
+                            medias.push(row.name);
+                        }
+                        else {
+                            res.render('picturesForm', {message:`id: ${id} が検索されました。`, marks:marks, value:value, medias:medias});
+                        }
+                    });
                 }
             });
         }
@@ -404,6 +422,11 @@ router.post('/picturesForm', async (req, res) => {
         res.render('showInfo', {title:"エラー", message:`サムネール id = ${bindata} が存在しません。`, icon:"cancel.png"});
         return;
     }
+    let medias = [];
+    const med = await mysql.query_p("SELECT name FROM Medias");
+    for (const m of med) {
+        medias.push(m);
+    }
     if (id) {
         //  更新
         let update = `UPDATE Pictures SET album=${album}, title='${title}', path='${path}', creator='${creator}', media='${media}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
@@ -419,7 +442,7 @@ router.post('/picturesForm', async (req, res) => {
                         marks.push(row.mark);
                     }
                     else {
-                        res.render('picturesForm', {message:`${title} が更新されました。`, marks:marks, value:value});
+                        res.render('picturesForm', {message:`${title} が更新されました。`, marks:marks, value:value, medias:medias});
                     }
                 });
             }
@@ -440,7 +463,7 @@ router.post('/picturesForm', async (req, res) => {
                         marks.push(row.mark);
                     }
                     else {
-                        res.render('picturesForm', {message:`${title} が追加されました。`, marks:marks, value:value});
+                        res.render('picturesForm', {message:`${title} が追加されました。`, marks:marks, value:value, medias:medias});
                     }
                 });
             }

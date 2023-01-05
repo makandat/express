@@ -1440,8 +1440,49 @@ router.get("/wikiContent", async (req, res) => {
     }
 });
 
+// メディア一覧
+router.get("/mediaslist", async (req, res) => {
+    let rows = await mysql.query_p("SELECT id, `name`, `type`, `format`, `size`, fixed_on, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Medias");
+    res.render("mediaslist", {rows:rows});
+});
 
+// メディアのデータ確認
+router.get("/mediasForm", async (req, res) => {
+    let sql = "SELECT id, `name`, `type`, `format`, `size`, fixed_on, info, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Medias";
+    if (req.query.id == undefined) {
+        const row = {id:"", name:"", type:"", format:"", size:"", fixed_on:"", info:""};
+        res.render("mediasForm", {value:row, message:""});
+    }
+    else {
+        sql += ` WHERE id=${req.query.id}`;
+        const rows = await mysql.query_p(sql);
+        if (rows == undefined) {
+            res.render("mediasForm", {value:{id:"", name:"", type:"", format:"", size:"", fixed_on:"", info:""}, message:"データが見つかりません。id が不正です。"});
+        }
+        else {
+            const message = "Id=" + req.query.id + " が検索されました。";
+            res.render("mediasForm", {value:{id:rows[0].id, name:rows[0].name, type:rows[0].type, format:rows[0].format, size:rows[0].size, fixed_on:rows[0].fixed_on, info:rows[0].info}, message:message});    
+        }
+    }  
+});
 
+// メディアの登録と修正
+router.post("/mediasForm", async (req, res) => {
+    let data = {name:req.body.name, type:req.body.type, format:req.body.format, size:req.body.size, fixed_on:req.body.fixed_on, info:req.body.info};
+    if (req.body.id == '') {
+        data['id'] = 'NULL';
+        const INSERT = `INSERT INTO Medias VALUES(NULL, '${req.body.name}', '${req.body.type}', '${req.body.format}', '${req.body.size}', '${req.body.fixed_on}', '${req.body.info}', CURRENT_DATE())`;
+        await mysql.execute_p(INSERT);
+        const maxid = await mysql.getValue_p("SELECT max(id) FROM Medias");
+        res.render("mediasForm", {value:data, message:`データを挿入しました。(id:${maxid})`});
+    }
+    else {
+        data['id'] = req.body.id;
+        const UPDATE = `UPDATE Medias SET name='${req.body.name}', type='${req.body.type}', format='${req.body.format}', size='${req.body.size}', fixed_on='${req.body.fixed_on}', info='${req.body.info}' WHERE id=${req.body.id}`;
+        await mysql.execute_p(UPDATE);
+        res.render("mediasForm", {value:data, message:`データを更新しました。(id:${req.body.id})`});
+    }
+});
 
 /* エクスポート */
 module.exports = router;

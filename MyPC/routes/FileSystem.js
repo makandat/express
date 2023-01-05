@@ -1,4 +1,4 @@
-/* FileSystem.js v1.4 */
+/* FileSystem.js v1.5 */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -378,3 +378,14 @@ exports.getHome = () => {
 exports.getTemp = () => {
   return os.tmpdir();
 };
+
+
+/* テキストファイルの読み込み */
+exports.readFileSync = (path) => {
+    return fs.readFileSync(path).toString();
+}
+
+/* テキストファイルの書き込み */
+exports.writeFileSync = (path, content) => {
+    return fs.writeFileSync(path, content);
+}

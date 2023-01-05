@@ -83,9 +83,11 @@ router.post("/documentForm", (req, res) => {
         bindata:bindata
     };
 
-    if (!fso.exists(req.body.path)) {
-        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
-        return;
+    if (!req.body.path.startsWith('https://')) {
+        if (!fso.exists(req.body.path)) {
+            res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
+            return;
+        }    
     }
     let marks = [];
     mysql.query("SELECT DISTINCT mark FROM Documents", (row) => {
@@ -204,6 +206,12 @@ router.get("/showContent", async (req, res) => {
                 sql += ` WHERE mark='${req.query.mark}'`;
                 message = "マーク： " + req.query.mark;
                 title += " (mark: " + req.query.mark + ")"
+            }
+            else if (req.query.search) {
+                const search = `'${req.query.search}'`;
+                sql += ` WHERE INSTR(title, ${search}) or INSTR(path, ${search}) or INSTR(info, ${search})`;
+                message = "検索： " + req.query.search;
+                title += " (" + req.query.search + ")";
             }
             if (req.query.sortdir) {
                 session.projects_sortdir = req.query.sortdir;
