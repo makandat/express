@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- /extra/mediaslist -->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>登録されたメディア一覧></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script>
+
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1><img src="/img/usbdrive.png" width="48px;" /> 登録されたメディア一覧</h1>
+            <div class="menu">
+                <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;
+                <a href="/extra/mediasForm/" target="_blank"><img src="/img/form.png" /> メディア情報の追加・修正</a>
+            </div>
+        </header>
+
+        <article style="margin-top:30px;">
+            <table>
+                <tr><th>id</th><th>ボリューム名</th><th>メディアタイプ</th><th>フォーマット</th><th>サイズ</th><th>固定先</th><th>情報</th><th>登録日</th></tr>
+                <% for (const a of rows) { %>
+                    <tr><td><a href="/extra/mediasForm?id=<%= a.id %>" target="_blank"><%= a.id %></a></td><td><%= a.name %></td><td><%= a.type %></td><td><%= a.format %></td><td><%= a.size %></td><td><%= a.fixed_on %></td><td><%= a.info %></td><td><%= a.date %></td></tr>
+                <% } %>
+            </table>
+        </article>
+
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

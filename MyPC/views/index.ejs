@@ -33,7 +33,41 @@
 	<script src="/js/private.js"></script>
 	<script>
 		// ページがロードされたとき
-		function getWikiData2() {
+		function onPageLoad() {
+			// 検索ボタンのイベントハンドラ
+			const searchButton = elem("searchButton");
+			searchButton.addEventListener('click', () => {
+				const table = getElValue("searchTable");
+				const word = getElValue("searchWord");
+				if (word == "") {
+					alert("検索語が空欄です。");
+					return;
+				}
+				switch (table) {
+					case "Pictures":
+						window.open("/pictures/showContent?search=" + word);
+						break;
+					case "Videos":
+						window.open("/videos/showContent?search=" + word);
+						break;
+					case "Music":
+						window.open("/music/showContent?search=" + word);
+						break;
+					case "Projects":
+						window.open("/projects/showContent?search=" + word);
+						break;
+					case "Documents":
+						window.open("/documents/showContent?search=" + word);
+						break;
+					case "Wiki":
+						window.open("/extra/wiki/?word=" + word);
+						break;
+					default:
+						return;
+				}
+			});
+
+			// Wiki データの取得
 			fetch("/extra/getWikiData2?n=5")
 			.then(res => res.json())
 			.then(data => {
@@ -87,13 +121,16 @@
 				case "Wiki":
 					window.open("/extra/wikiForm");
 					break;
+				case "Medias":
+					window.open("/extra/mediasForm");
+					break;
 				default:
 					break;
 			}
 		}
 	</script>
   </head>
-  <body onload="javascript:getWikiData2()">
+  <body onload="javascript:onPageLoad()">
     <h1><%= title %></h1>
     <p style="text-align:center;color:indigo;">ようこそ！ <%= title %></p>
 	<br />
@@ -137,16 +174,36 @@
 					<option value="Documents">文書</option>
 					<option value="BINDATA">サムネール</option>
 					<option value="Wiki">WIKI</option>
+					<option value="Medias">メディア</option>
 				</select>
 			</div>
         </div>
 		<div>
-			<h4 class="info">MySQL</h4>
+			<h4>検索</h4>
+			<form>
+				<div><label>検索語：<input type="text" id="searchWord" /></label></div>
+				<div style="margin-top:10px;"><label>テーブル：<select id="searchTable">
+					<option value="Pictures">画像</option>
+					<option value="Videos">動画</option>
+					<option value="Music">音楽</option>
+					<option value="Projects">プロジェクト</option>
+					<option value="Documents">文書</option>
+					<option value="Wiki">WIKI</option>
+				</select></label></div>
+				<div style="margin-top:10px;"><label><input type="button" id="searchButton" value=" 検索 " /></label></div>
+			</form>
+		</div>
+		<div>
+			<h4 class="info">データベース</h4>
 			<ul>
-				<li><a href="/extra/mysqlMetaInfo" target="_blank">MySQL 情報</a></li>
+				<li><a href="/extra/mysqlMetaInfo" target="_blank">メタ情報</a></li>
 				<li><a href="/extra/mysqlExecCommand" target="_blank">SQL 実行</a></li>
 				<li><a href="/extra/mysqlExecFile" target="_blank">SQL ファイル実行</a></li>
 			</ul>
+		</div>
+		<div>
+			<h4 class="info">メディア</h4>
+			<p><a href="/extra/mediaslist" target="_blank">メディアの管理</a></p>
 		</div>
 		<div>
 			<h4 class="info">データの削除</h4>

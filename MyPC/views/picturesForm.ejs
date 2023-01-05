@@ -131,12 +131,24 @@
             </form>
             <p class="message"><%= message %></p>
             <br />
-            <h4>登録されているマーク一覧</h4>
-            <ul style="font-size:10pt;">
-                <% for (let m of marks) { %>
-                    <li><%= m %></li>
-                <% } %>
-            </ul>
+            <div style="display:flex">
+                <div style="margin-left:10px;">
+                    <h4>登録されているマーク一覧</h4>
+                    <ul style="font-size:10pt;">
+                        <% for (let m of marks) { %>
+                            <li><%= m %></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div style="margin-left:40px;">
+                    <h4>登録されているメディア一覧</h4>
+                    <ul style="font-size:10pt;">
+                        <% for (let m of medias) { %>
+                            <li><%= m %></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
         </article>
         <footer>
             <p>&nbsp;</p>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!-- /extra/mediasForm -->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>メディア情報の登録・修正></title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <script src="/js/jquery.min.js"></script>
+        <script>
+            $(() => {
+                // データ確認ボタン
+                $("#confirmButton").click(() => {
+                    let id = $("#id").val();
+                    if (!id) {
+                        alert("id が空欄です。");
+                        return;
+                    }
+                    location.href = "/extra/mediasForm?id=" + id;
+                });
+                // クリアボタン
+                $("#clearButton").click(() => {
+                    $("#id").val("");
+                    $("#name").val("");
+                    $("#type").val("");
+                    $("#format").val("");
+                    $("#size").val("");
+                    $("#fixed_on").val("");
+                    $("#info").val("");
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1><img src="/img/usbdrive.png" width="48px;" /> メディア情報の登録・修正</h1>
+            <div class="menu">
+                <a href="/"><img src="/img/home.png" /> HOME</a>
+            </div>
+        </header>
+
+        <article>
+            <form method="POST" style="margin-top:30px;" action="/extra/mediasForm">
+                <div class="form_row">
+                    <div class="form_item">id (空欄の場合は挿入)</div>
+                    <div class="form_item"><input type="number" id="id" name="id" size="6" value="<%= value.id %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">ボリューム名</div>
+                    <div class="form_item"><input type="text" id="name" name="name" size="50" value="<%= value.name %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">メディアタイプ</div>
+                    <div class="form_item"><input type="text" id="type" name="type" size="50" value="<%= value.type %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">フォーマット</div>
+                    <div class="form_item"><input type="text" id="format" name="format" size="50" value="<%= value.format %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">サイズ (例: 100GB)</div>
+                    <div class="form_item"><input type="text" id="size" name="size" size="25" value="<%= value.size %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">固定先のマシン (空欄はリムーバブル)</div>
+                    <div class="form_item"><input type="text" id="fixed_on" name="fixed_on" size="50" value="<%= value.fixed_on %>" /></div>
+                </div>
+                <div class="form_row">
+                    <div class="form_item">情報</div>
+                    <div class="form_item"><input type="text" id="info" name="info" size="120" value="<%= value.info %>" /></div>
+                </div>
+                <div class="form_row" style="margin-top:10px;">
+                    <div class="form_item"></div>
+                    <div class="form_item">
+                        <input type="submit" name="submitButton" id="submitButton" value=" 送信 " />&nbsp;
+                        <input type="button" name="confirmButton" id="confirmButton" value=" データ確認 " />&nbsp;
+                        <input type="button" name="clearButton" id="clearButton" value=" クリア " />&nbsp;
+                    </div>
+                </div>
+                <p class="message"><%= message %></p>
+            </form>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

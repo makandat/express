@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+    <!-- v1.15.0 クラウド Google Drive 削除、メディア追加 -->
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -20,6 +21,7 @@
             <!-- メニュー -->
             <div class="menu" style="padding:5px;">
                 <a href="#データベース">データベース</a>&nbsp;/&nbsp;
+                <a href="#メディア">メディア</a>&nbsp;/&nbsp;
                 <a href="#クラウド">クラウド</a>&nbsp;/&nbsp;
                 <a href="#BINDATA">サムネール</a>&nbsp;/&nbsp;
                 <a href="#テーブルのバックアップ">バックアップ</a>&nbsp;/&nbsp;
@@ -45,10 +47,17 @@
             </ul>
             <p>&nbsp;</p>
 
+            <!-- メディア -->
+            <h2><a id="メディア">メディア</a></h2>
+            <p><a href="/extra/mediaslist">内蔵ドライブ、外付けドライブ、SDカード、DVD などの管理を行います。</a></p>
+            <p>&nbsp;</p>
+
             <!-- クラウド -->
             <h2><a id="クラウド">クラウド</a></h2>
             <ul>
+                <!--
                 <li><a href="/extra/googleDrive" target="_blank">Google Drive</a></li>
+                -->
                 <li><a href="/extra/awsS3" target="_blank">AWS S3</a></li>
             </ul>
             <p>&nbsp;</p>
@@ -90,6 +99,7 @@
                         <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Music" /> Music</label>&nbsp;
                         <label><input type="radio" v-model="deleteTable" name="deleteTable" value="BINDATA" /> BINDATA</label>&nbsp;
                         <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Playlists" /> Playlists</label>&nbsp;
+                        <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Medias" /> Medias</label>&nbsp;
                         <label><input type="radio" v-model="deleteTable" name="deleteTable" value="Wiki" /> Wiki</label>&nbsp;
                     </div>
                 </div>

@@ -17,6 +17,15 @@
                         location.href = "/projects/showContent?mark=" + $("#marks").val();
                     }
                 });
+                $("#searchButton").click(() => {
+                    const word = $("#search").val();
+                    if (word == "") {
+                        alert("検索語が空欄です。");
+                    }
+                    else {
+                        location.href = "/projects/showContent?search=" + word;
+                    }
+                });
             });
         </script>
     </head>
@@ -31,6 +40,7 @@
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
                 <a href="/projects/projectForm" target="_blank"><img src="/img/form.png" /> プロジェクトの追加・修正</a>&nbsp;|&nbsp;
                 <a href="/addModifyAlbum?mark=project" target="_blank"><img src="/img/form.png" /> アルバムの追加・修正</a>&nbsp;|&nbsp;
+                検索&nbsp;<input type="text" id="search" name="search" />&nbsp;<input type="button" id="searchButton" value=" 検索 " />&nbsp;|&nbsp;
                 マークフィルタ： <select id="marks">
                     <option value="0">-- マーク --</option>
                     <% for (let m of marks) { %>

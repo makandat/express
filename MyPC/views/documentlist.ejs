@@ -17,12 +17,27 @@
                         location.href = "/documents/documentlist?mark=" + $("#marks").val();
                     }
                 });
+
+                $("#searchButton").click(() => {
+                    const word = $("#search").val();
+                    if (word == "") {
+                        alert("検索語が空欄です。");
+                    }
+                    else {
+                        location.href = "/documents/showContent?search=" + word;
+                    }
+                });
             });
 
             function download(path) {
-                if (confirm("ファイルをダウンロードします。")) {
-                    let path2 = path.replace(/#/g, '%23').replace(/&/g, '%26');
-                    location.href = "/download?path=" + path2;
+                if (path.startsWith("https://")) {
+                    alert("このオブジェクトは直接ダウンロードできません。");
+                }
+                else {
+                    if (confirm("ファイルをダウンロードします。")) {
+                        let path2 = path.replace(/#/g, '%23').replace(/&/g, '%26');
+                        location.href = "/download?path=" + path2;
+                    }
                 }
             }
         </script>
@@ -37,6 +52,7 @@
                 <a href="javascript:location.reload()"><img src="/img/refresh2.png" /> 表示更新</a>&nbsp;|&nbsp;
                 <a href="javascript:location.href='/documents/showContent'"><img src="/img/tv_dark.png" /> 表示リセット</a>&nbsp;|&nbsp;
                 <a href="/documents/documentForm" target="_blank"><img src="/img/form.png" />文書の追加・修正</a>&nbsp;|&nbsp;
+                検索&nbsp;<input type="text" id="search" name="search" />&nbsp;<input type="button" id="searchButton" value=" 検索 " />&nbsp;|&nbsp;
                 マークフィルタ： <select id="marks">
                     <option value="0">-- マーク --</option>
                     <% for (let m of marks) { %>
@@ -56,7 +72,11 @@
                     <tr>
                         <td><a href="/documents/documentForm?id=<%= a.id %>" target="_blank"><%= a.id %></a></td>
                         <td><a href="/documents/showContent?album=<%= a.album %>"><%= a.album %></a></td>
-                        <td><a href="/objectView?path=<%= a.path %>&title=<%= a.title %>" target="_blank"><%= a.title %></a></td>
+                        <% if (a.path.startsWith("https://")) { %>
+                            <td><a href="<%= a.path %>" target="_blank"><%= a.title %></a></td>
+                        <% }  else  { %>
+                            <td><a href="/objectView?path=<%= a.path %>&title=<%= a.title %>" target="_blank"><%= a.title %></a></td>
+                        <% } %>
                         <td><%= a.revision %></td>
                         <td><%= a.media %></td>
                         <td><a href="javascript:download('<%= a.path %>')"><%= a.path %></a></td>
