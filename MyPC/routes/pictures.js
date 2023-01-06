@@ -425,7 +425,7 @@ router.post('/picturesForm', async (req, res) => {
     let medias = [];
     const med = await mysql.query_p("SELECT name FROM Medias");
     for (const m of med) {
-        medias.push(m);
+        medias.push(m.name);
     }
     if (id) {
         //  更新

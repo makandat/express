@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 });
 
 // 文書の追加・修正 (GET)
-router.get("/documentForm", (req, res) => {
+router.get("/documentForm", async (req, res) => {
     let value = {
         id: "",
         album: 0,
@@ -29,28 +29,33 @@ router.get("/documentForm", (req, res) => {
         bindata: 0
     };
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Documents", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
-        }
-        else {
-            if (req.query.id) {
-                mysql.getRow("SELECT * FROM Documents WHERE id = " + req.query.id, (err, row) => {
-                    if (err) {
-                        res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"})
-                    }
-                    else {
-                        res.render('documentForm', {message:"", marks:marks, value:row});
-                    }
-                });
-            }
-            else {
-                res.render('documentForm', {message:"", marks:marks, value:value});
-            }
-        }
-    });
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Documents");
+    for (const r  of marklist) {
+        marks.push(r.mark);
+    }
+    let medias = [];
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    for (const r  of medialist) {
+        medias.push(r.name);
+    }
+    let message = "";
+    if (req.query.id) {
+        const result = await mysql.query_p("SELECT * FROM Documents WHERE id=" + req.query.id);
+        value.id = req.query.id;
+        value.album = result.album;
+        value.title = result.title;
+        value.revision = result.revision;
+        value.media = result.media;
+        value.path = result.path;
+        value.writer = result.writer;
+        value.mark = result.mark;
+        value.info = result.info;
+        value.backup = result.backup;
+        value.release = result.release;
+        value.bindata = result.bindata;
+        message = `Id = ${req.query.id} が検索されました。`;
+    }
+    res.render("documentForm", {message:message, value:value, marks:marks, medias:medias});
 });
 
 // 文書の追加・修正 (POST)

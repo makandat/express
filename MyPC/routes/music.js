@@ -116,7 +116,7 @@ router.get("/artistList", (req, res) => {
 });
 
 // Music 項目の追加・修正 (GET)
-router.get('/musicForm', (req, res) => {
+router.get('/musicForm', async (req, res) => {
     let value = {
         id: "",
         album: 0,
@@ -130,15 +130,17 @@ router.get('/musicForm', (req, res) => {
         bindata: 0
     };
     // マーク一覧を得る。
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Music");
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
-        if (row) {
-            marks.push(row.mark);
-        }
-        else {
-            res.render('formMusic', {message:"", value:value, marks:marks});
-        }
-    });
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    let medias = [];
+    for (const r of medialist) {
+        medias.push(r.name);
+    }
+    res.render('formMusic', {message:"", value:value, medias:medias, marks:marks});
 });
 
 // Music 項目の確認 (GET)

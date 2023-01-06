@@ -15,13 +15,14 @@ router.get('/', (req, res) => {
 });
 
 // プロジェクトの追加・修正 (GET)
-router.get("/projectForm", (req, res) => {
+router.get("/projectForm", async (req, res) => {
     let value = {
         id: "",
         album: 0,
         title: "",
         version: "0.0.0",
         path: "",
+        media: "",
         owner: "",
         mark: "",
         info: "",
@@ -31,16 +32,16 @@ router.get("/projectForm", (req, res) => {
         bindata: 0
     };
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
-        }
-        else {
-            res.render('projectForm', {message:"", marks:marks, value:value});
-        }
-    });
+    let medias = [];
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Projects");
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
+    const medialist = await mysql.query_p("SELECT DISTINCT name FROM Medias");
+    for (const r of medialist) {
+        medias.push(r.name);
+    }
+    res.render('projectForm', {message:"", marks:marks, medias:medias, value:value});
 });
 
 // プロジェクトの追加・修正 (POST)
@@ -51,6 +52,7 @@ router.post("/projectForm", (req, res) => {
     let title = req.body.title.replace(/'/g, "''");
     let version = req.body.version ? req.body.version : "";
     let path = req.body.path.replace(/'/g, "''").replace(/\\/g, "/");
+    let media = req.body.media ? req.body.media : "";
     let owner = req.body.owner ? req.body.owner : "";
     let mark = req.body.mark ? req.body.mark : "";
     let info = req.body.info ? req.body.info.replace(/'/g, "''") : "";
@@ -64,6 +66,7 @@ router.post("/projectForm", (req, res) => {
         title:title,
         version:version,
         path:path,
+        media:media,
         owner:owner,
         mark:mark,
         info:info,
@@ -79,6 +82,7 @@ router.post("/projectForm", (req, res) => {
     }
 
     let marks = [];
+    let medias = [];
     mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
         if (row) {
             if (row.mark) {
@@ -88,7 +92,7 @@ router.post("/projectForm", (req, res) => {
         else {
             if (id) {
                 // 更新
-                let update = `UPDATE Projects SET album=${album}, title='${title}', \`version\`='${version}', path='${path}', \`owner\`='${owner}', mark='${mark}', info='${info}', git='${git}', \`backup\`='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
+                const update = `UPDATE Projects SET album=${album}, title='${title}', \`version\`='${version}', path='${path}', media='${media}', \`owner\`='${owner}', mark='${mark}', info='${info}', git='${git}', \`backup\`='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
                 mysql.execute(update, (err) => {
                     if (err) {
                         message = err.message;
@@ -101,7 +105,7 @@ router.post("/projectForm", (req, res) => {
             }
             else {
                 // 挿入
-                let insert = `INSERT INTO Projects VALUES(NULL, ${album}, '${title}', '${version}', '${path}', '${owner}', '${mark}', '${info}', '${git}', '${backup}', DATE('${release}'), ${bindata}, CURRENT_DATE())`;
+                const insert = `INSERT INTO Projects VALUES(NULL, ${album}, '${title}', '${version}', '${path}', '${media}', '${owner}', '${mark}', '${info}', '${git}', '${backup}', DATE('${release}'), ${bindata}, CURRENT_DATE())`;
                 mysql.execute(insert, (err) => {
                     if (err) {
                         message = err.message;
@@ -146,7 +150,7 @@ router.get("/confirmProject/:id", (req, res) => {
                 return;
             }
             else {
-                let sql = "SELECT id, album, title, `version`, path, `owner`, mark, info, git, `backup`, DATE_FORMAT(`release`, '%Y-%m-%d') AS `release`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Projects WHERE id = " + id;
+                let sql = "SELECT id, album, title, `version`, path, media, `owner`, mark, info, git, `backup`, DATE_FORMAT(`release`, '%Y-%m-%d') AS `release`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Projects WHERE id = " + id;
                 mysql.getRow(sql, (err, row) => {
                     if (err) {
                         res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
@@ -167,8 +171,6 @@ router.get("/confirmProject/:id", (req, res) => {
 
 // プロジェクトの一覧
 router.get("/showContent", async (req, res) => {
-    let result = [];
-    let marks = [];
     let albumName = "";
     const album = req.query.album;
     const mark = req.query.mark;
@@ -178,68 +180,49 @@ router.get("/showContent", async (req, res) => {
     if (album) {
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id=" + album);
     }
-    mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
+    const marks = await mysql.query_p("SELECT DISTINCT mark FROM Projects");
+    let sortasc = "";
+    let sortdesc = "";
+    let sql = "SELECT * FROM Projects";
+    if (album) {
+        sql += ` WHERE album=${album}`;
+        title += " (album: " + album + ")";
+    }
+    else if (mark) {
+        sql += ` WHERE mark='${mark}'`;
+        title += " (mark: " + mark + ")";
+    }
+    else if (req.query.search) {
+        const search = `'${req.query.search}'`;
+        sql += ` WHERE INSTR(title, ${search}) or INSTR(path, ${search}) or INSTR(info, ${search})`;
+        message = "検索： " + req.query.search;
+        title += " (" + req.query.search + ")";
+    }
+    if (req.query.sortdir) {
+        session.projects_sortdir = req.query.sortdir;
+        if (session.projects_sortdir == "desc") {
+            sortasc = "";
+            sortdesc = "●";   
         }
         else {
-            let sortasc = "";
-            let sortdesc = "";
-            let sql = "SELECT * FROM Projects";
-            if (album) {
-                sql += ` WHERE album=${album}`;
-                title += " (album: " + album + ")";
-            }
-            else if (mark) {
-                sql += ` WHERE mark='${mark}'`;
-                title += " (mark: " + mark + ")";
-            }
-            else if (req.query.search) {
-                const search = `'${req.query.search}'`;
-                sql += ` WHERE INSTR(title, ${search}) or INSTR(path, ${search}) or INSTR(info, ${search})`;
-                message = "検索： " + req.query.search;
-                title += " (" + req.query.search + ")";
-            }
-            if (req.query.sortdir) {
-                session.projects_sortdir = req.query.sortdir;
-                if (session.projects_sortdir == "desc") {
-                    sortasc = "";
-                    sortdesc = "●";   
-                }
-                else {
-                    sortasc = "●";
-                    sortdesc = "";
-                }
-            }
-            else {
-                session.projects_sortdir = "asc";
-                sortasc = "●";
-                sortdesc = "";
-            }
-            sql += " ORDER BY id " + session.projects_sortdir;
-            try {
-                mysql.query(sql, (row) => {
-                    if (row) {
-                        result.push(row);
-                    }
-                    else {
-                        if (album) {
-                            message = "アルバム： " + albumName;
-                        }
-                        else if (mark) {
-                            message = "マーク： " + mark;
-                        }
-                        res.render("projectlist", {title:title, message:message, result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc, albums:albums});
-                    }
-                });    
-            }
-            catch (err) {
-                res.render("showInfo", {title:"Fatal Error", message:"エラー：" + err.message, icon:"cancel.png"});
-            }
+            sortasc = "●";
+            sortdesc = "";
         }
-    });
+    }
+    else {
+        session.projects_sortdir = "asc";
+        sortasc = "●";
+        sortdesc = "";
+    }
+    sql += " ORDER BY id " + session.projects_sortdir;
+    const result = await mysql.query_p(sql);
+    if (album) {
+        message = "アルバム： " + albumName;
+    }
+    else if (mark) {
+        message = "マーク： " + mark;
+    }
+    res.render("projectlist", {title:title, message:message, result:result, marks:marks, sortasc:sortasc, sortdesc:sortdesc, albums:albums});
 });
 
 
