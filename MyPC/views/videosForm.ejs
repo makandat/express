@@ -134,24 +134,26 @@
                 <p class="message"><%= message %></p>
             </form>
             <br />
-            <div style="display:flex">
-                <div style="margin-left:30px;">
-                    <h4>既存のマーク一覧</h4>
-                    <ul>
-                        <% for (const m of marks) { %>
-                            <li style="font-size:10pt"><%= m %></li>
-                        <% } %>
-                    </ul>
+            <% if (marks != undefined) { %>
+                <div style="display:flex">
+                    <div style="margin-left:30px;">
+                        <h4>既存のマーク一覧</h4>
+                        <ul>
+                            <% for (const m of marks) { %>
+                                <li style="font-size:10pt"><%= m %></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                    <div style="margin-left:30px;">
+                        <h4>登録されたメディア一覧</h4>
+                        <ul>
+                            <% for (const m of medias) { %>
+                                <li style="font-size:10pt"><%= m %></li>
+                            <% } %>
+                        </ul>
+                    </div>
                 </div>
-                <div style="margin-left:30px;">
-                    <h4>登録されたメディア一覧</h4>
-                    <ul>
-                        <% for (const m of medias) { %>
-                            <li style="font-size:10pt"><%= m %></li>
-                        <% } %>
-                    </ul>
-                </div>
-            </div>
+            <% } %>
         </article>
         <footer>
             <p>&nbsp;</p>

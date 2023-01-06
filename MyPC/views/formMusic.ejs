@@ -11,6 +11,10 @@
             fieldset {
                 border-width: 0px;
             }
+            ul {
+                font-size: 10pt;
+                color:darkblue;
+            }
         </style>
         <script>
             function submitClick() {
@@ -145,12 +149,26 @@
             </form>
             <br />
             <p class="message"><%= message %></p>
-            <h4>登録されているマーク一覧</h4>
-            <ul>
-                <% for (let m of marks) { %>
-                    <li><%= m %></li>
-                <% } %>
-            </ul>
+            <% if (marks != undefined) { %>
+                <div style="display:flex;">
+                    <div style="margin-left:32px;">
+                        <h4>登録されているマーク一覧</h4>
+                        <ul>
+                            <% for (let m of marks) { %>
+                                <li><%= m %></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                    <div style="margin-left:32px;">
+                        <h4>登録されているメディア一覧</h4>
+                        <ul>
+                            <% for (let m of medias) { %>
+                                <li><%= m %></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+            <% } %>
         </article>
         <footer>
             <p>&nbsp;</p>

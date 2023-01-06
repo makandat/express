@@ -56,7 +56,7 @@
         <article>
             <p class="message"><%= message %></p>
             <table>
-                <tr><th>id</th><th>album番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>所有者</th><th>マーク</th><th>リポジトリ(github)</th><th>最新版リリース日</th><th>登録日</th></tr>
+                <tr><th>id</th><th>album番号</th><th>タイトル</th><th>版数</th><th>パス</th><th>メディア</th><th>所有者</th><th>マーク</th><th>リポジトリ(github)</th><th>最新版リリース日</th><th>登録日</th></tr>
                 <% for (const a of result) { %>
                     <tr>
                         <td><a href="/projects/confirmProject/<%= a.id %>" target="_blank"><%= a.id %></a></td>
@@ -68,6 +68,7 @@
                         <% } else { %>
                             <td><a href="/projects/showSource?path=<%= a.path %>" target="_blank"><%= a.path %></a></td>
                         <% } %>
+                        <td><%= a.media %></td>
                         <td><%= a.owner %></td>
                         <td><a href="/projects/showContent?mark=<%= a.mark %>"><%= a.mark %></a></td>
                         <td><%= a.git %></td>
