@@ -37,7 +37,7 @@ router.get("/projectForm", async (req, res) => {
     for (const r of marklist) {
         marks.push(r.mark);
     }
-    const medialist = await mysql.query_p("SELECT DISTINCT name FROM Medias");
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
     for (const r of medialist) {
         medias.push(r.name);
     }
@@ -45,7 +45,7 @@ router.get("/projectForm", async (req, res) => {
 });
 
 // プロジェクトの追加・修正 (POST)
-router.post("/projectForm", (req, res) => {
+router.post("/projectForm", async (req, res) => {
     let message = "";
     let id = req.body.id;
     let album = req.body.album ? parseInt(req.body.album) : 0;
@@ -82,46 +82,46 @@ router.post("/projectForm", (req, res) => {
     }
 
     let marks = [];
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Projects");
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
     let medias = [];
-    mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
-        }
-        else {
-            if (id) {
-                // 更新
-                const update = `UPDATE Projects SET album=${album}, title='${title}', \`version\`='${version}', path='${path}', media='${media}', \`owner\`='${owner}', mark='${mark}', info='${info}', git='${git}', \`backup\`='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
-                mysql.execute(update, (err) => {
-                    if (err) {
-                        message = err.message;
-                    }
-                    else {
-                        message = `(${id}) "${title}" が更新されました。`;
-                    }
-                    res.render("projectForm", {message:message, value:value, marks:marks});
-                });
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    for (const r of medialist) {
+        medias.push(r.name);
+    }
+
+    if (id) {
+        // 更新
+        const update = `UPDATE Projects SET album=${album}, title='${title}', \`version\`='${version}', path='${path}', media='${media}', \`owner\`='${owner}', mark='${mark}', info='${info}', git='${git}', \`backup\`='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
+        mysql.execute(update, (err) => {
+            if (err) {
+                message = err.message;
             }
             else {
-                // 挿入
-                const insert = `INSERT INTO Projects VALUES(NULL, ${album}, '${title}', '${version}', '${path}', '${media}', '${owner}', '${mark}', '${info}', '${git}', '${backup}', DATE('${release}'), ${bindata}, CURRENT_DATE())`;
-                mysql.execute(insert, (err) => {
-                    if (err) {
-                        message = err.message;
-                    }
-                    else {
-                        message = `"${title}" が追加されました。`;
-                    }
-                    res.render("projectForm", {message:message, value:value, marks:marks});
-                });
+                message = `(${id}) "${title}" が更新されました。`;
             }
-        }
-    });
+            res.render("projectForm", {message:message, value:value, marks:marks, medias:medias});
+        });
+    }
+    else {
+        // 挿入
+        const insert = `INSERT INTO Projects VALUES(NULL, ${album}, '${title}', '${version}', '${path}', '${media}', '${owner}', '${mark}', '${info}', '${git}', '${backup}', DATE('${release}'), ${bindata}, CURRENT_DATE())`;
+        mysql.execute(insert, (err) => {
+            if (err) {
+                message = err.message;
+            }
+            else {
+                message = `"${title}" が追加されました。`;
+            }
+            res.render("projectForm", {message:message, value:value, marks:marks, medias:medias});
+        });
+    }
 });
 
 // データ確認
-router.get("/confirmProject/:id", (req, res) => {
+router.get("/confirmProject/:id", async (req, res) => {
     let id = req.params.id;
     let value = {
         id:id,
@@ -138,35 +138,35 @@ router.get("/confirmProject/:id", (req, res) => {
         bindata:0
     };
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Projects", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
-        }
-        else {
-            if (!id) {
-                res.render("projectForm", {message:"id が正しくありません。", value:value});
-                return;
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Projects");
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
+    let medias = [];
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    for (const r of medialist) {
+        medias.push(r.name);
+    }
+    if (!id) {
+        res.render("projectForm", {message:"id が正しくありません。", value:value, marks:marks, medias:medias});
+        return;
+    }
+    else {
+        let sql = "SELECT id, album, title, `version`, path, media, `owner`, mark, info, git, `backup`, DATE_FORMAT(`release`, '%Y-%m-%d') AS `release`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Projects WHERE id = " + id;
+        mysql.getRow(sql, (err, row) => {
+            if (err) {
+                res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
             }
             else {
-                let sql = "SELECT id, album, title, `version`, path, media, `owner`, mark, info, git, `backup`, DATE_FORMAT(`release`, '%Y-%m-%d') AS `release`, bindata, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Projects WHERE id = " + id;
-                mysql.getRow(sql, (err, row) => {
-                    if (err) {
-                        res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
-                    }
-                    else {
-                        if (row) {
-                            res.render("projectForm", {message:`id=${id} が検索されました。`, value:row});
-                        }
-                        else {
-                            res.render("showInfo", {message:"不正なパラメータが指定されました。", title:"エラー", icon:"cancel.png"});
-                        }
-                    }
-                });
+                if (row) {
+                    res.render("projectForm", {message:`id=${id} が検索されました。`, value:row, marks:marks, medias:medias});
+                }
+                else {
+                    res.render("showInfo", {message:"不正なパラメータが指定されました。", title:"エラー", icon:"cancel.png"});
+                }
             }
-        }
-    });
+        });
+    }
 });
 
 // プロジェクトの一覧

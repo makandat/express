@@ -59,7 +59,7 @@ router.get("/documentForm", async (req, res) => {
 });
 
 // 文書の追加・修正 (POST)
-router.post("/documentForm", (req, res) => {
+router.post("/documentForm", async (req, res) => {
     let message = "";
     let id = req.body.id;
     let album = req.body.album ? parseInt(req.body.album) : 0;
@@ -95,45 +95,45 @@ router.post("/documentForm", (req, res) => {
         }    
     }
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Documents", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
-        }
-        else {
-            if (id) {
-                // 更新
-                let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', media='${media}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
-                mysql.execute(update, (err) => {
-                    if (err) {
-                        message = err.message;
-                    }
-                    else {
-                        message = `(${id}) "${title}" が更新されました。`;
-                    }
-                    res.render("documentForm", {message:message, value:value, marks:marks});
-                });
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Documents");
+    for (const r  of marklist) {
+        marks.push(r.mark);
+    }
+    let medias = [];
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    for (const r  of medialist) {
+        medias.push(r.name);
+    }
+    if (id) {
+        // 更新
+        let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', media='${media}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
+        mysql.execute(update, (err) => {
+            if (err) {
+                message = err.message;
             }
             else {
-                // 挿入
-                let insert = `INSERT INTO Documents VALUES(NULL, ${album}, '${title}', '${revision}', '${media}', '${path}', '${writer}', '${mark}', '${info}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
-                mysql.execute(insert, (err) => {
-                    if (err) {
-                        message = err.message;
-                    }
-                    else {
-                        message = `"${title}" が追加されました。`;
-                    }
-                    res.render("documentForm", {message:message, value:value, marks:marks});
-                });
+                message = `(${id}) "${title}" が更新されました。`;
             }
-        }
-    });
+            res.render("documentForm", {message:message, value:value, marks:marks, medias:medias});
+        });
+    }
+    else {
+        // 挿入
+        let insert = `INSERT INTO Documents VALUES(NULL, ${album}, '${title}', '${revision}', '${media}', '${path}', '${writer}', '${mark}', '${info}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
+        mysql.execute(insert, (err) => {
+            if (err) {
+                message = err.message;
+            }
+            else {
+                message = `"${title}" が追加されました。`;
+            }
+            res.render("documentForm", {message:message, value:value, marks:marks, medias:medias});
+        });
+    }
 });
 
 // データ確認
-router.get("/confirmDocument", (req, res) => {
+router.get("/confirmDocument", async (req, res) => {
     let id = req.query.id;
     let value = {
         id:id,
@@ -149,35 +149,35 @@ router.get("/confirmDocument", (req, res) => {
         bindata:0
     };
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Documents", (row) => {
-        if (row) {
-            if (row.mark) {
-                marks.push(row.mark);
-            }
-        }
-        else {
-            if (!id) {
-                res.render("showInfo", {message:"id が正しくありません。", title:"エラー", icon:"cancel.png"});
-                return;
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Documents");
+    for (const r  of marklist) {
+        marks.push(r.mark);
+    }
+    let medias = [];
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    for (const r  of medialist) {
+        medias.push(r.name);
+    }
+    if (!id) {
+        res.render("showInfo", {message:"id が正しくありません。", title:"エラー", icon:"cancel.png"});
+        return;
+    }
+    else {
+        let sql = `SELECT * FROM Documents WHERE id=${id}`;
+        mysql.getRow(sql, (err, row) => {
+            if (err) {
+                res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
             }
             else {
-                let sql = `SELECT * FROM Documents WHERE id=${id}`;
-                mysql.getRow(sql, (err, row) => {
-                    if (err) {
-                        res.render("showInfo", {message:err.message, title:"エラー", icon:"cancel.png"});
-                    }
-                    else {
-                        if (row) {
-                            res.render("documentForm", {message:`id=${id} が検索されました。`, value:row, marks:marks});
-                        }
-                        else {
-                            res.render("showInfo", {message:"不正なパラメータが指定されました。", title:"エラー", icon:"cancel.png"});
-                        }
-                    }
-                });    
+                if (row) {
+                    res.render("documentForm", {message:`id=${id} が検索されました。`, value:row, marks:marks, medias:medias});
+                }
+                else {
+                    res.render("showInfo", {message:"不正なパラメータが指定されました。", title:"エラー", icon:"cancel.png"});
+                }
             }
-        }
-    });
+        });    
+    }
 });
 
 // 文書の一覧

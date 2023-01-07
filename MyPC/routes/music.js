@@ -135,6 +135,7 @@ router.get('/musicForm', async (req, res) => {
     for (const r of marklist) {
         marks.push(r.mark);
     }
+    // メディア一覧を得る。
     const medialist = await mysql.query_p("SELECT name FROM Medias");
     let medias = [];
     for (const r of medialist) {
@@ -144,9 +145,21 @@ router.get('/musicForm', async (req, res) => {
 });
 
 // Music 項目の確認 (GET)
-router.get('/confirmMusic/:id', (req, res) => {
+router.get('/confirmMusic/:id', async (req, res) => {
     let id = req.params.id;
     let sql = "SELECT * FROM Music WHERE id = " + id;
+    // マーク一覧を得る。
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Music");
+    let marks = [];
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
+    // メディア一覧を得る。
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    let medias = [];
+    for (const r of medialist) {
+        medias.push(r.name);
+    }
     mysql.getRow(sql, (err, row) => {
         if (row) {
             let value = {
@@ -161,16 +174,7 @@ router.get('/confirmMusic/:id', (req, res) => {
                 fav: row.fav,
                 bindata: row.bindata
             };
-            // マーク一覧を得る。
-            let marks = [];
-            mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
-                if (row) {
-                    marks.push(row.mark);
-                }
-                else {
-                    res.render('formMusic', {message:`id: ${id} が検索されました。`, value:value, marks:marks});
-                }
-            });
+            res.render('formMusic', {message:"", value:value, medias:medias, marks:marks});
         }
         else {
             res.render('showInfo', {message:"エラー： データがありません。", title:"エラー", icon:"cancel.png"});
@@ -209,39 +213,42 @@ router.post('/musicForm', async (req, res) => {
         res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
         return;
     }
+    // マーク一覧を得る。
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Music");
     let marks = [];
-    mysql.query("SELECT DISTINCT mark FROM Music", (row) => {
-        if (row) {
-            marks.push(row.mark);
-        }
-        else {
-            if (id) {
-                //  更新
-                let update = `UPDATE Music SET album=${album}, title='${title}', path='${path}', artist='${artist}', media='${media}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
-                mysql.execute(update, (err) => {
-                    if (err) {
-                        res.render('formMusic', {message:err.message, value:value, marks:[]});
-                    }
-                    else {
-                        res.render('formMusic', {message:`${title} が更新されました。`, value:value, marks:marks});
-                    }
-                });
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
+    // メディア一覧を得る。
+    const medialist = await mysql.query_p("SELECT name FROM Medias");
+    let medias = [];
+    for (const r of medialist) {
+        medias.push(r.name);
+    }
+    if (id) {
+        //  更新
+        let update = `UPDATE Music SET album=${album}, title='${title}', path='${path}', artist='${artist}', media='${media}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
+        mysql.execute(update, (err) => {
+            if (err) {
+                res.render('formMusic', {message:err.message, value:value, marks:marks, medias:medias});
             }
             else {
-                // 追加
-                let insert = `INSERT INTO Music(id, album, title, path, artist, media, mark, info, fav, count, bindata, date, sn) VALUES(NULL, ${album}, '${title}', '${path}', '${artist}', '${media}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE(), 0)`;
-                mysql.execute(insert, (err) => {
-                    if (err) {
-                        res.render('formMusic', {message:err.message, value:value, marks:[]});
-                    }
-                    else {
-                        res.render('formMusic', {message:`${title} が追加されました。`, value:value, marks:marks});
-                    }
-                });
-            }        
-        }
-    });
-
+                res.render('formMusic', {message:`${title} が更新されました。`, value:value, marks:marks, medias:medias});
+            }
+        });
+    }
+    else {
+        // 追加
+        let insert = `INSERT INTO Music(id, album, title, path, artist, media, mark, info, fav, count, bindata, date, sn) VALUES(NULL, ${album}, '${title}', '${path}', '${artist}', '${media}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE(), 0)`;
+        mysql.execute(insert, (err) => {
+            if (err) {
+                res.render('formMusic', {message:err.message, value:value, marks:marks, medias:medias});
+            }
+            else {
+                res.render('formMusic', {message:`${title} が追加されました。`, value:value, marks:marks, medias:medias});
+            }
+        });
+    }        
 });
 
 // 音楽演奏フォーム (id 指定)

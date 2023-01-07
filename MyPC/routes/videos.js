@@ -460,46 +460,18 @@ router.post('/videosForm', async (req, res) => {
     for (const m of med) {
         medias.push(m.name);
     }
+    // マーク一覧を得る。
+    let marks = [];
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Videos");
+    for (const m of marklist) {
+        marks.push(m.mark);
+    }
     
     // 二重登録の有無を確認する。
-    mysql.getValue(`SELECT count(*) AS cnt FROM Videos WHERE path='${path}'`, (c) => {
-        if (c == 0) {
-            // マーク一覧を得る。
-            let marks = [];
-            mysql.query("SELECT DISTINCT mark FROM Videos", (row) => {
-                if (row) {
-                    marks.push(row.mark);
-                }
-                else {
-                    // 更新または挿入処理
-                    if (id) {
-                        //  更新
-                        let update = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', media='${media}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
-                        mysql.execute(update, (c) => {
-                            if (c) {
-                                res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
-                            }
-                            else {
-                                res.render('videosForm', {message:`${title} が更新されました。`, marks:marks, value:value, medias:medias});
-                            }
-                        });
-                    }
-                    else {
-                        // 追加
-                        let insert = `INSERT INTO Videos(id, album, title, path, media, series, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${media}', '${series}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
-                        mysql.execute(insert, (c) => {
-                            if (c) {
-                                res.render('showInfo', {'title':'エラー', 'message':insert, 'icon':'cancel.png', 'link':null});
-                            }
-                            else {
-                                res.render('videosForm', {message:`${title} が追加されました。`, marks:marks, value:value, medias:medias});
-                            }
-                        });
-                    }
-                }
-            });
-        }
-        else {
+    const c = await mysql.getValue_p(`SELECT count(*) AS cnt FROM Videos WHERE path='${path}'`);
+    if (c == 0) {
+        // 更新または挿入処理
+        if (id) {
             //  更新
             let update = `UPDATE Videos SET album=${album}, title='${title}', path='${path}', media='${media}', series='${series}', mark='${mark}', info='${info}', fav=${fav}, bindata=${bindata} WHERE id=${id}`;
             mysql.execute(update, (c) => {
@@ -507,11 +479,26 @@ router.post('/videosForm', async (req, res) => {
                     res.render('showInfo', {'title':'エラー', 'message':update, 'icon':'cancel.png', 'link':null});
                 }
                 else {
-                    res.render('videosForm', {message:`${title} が更新されました。`, marks:[], value:value, medias:[]});
+                    res.render('videosForm', {message:`${title} が更新されました。`, marks:marks, value:value, medias:medias});
                 }
             });
         }
-    });
+        else {
+            // 追加
+            let insert = `INSERT INTO Videos(id, album, title, path, media, series, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${media}', '${series}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
+            mysql.execute(insert, (c) => {
+                if (c) {
+                    res.render('showInfo', {'title':'エラー', 'message':insert, 'icon':'cancel.png', 'link':null});
+                }
+                else {
+                    res.render('videosForm', {message:`${title} が追加されました。`, marks:marks, value:value, medias:medias});
+                }
+            });
+        }
+    }
+    else {
+        res.render('showInfo', {'title':'エラー', 'message':"この動画はすでに登録済みです。", 'icon':'cancel.png', 'link':null});
+    }
 });
 
 // シリーズ一覧
