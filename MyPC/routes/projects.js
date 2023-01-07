@@ -180,7 +180,11 @@ router.get("/showContent", async (req, res) => {
     if (album) {
         albumName = await mysql.getValue_p("SELECT name FROM Album WHERE id=" + album);
     }
-    const marks = await mysql.query_p("SELECT DISTINCT mark FROM Projects");
+    const marklist = await mysql.query_p("SELECT DISTINCT mark FROM Projects");
+    let marks = [];
+    for (const r of marklist) {
+        marks.push(r.mark);
+    }
     let sortasc = "";
     let sortdesc = "";
     let sql = "SELECT * FROM Projects";
