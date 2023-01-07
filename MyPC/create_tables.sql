@@ -79,9 +79,10 @@ CREATE TABLE IF NOT EXISTS `Projects` (
   `title` varchar(100) NOT NULL,
   `version` varchar(10) DEFAULT NULL,
   `path` varchar(400) NOT NULL,
+  `media` varchar(50) DEFAULT NULL,
   `owner` varchar(50) DEFAULT NULL,
   `mark` varchar(20) DEFAULT NULL,
-  `info` varchar(200) DEFAULT NULL,
+  `info` text DEFAULT NULL,
   `git` varchar(400) DEFAULT NULL,
   `backup` varchar(400) DEFAULT NULL,
   `release` date DEFAULT NULL,
@@ -90,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `Projects` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `title` (`title`),
   UNIQUE KEY `path` (`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 -- 文書 (Documents)
 CREATE TABLE IF NOT EXISTS `Documents` (
@@ -177,3 +178,15 @@ CREATE TABLE `Wiki` (
   `revision` tinyint(4) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
+
+-- メディア
+CREATE TABLE Medias (
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `type` VARCHAR(50) NOT NULL,
+  `format` VARCHAR(50) NOT NULL,
+  `size` VARCHAR(50),
+  fixed_on VARCHAR(50),
+  info VARCHAR(200),
+  `date` DATE
+);
