@@ -649,29 +649,38 @@ router.get("/objectView", (req, res) => {
     case ".pdf":
       res.render("objectView", {title:title, message:"", path:path, mime:"application/pdf"});
       break;
-      case ".txt":
-        res.render("objectView", {title:title, message:"", path:path, mime:"text/plain"});
-        break;
-      case ".html":
-        res.render("objectView", {title:title, message:"", path:path, mime:"text/html"});
-        break;
-      case ".css":
+    case ".txt":
+      res.render("objectView", {title:title, message:"", path:path, mime:"text/plain"});
+      break;
+    case ".html":
+      res.render("objectView", {title:title, message:"", path:path, mime:"text/html"});
+      break;
+    case ".jpg":
+      res.render("objectView", {title:title, message:"", path:path, mime:"image/jpeg"});
+      break;
+    case ".png":
+      res.render("objectView", {title:title, message:"", path:path, mime:"image/png"});
+      break;
+    case ".svg":
+      res.render("objectView", {title:title, message:"", path:path, mime:"image/svg+xml"});
+      break;
+    case ".css":
         res.render("objectView", {title:title, message:"", path:path, mime:"text/css"});
         break;
-      case ".csv":
-        content = readCsvSync(path);
-        res.render("csvView", {title:title, message:"", path:path, content:content});
-        break;
-      case ".tsv":
+    case ".csv":
+      content = readCsvSync(path);
+      res.render("csvView", {title:title, message:"", path:path, content:content});
+      break;
+    case ".tsv":
         content = readCsvSync(path, true);
         res.render("csvView", {title:title, message:"", path:path, content:content});
         break;
-      case ".json":
-        res.render("objectView", {title:title, message:"", path:path, mime:"application/json"});
-        break;
-      default:
-        res.render("showInfo", {title:"エラー", icon:"cancel.png", message:"直接表示のサポートされない形式です。" + ext + "。パスをクリックしてダウンロードしてからアプリで表示してください。"});
-        break;
+    case ".json":
+      res.render("objectView", {title:title, message:"", path:path, mime:"application/json"});
+      break;
+    default:
+      res.render("showInfo", {title:"エラー", icon:"cancel.png", message:"直接表示のサポートされない形式です。" + ext + "。パスをクリックしてダウンロードしてからアプリで表示してください。"});
+      break;
   }
 });
 
