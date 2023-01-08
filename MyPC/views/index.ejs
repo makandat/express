@@ -209,18 +209,20 @@
 			<h4 class="info">データの削除</h4>
 			<ul>
 				<li><a href="/extra#%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8A%E9%99%A4" target="_blank">テーブル項目の削除</a></li>
-				<li><a href="http://localhost:3000/extra#%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E4%B8%80%E6%8B%AC%E5%89%8A%E9%99%A4" target="_blank">テーブル項目の一括削除</a></li>
+				<li><a href="/extra#%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E4%B8%80%E6%8B%AC%E5%89%8A%E9%99%A4" target="_blank">テーブル項目の一括削除</a></li>
 			</ul>
 		</div>
 	</div>
 	<br />
-	<div style="display:block;">
-		<h4 class="info">最新の Wiki 情報</h4>
-		<div class="info2" id="wiki"></div>
-	</div>
-	<div style="display:block;margin-left:10%;">
-		<%- include("index_fixed.ejs") %>
-	</div>
+   <div style="display:flex;" class="info">
+        <div style="display:block;">
+            <h4 class="info">最新の Wiki 情報</h4>
+            <div class="info2" id="wiki"></div>
+        </div>
+        <div style="display:block;margin-left:10%;">
+            <%- include("index_fixed.ejs") %>
+        </div>
+   </div>
 	<p>&nbsp;</p>
 	<p class="footer_text">Version: <%= version %>, Release Date: <%= release_date %></p>
 	<p>&nbsp;</p>
