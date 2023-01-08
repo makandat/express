@@ -467,12 +467,6 @@ router.post('/videosForm', async (req, res) => {
         marks.push(m.mark);
     }
     
-    // 二重登録の有無を確認する。
-    const c = await mysql.getValue_p(`SELECT count(*) AS cnt FROM Videos WHERE path='${path}'`);
-    if (c != 0) {
-        res.render('showInfo', {'title':'エラー', 'message':"この動画はすでに登録済みです。", 'icon':'cancel.png', 'link':null});
-        return;
-    }
     // 更新または挿入処理
     if (id) {
         //  更新
@@ -482,6 +476,12 @@ router.post('/videosForm', async (req, res) => {
         });
     }
     else {
+        // 二重登録の有無を確認する。
+        const c = await mysql.getValue_p(`SELECT count(*) AS cnt FROM Videos WHERE path='${path}'`);
+        if (c != 0) {
+            res.render('showInfo', {'title':'エラー', 'message':"この動画はすでに登録済みです。", 'icon':'cancel.png', 'link':null});
+            return;
+        }
         // 追加
         let insert = `INSERT INTO Videos(id, album, title, path, media, series, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${media}', '${series}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
         mysql.execute(insert, () => {
