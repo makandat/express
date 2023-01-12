@@ -59,7 +59,7 @@
                     <option value="0">-- Select --</option>
                     <% for (let m of marks) { %>
                         <% if (m) { %>
-                            <option value="<%= m %>"><%= m %></option>
+                            <option value="<%= encodeURIComponent(m) %>"><%= m %></option>
                         <% } %>
                     <% } %>
                 </select>&nbsp;|&nbsp;

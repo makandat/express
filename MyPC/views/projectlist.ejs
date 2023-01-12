@@ -44,7 +44,7 @@
                 マークフィルタ： <select id="marks">
                     <option value="0">-- マーク --</option>
                     <% for (let m of marks) { %>
-                        <option value="<%= m %>"><%= m %></option>
+                        <option value="<%= encodeURIComponent(m) %>"><%= m %></option>
                     <% } %>
                 </select>&nbsp;|&nbsp;
                 <img src="/img/sortdir.png" />&nbsp;(&nbsp;

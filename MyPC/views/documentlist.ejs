@@ -56,7 +56,7 @@
                 マークフィルタ： <select id="marks">
                     <option value="0">-- マーク --</option>
                     <% for (let m of marks) { %>
-                        <option value="<%= m %>"><%= m %></option>
+                        <option value="<%= encodeURIComponent(m) %>"><%= m %></option>
                     <% } %>
                 </select>&nbsp;|&nbsp;
                 <img src="/img/sortdir.png" /> (&nbsp;
@@ -81,7 +81,7 @@
                         <td><%= a.media %></td>
                         <td><a href="javascript:download('<%= a.path %>')"><%= a.path %></a></td>
                         <td><%= a.writer %></td>
-                        <td><a href="/documents/showContent?mark=<%= a.mark %>"><%= a.mark %></a></td>
+                        <td><a href="/documents/showContent?mark=<%= encodeURIComponent(a.mark) %>"><%= a.mark %></a></td>
                         <td><%= a.info %></td>
                         <td><%= a.backup %></td>
                         <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.release.getDate()).substring(0, 2) %></td>
