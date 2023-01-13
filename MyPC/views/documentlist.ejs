@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>文書一覧></title>
+        <title>文書一覧</title>
         <link rel="stylesheet" href="/css/style.css" />
         <style>
 
@@ -61,7 +61,8 @@
                 </select>&nbsp;|&nbsp;
                 <img src="/img/sortdir.png" /> (&nbsp;
                 <a href="/documents/showContent?sortdir=asc"><%= sortasc %> 昇順で表示</a>&nbsp;|&nbsp;
-                <a href="/documents/showContent?sortdir=desc"><%= sortdesc %> 降順で表示</a> )
+                <a href="/documents/showContent?sortdir=desc"><%= sortdesc %> 降順で表示</a> )&nbsp;|&nbsp;
+                <a href="#Albums">アルバム一覧</a>
             </div>
         </header>
         <article>
@@ -91,7 +92,7 @@
                 <% } %>
             </table>
             <br />
-            <h3>アルバム一覧</h3>
+            <h3><a id="Albums">アルバム一覧</a></h3>
             <table>
                 <tr><th>id</th><th>アルバム名</th></tr>
                 <% for (let r of albumList) { %>

@@ -80,7 +80,8 @@
                 <a href="/videos/showContent?move=last">最後 <img src="/img/last.svg" /></a>&nbsp;|&nbsp;
                 <img src="/img/sortdir.png" />&nbsp;
                 (<a href="/videos/showContent?sortdir=asc"><%= dirasc %>昇順</a>&nbsp;/&nbsp;
-                <a href="/videos/showContent?sortdir=desc"><%= dirdesc %>降順</a>)&nbsp;
+                <a href="/videos/showContent?sortdir=desc"><%= dirdesc %>降順</a>)&nbsp;|&nbsp;
+                <a href="#Albums">アルバム一覧</a>
             </div>
         </header>
         <article>
@@ -124,6 +125,14 @@
                             <td></td>
                         <% } %>
                     </tr>
+                <% } %>
+            </table>
+            <br />
+            <h3><a id="Albums">アルバム一覧</a></h3>
+            <table>
+                <tr><th>id</th><th>アルバム名</th></tr>
+                <% for (let r of albumList) { %>
+                    <tr><td><a href="/pictures/showContent?album=<%= r.id %>"><%= r.id %></a></td><td><%= r.name %></td></tr>
                 <% } %>
             </table>
         </article>

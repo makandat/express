@@ -6,7 +6,7 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/css/style.css' />
 	<style>
-	  article {
+	  .big_icons {
 	    display: flex;
 		padding: 10px;
 		margin-left: 1%;
@@ -28,6 +28,10 @@
 	  .info2 {
 		  margin-left:18%;
 		  font-size: 11pt;
+	  }
+	  .opdiv {
+		padding: 20px;
+		border-left: solid thin lightgray; 
 	  }
 	</style>
 	<script src="/js/private.js"></script>
@@ -132,7 +136,7 @@
   </head>
   <body onload="javascript:onPageLoad()">
     <h1><%= title %></h1>
-    <p style="text-align:center;color:indigo;">ようこそ！ <%= title %></p>
+    <p style="text-align:center;color:indigo;">ようこそ！ <%= title %> の管理ウェブアプリへ</p>
 	<br />
 	<div class="menu">
 		<a href="/addModifyAlbum" target="_blank"><img src="/img/form.png" /> アルバムの作成・修正</a>&nbsp;|&nbsp;
@@ -147,7 +151,7 @@
 		<a href="/extra/wiki" target="_blank"><img src="/img/folder2.png" /> Wiki</a>&nbsp;/&nbsp;
 		<a href="/help_index.html" target="_blank"><img src="/img/question2.png" /> ヘルプ</a>&nbsp;
 	</div>
-	<article class="horblock">
+	<div class="big_icons horblock">
 	  <figure><a href="/computer" target="_blank"><img src="/img/laptop.png" alt="コンピュータ" class="iconpad" /><figcaption>コンピュータ</figcaption></a></figure>
 	  <figure><a href="/projects" target="_blank"><img src="/img/business.png" alt="プロジェクト" class="iconpad" /><figcaption>プロジェクト</figcaption></a></figure>
 	  <figure><a href="/documents" target="_blank"><img src="/img/book.png" alt="文書" class="iconpad" /><figcaption>文書</figcaption></a></figure>
@@ -156,11 +160,13 @@
 	  <figure><a href="/music" target="_blank"><img src="/img/music.png" alt="音楽"  class="iconpad" /><figcaption>音楽</figcaption></a></figure>
 	  <figure><a href="/extra" target="_blank"><img src="/img/settings.png" alt="その他"  class="iconpad" /><figcaption>その他</figcaption></a></figure>
 	  <br />
-	</article>
+	</div>
 	<p id="message" class="message"><%= message %></p>
     <br />
+	<hr style="width:85%; border-width:1px; color:whitesmoke;" />
+	<br />
 	<div style="display: flex;" class="info">
-		<div>
+		<div class="opdiv">
 			<h4 >データの追加</h4>
 			<div class="info2">
 				項目の選択： <select id="addData" onchange="javascript:addData()">
@@ -178,7 +184,7 @@
 				</select>
 			</div>
         </div>
-		<div>
+		<div class="opdiv">
 			<h4>検索</h4>
 			<form>
 				<div><label>検索語：<input type="text" id="searchWord" /></label></div>
@@ -193,7 +199,7 @@
 				<div style="margin-top:10px;"><label><input type="button" id="searchButton" value=" 検索 " /></label></div>
 			</form>
 		</div>
-		<div>
+		<div class="opdiv">
 			<h4 class="info">データベース</h4>
 			<ul>
 				<li><a href="/extra/mysqlMetaInfo" target="_blank">メタ情報</a></li>
@@ -201,11 +207,11 @@
 				<li><a href="/extra/mysqlExecFile" target="_blank">SQL ファイル実行</a></li>
 			</ul>
 		</div>
-		<div>
+		<div class="opdiv">
 			<h4 class="info">メディア</h4>
 			<p><a href="/extra/mediaslist" target="_blank">メディアの管理</a></p>
 		</div>
-		<div>
+		<div class="opdiv" style="border-right: solid thin lightgray;">
 			<h4 class="info">データの削除</h4>
 			<ul>
 				<li><a href="/extra#%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8A%E9%99%A4" target="_blank">テーブル項目の削除</a></li>
@@ -215,7 +221,7 @@
 	</div>
 	<br />
    <div style="display:flex;" class="info">
-        <div style="display:block;">
+        <div>
             <h4 class="info">最新の Wiki 情報</h4>
             <div class="info2" id="wiki"></div>
         </div>
