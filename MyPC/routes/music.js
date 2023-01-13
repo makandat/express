@@ -66,6 +66,9 @@ router.get('/showContent', async (req, res) => {
         dirasc = "●";
         dirdesc = "";
     }
+    // アルバム一覧を得る。
+    const albumList = await mysql.query_p("SELECT id, name FROM Album WHERE mark='music' ORDER BY id");
+
     // クエリーを行う。
     try {
         let sql = await makeSQL(req);
@@ -76,7 +79,7 @@ router.get('/showContent', async (req, res) => {
         for (let row of rows) {
             marks.push(row.mark);
         }
-        res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "marks":marks,
+        res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "marks":marks, "albumList":albumList,
             "message": result.length == 0 ? "条件に合う結果がありません。" : "",
             dirasc:dirasc, dirdesc:dirdesc, search:req.query.search ? req.query.search : ""});    
     }

@@ -92,14 +92,16 @@ router.get('/showContent', async (req, res) => {
         dirasc = "●";
         dirdesc = "";
     }
+    // アルバム一覧を得る。
+    const albumList = await mysql.query_p("SELECT id, name FROM Album WHERE mark='picture' ORDER BY id");
     // マーク一覧を得る。
     try {
-        let marks = await mysql.query_p("SELECT DISTINCT mark FROM Pictures");
+        const marks = await mysql.query_p("SELECT DISTINCT mark FROM Pictures");
         // クエリーを行う。
-        let sql = await makeSQL(req);
-        let result = await mysql.query_p(sql);
+        const sql = await makeSQL(req);
+        const result = await mysql.query_p(sql);
         // 結果を返す。
-        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : message, dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
+        res.render('picturelist', {"title":title, "albumName":albumName, "mark":session.pictures_mark, "marks":marks, albumList:albumList, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : message, dirasc:dirasc, dirdesc:dirdesc, search:session.pictures_search});
     }
     catch (err) {
         res.render('showInfo', {"title":"Fatal Error", "message":"エラー:" + err.message, "icon":"cancel.png"});

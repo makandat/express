@@ -70,6 +70,9 @@ router.get('/showContent', async (req, res) => {
         dirasc = "●";
         dirdesc = "";
     }
+    // アルバム一覧を得る。
+    let albumList = await mysql.query_p("SELECT id, name FROM Album WHERE mark='video' ORDER BY id");
+
     // クエリーを行う。
     try {
         let rows = await mysql.query_p("SELECT DISTINCT mark FROM Videos ORDER BY mark");
@@ -86,7 +89,7 @@ router.get('/showContent', async (req, res) => {
         if (req.query.mark) {
             title += ` (${req.query.mark})`;
         }
-        res.render('videolist', {"title":title, "albumName":albumName, "marks":marks, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "",
+        res.render('videolist', {"title":title, "albumName":albumName, "marks":marks, "albumList":albumList, "result": result, "message": result.length == 0 ? "条件に合う結果がありません。" : "",
          dirasc:dirasc, dirdesc:dirdesc, search:session.videos_search});    
     }
     catch (err) {
