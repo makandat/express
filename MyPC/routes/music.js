@@ -193,7 +193,7 @@ router.post('/musicForm', async (req, res) => {
         album = 0;
     }
     let title = req.body.title.replace("'", "''");
-    let path = req.body.path.replace(/\\/g, "/").replace("'", "''");
+    let path = req.body.path.replace(/\\/g, "/").replace("'", "''").replace("\"", "");
     let artist = req.body.artist.replace("'", "''");
     let media = req.body.media;
     let mark = req.body.mark;

@@ -215,7 +215,7 @@ function showWithSeries(series, res) {
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('videolist', {"title":"「" + series + "」の動画一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:""});
+            res.render('videolist', {"title":"「" + series + "」の動画一覧", "marks":[], "albumName":"N/A", "result": result, "message": "", dirasc:"", dirdesc:"", search:"", albumList:[]});
             return;
         }
         else {
@@ -426,7 +426,7 @@ router.post('/videosForm', async (req, res) => {
         album = 0;
     }
     let title = req.body.title.replace("'", "''");
-    let path = req.body.path.replace(/\\/g, "/").replace("'", "''");
+    let path = req.body.path.replace(/\\/g, "/").replace("'", "''").replace("\"", "");
     let media = req.body.media;
     let series = req.body.series;
     let mark = req.body.mark;

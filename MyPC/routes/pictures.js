@@ -238,7 +238,7 @@ function showWithCreator(creator, res) {
     let result = [];
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('picturelist', {"title":creator + "の画像フォルダ一覧", "albumName":"N/A", "result": result, "marks":[], "mark":"", "message":"", dirasc:"", dirdesc:"", search:""});
+            res.render('picturelist', {"title":creator + "の画像フォルダ一覧", "albumName":"N/A", "result": result, "marks":[], "mark":"", "message":"", dirasc:"", dirdesc:"", search:"", albumList:[]});
             return;
         }
         else {
@@ -396,7 +396,7 @@ router.post('/picturesForm', async (req, res) => {
         album = 0;
     }
     let title = req.body.title.replace("'", "''");
-    let path = req.body.path.replace(/\\/g, "/").replace("'", "''");
+    let path = req.body.path.replace(/\\/g, "/").replace("'", "''").replace("\"", "");
     let creator = req.body.creator.replace("'", "''");
     let media = req.body.media;
     let mark = req.body.mark;
