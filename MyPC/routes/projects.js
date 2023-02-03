@@ -102,6 +102,7 @@ router.post("/projectForm", async (req, res) => {
             else {
                 message = `(${id}) "${title}" が更新されました。`;
             }
+            value.info = value.info.replace(/'+/g, "'").replace(/\\+/, "\\");
             res.render("projectForm", {message:message, value:value, marks:marks, medias:medias});
         });
     }
