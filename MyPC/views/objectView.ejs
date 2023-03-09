@@ -16,7 +16,11 @@
     <body>
         <h1><a href="/"><img src="/img/home_blue.png" /></a>&nbsp;<%= title %></h1>
         <p class="message"><%= message %></p>
-        <object data="/sendfile?path=<%= path %>" type="<%= mime %>" width="95%" height="1200px;"></object>
+        <% if (mime.includes("image/")) { %>
+            <object data="/sendfile?path=<%= path %>" type="<%= mime %>"></object>
+        <% } else { %>
+            <object data="/sendfile?path=<%= path %>" type="<%= mime %>" width="95%" height="1200px;"></object>
+        <% } %>
         <p>&nbsp;</p>
         <p>&nbsp;</p>
     </body>
