@@ -1,4 +1,4 @@
-/* index.js */
+/* index.js 2023-03-10 */
 'use strict';
 const express = require('express');
 const router = express.Router();
@@ -587,6 +587,12 @@ router.get("/extract/:id", async (req, res) => {
   let sql = "SELECT datatype, data FROM BINDATA WHERE id = " + id;
   let row = await mysql.getRow_p(sql);
   let type = null;
+  try {
+　　  "datatype" in row;
+  }
+   catch (e) {
+    return;
+  }
   switch (row.datatype) {
     case ".png":
       type = "image/png";

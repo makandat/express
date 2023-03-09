@@ -1,4 +1,4 @@
-/* FileSystem.js v1.5 */
+/* FileSystem.js v1.5.1 */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -21,6 +21,8 @@ function testExtension(ext, exts) {
 /*  exts は拡張子一覧(配列)  (例) ['.jpg', '.jpeg', '.JPG', '.JPEG'], null の場合は拡張子の指定なしとみなす。 */
 /*  callback はファイルパスの一覧(配列)を受け取るコールバック関数 */
 exports.getFiles = async (dir, exts, callback) => {
+  if (! fs.existsSync(dir))
+    callback([]);
   let files = [];
   fs.readdir(dir, {'withFileTypes': true}, (err, items) => {
     if (err) {
@@ -50,6 +52,8 @@ exports.getFiles = async (dir, exts, callback) => {
 /*  dir は対象のディレクトリ */
 /*  exts は拡張子一覧(配列)  (例) ['.jpg', '.jpeg', '.JPG', '.JPEG'], null の場合は拡張子の指定なしとみなす。 */
 exports.getFiles_p = async (dir, exts) => {
+  if (! fs.existsSync(dir))
+    return;
   let files = [];
   let prom_items = await fs.promises.readdir(dir, {'withFileTypes': true});
   return new Promise((resolve, reject) =>{
@@ -74,6 +78,8 @@ exports.getFiles_p = async (dir, exts) => {
 /*  dir は対象のディレクトリ */
 /*  callback はディレクトリパスの一覧(配列)を受け取るコールバック関数 */
 exports.getDirectories = (dir, callback) => {
+  if (! fs.existsSync(dir))
+    callback([]);
   let dirs = [];
   fs.readdir(dir, {'withFileTypes': true}, (err, items) => {
     if (err) {
@@ -93,6 +99,8 @@ exports.getDirectories = (dir, callback) => {
 /* フォルダ内のサブディレクトリ一覧を得る。*/
 /*  dir は対象のディレクトリ */
 exports.getDirectories_p = async (dir) => {
+  if (! fs.existsSync(dir))
+    return;
   let prom_items = await fs.promises.readdir(dir, {'withFileTypes': true});
   return new Promise((resolve, reject) => {
     let dirs = [];
