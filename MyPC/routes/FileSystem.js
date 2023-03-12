@@ -174,8 +174,13 @@ exports.isDir = async (path, callback) => {
 
 /* 同期・パスがディレクトリか判別する。*/
 exports.isDirSync = (path) => {
-  let st = fs.statSync(path);
-  return st.isDirectory();
+  try {
+    let st = fs.statSync(path);
+    return st.isDirectory();  
+  }
+  catch (e) {
+    return false;
+  }
 };
 
 /* パスがファイルか判別する。*/
@@ -187,8 +192,13 @@ exports.isFile = async (path, callback) => {
 
 /* 同期・パスがファイルか判別する。*/
 exports.isFileSync = (path) => {
-  let st = fs.statSync(path);
-  return st.isFile();
+  try {
+    let st = fs.statSync(path);
+    return st.isFile();  
+  }
+  catch (e) {
+    return false;
+  }
 };
 
 /* パスがSymbolicリンクか判別する。　*/
