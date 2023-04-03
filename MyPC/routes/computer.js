@@ -478,6 +478,52 @@ router.post('/command', (req, res) => {
     }
 });
 
+// 子プロセスの起動 (GET)
+router.get("/child_process", (req, res) => {
+  let osname = "Linux";
+  if (com.isWindows())
+    osname = "Windows";
+  res.render("child_process", {"osname":osname, "editText":"", "check1":"checked", "check2":"", "result":""});
+});
+
+// 子プロセスの起動 (POST)
+router.post("/child_process", (req, res) => {
+    const editText = req.body.editText;
+    const commandType = req.body.commandType;
+    let osname = "Linux";
+    if (com.isWindows())
+      osname = "Windows";
+    let check1 = "";
+    let check2 = "";
+    try {
+      let buffer = "";
+      if (commandType == "command") {
+        check1 = "checked";
+        buffer = child_process.execSync(editText);
+      }
+      else {
+        check2 = "checked";
+        const items = editText.split(/\s/g);
+        const file = items[0];
+        let params = [];
+        if (items.length > 1) {
+          params = items.slice(1);
+        }
+        buffer = child_process.execFileSync(file, params);
+      }
+      const result = new TextDecoder().decode(buffer);
+      res.render("child_process", {"osname":osname, "editText":editText, "commandType":commandType, "check1":check1, "check2":check2, "result":result});
+    }
+    catch (e) {
+        if (commandType == "command")
+          check1 = "checked";
+        else
+          check2 = "checked";
+        res.render("child_process", {"osname":osname, "editText":editText, "commandType":commandType, "check1":check1, "check2":check2, "result":"エラー：" + e.message});
+    }
+ });
+ 
+
 // 表示フォルダの編集 (GET)
 router.get('/folderedit', (req, res) => {
     let folderList = fs.readFileSync("./folders.json");
