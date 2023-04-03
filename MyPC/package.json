@@ -1,7 +1,7 @@
 {
   "name": "mypc",
-  "version":"1.15.15",
-  "release":"2023-03-10",
+  "version":"1.16.0",
+  "release":"2023-04-03",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
