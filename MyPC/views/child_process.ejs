@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>子プロセスの起動</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .control {
+      border: solid thin silver;
+      border-radius: 6px;
+      padding: 4px;
+      font-size: 11pt;
+    }
+    pre {
+      border: solid thin silver;
+      border-radius: 6px;
+      background-color:whitesmoke;
+      padding: 4px;
+      font-size: 11pt;
+    }
+  </style>
+  <script>
+    function submitForm() {
+      if (form1.editText.value == "") {
+        alert("コマンド入力が空欄です。");
+        return;
+      }
+      const history = document.getElementById("history");
+      const addedItem = "<li>" + form1.editText.value + "</li>\n";
+      history.insertAdjacentHTML("beforeend", addedItem);
+      let storageItems = sessionStorage.getItem("history");
+      if (storageItems == undefined)
+        storageItems = addedItem;
+      else
+        storageItems += addedItem;
+      sessionStorage.setItem("history", storageItems);
+      form1.submit();
+    }
+
+    function clearForm() {
+      form1.editText.value = "";
+    }
+
+    function onLoad() {
+      let storageItems = sessionStorage.getItem("history");
+      if (storageItems != undefined) {
+        const history = document.getElementById("history");
+        history.insertAdjacentHTML("beforeend", storageItems);
+      }
+    }
+  </script>
+</head>
+
+<body onload="onLoad()">
+  <header>
+    <h1><a href="/"><img src="/img/home_orange.png" /></a> 子プロセスの起動</h1>
+    <hr>
+  </header>
+
+  <article id="app" style="margin-left:10%;margin-top:30px;">
+    <h3>コマンド入力 (<%= osname %>)</h3>
+    <form name="form1" method="POST">
+      <div class="form-row">
+        <label>
+          <textarea id="editText" name="editText" class="control" cols="120" rows="8"><%- editText %></textarea>
+        </label>
+      </div>
+      <div style="margin-top:10px;padding:5px;border:solid thin silver; width:50%;">
+        <label><input type="radio" name="commandType" value="command" <%= check1 %>> シェルコマンドとして実行する </label>
+        <label><input type="radio" name="commandType" value="file" <%= check2 %>> ファイルとして実行する</label>
+      </div>
+      <div style="margin-top:12px;">
+        <button id="execButton" type="button" onclick="javascript:submitForm()">実行する</button>&nbsp;
+        <button id="clearButton" type="button" onclick="javascript:clearForm()">クリア</button>
+      </div>
+    </form>
+    <div id="resultWrap">
+      <h3>実行結果</h3>
+      <pre><%= result %></pre>
+    </div>
+    <br>
+    <div id="historyWrap">
+      <h3>実行履歴</h3>
+      <ul id="history">
+    
+      </ul>
+    </div>
+  </article>
+</body>
+</html>
