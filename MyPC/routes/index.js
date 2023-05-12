@@ -591,7 +591,7 @@ function strip_quotes(items) {
     let line = itemlines[i];
     if (line.startsWith('"') && line.endsWith('"')) {
       bexistsquote = true;
-      itemlines[i] = line.slice(1, line.length - 2);
+      itemlines[i] = line.slice(1, line.length - 1);
     }  
   }
   if (bexistsquote) {
