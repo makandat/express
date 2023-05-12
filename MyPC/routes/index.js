@@ -530,6 +530,7 @@ router.post('/addModifyPlaylist', (req, res) => {
 
   if (req.body.submit) {
     if (id) {
+      items = strip_quotes(items);
       let sql = `UPDATE Playlists SET title='${title}', items='${items}', info='${info}', BINDATA=${bindata} WHERE id = ${id}`;
       mysql.execute(sql, (err) => {
         if (err) {
@@ -541,6 +542,7 @@ router.post('/addModifyPlaylist', (req, res) => {
       });
     }
     else {
+      items = strip_quotes(items);
       let sql = `INSERT INTO Playlists(title, items, info, date, BINDATA) VALUES('${title}', '${items}', '${info}', CURRENT_DATE(), ${bindata})`;
       mysql.execute(sql, (err) => {
         if (err) {
@@ -580,6 +582,23 @@ router.post('/addModifyPlaylist', (req, res) => {
     }
   }
 });
+
+      // "..." があったら引用符を取り除く。
+function strip_quotes(items) {
+  let itemlines = items.split("\n");
+  let bexistsquote =false;
+  for (let i = 0; i < itemlines.length; i++) {
+    let line = itemlines[i];
+    if (line.startsWith('"') && line.endsWith('"')) {
+      bexistsquote = true;
+      itemlines[i] = line.slice(1, line.length - 2);
+    }  
+  }
+  if (bexistsquote) {
+    items = itemlines.join("\n");
+  }
+  return items;
+}
 
 // BINDATA サムネールを取り出す。
 router.get("/extract/:id", async (req, res) => {
