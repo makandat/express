@@ -9,15 +9,17 @@
         <script>
             $(() => {
                 $("#submitButton").click(() => {
-                    if (!$("#title").val()) {
+                    let title = $("#title").val().trim();
+                    if (title == "") {
                         alert("タイトルが空欄です。");
                         return;
                     }
-                    if ($('#title').val().includes("\\")) {
+                    if (title.includes("\\")) {
                         alert("タイトルに'\\'が含まれていますが、許可されません。");
                         return;
                     }
-                    let path = $("#path").val();
+                    $("#title").val(title);
+                    let path = $("#path").val().trim();
                     let endp = path.length - 1;
                     if (!path) {
                         alert("パスが空欄です。");
@@ -80,7 +82,7 @@
             <h1><a href="/"><img src="/img/home_orange.png" /></a>&nbsp;画像フォルダの追加・修正</h1>
             <hr />
         </header>
-        <article>
+        <article style="margin-left:10%;">
             <br />
             <form id="form1" name="form1" method="POST" action="/pictures/picturesForm" style="margin-left:4%;">
                 <div class="form_row">

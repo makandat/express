@@ -9,14 +9,16 @@
         <script>
             $(() => {
                 $("#submitButton").click(() => {
-                    if (!$("#title").val()) {
+                    let title = $("#title").val().trim();
+                    if (title == "") {
                         alert("タイトルが空欄です。");
                         return;
                     }
-                    if ($('#title').val().includes("\\")) {
+                    if (title.includes("\\")) {
                         alert("タイトルに'\\'が含まれていますが、許可されません。");
                         return;
                     }
+                    $("#title").val(title);
                     let path = $("#path").val();
                     const endp = path.length - 1;
                     if (endp < 0) {
@@ -81,7 +83,7 @@
             <p class="comment">id を空欄にしたときは「追加」となります。データ確認を行う場合は必ず id を設定します。</p>
             <hr />
         </header>
-        <article>
+        <article style="margin-left:10%;">
             <br />
             <form id="form1" name="form1" method="POST" action="/videos/videosForm" style="margin-left:4%;">
                 <div class="form_row">

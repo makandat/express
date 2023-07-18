@@ -13,7 +13,7 @@
                 });
 
                 $("#findButton").click(() => {
-                    let val = $("#find").val();
+                    let val = $("#find").val().trim();
                     if (val) {
                         location.href = "/videos/showContent?search=" + val;
                     }
@@ -84,7 +84,7 @@
                 <a href="#Albums">アルバム一覧</a>
             </div>
         </header>
-        <article>
+        <article style="margin-left:2.5%;">
             <h4>
                 <% if (albumName) { %>
                     アルバム: <%= albumName %>

@@ -13,7 +13,7 @@
                     location.href = "/pictures/showContent?orderby=" + $("#orderby").val();
                 });
                 $("#findButton").click(() => {
-                    let val = $("#find").val();
+                    let val = $("#find").val().trim();
                     if (val) {
                         location.href = "/pictures/showContent?search=" + val;
                     }
