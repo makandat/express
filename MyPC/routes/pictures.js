@@ -34,7 +34,6 @@ router.get('/showContent', async (req, res) => {
     if (!session.pictures_offset) {
         session.pictures_offset = 0;
     }
-
     let message = "";
     if (req.query.search) {
         message = "検索ワード： " + req.query.search;
@@ -218,12 +217,13 @@ async function getNavIndex(dir, path) {
 }
 
 // 「好き」の付いた画像フォルダ一覧
-function showFavlist(res) {
+async function showFavlist(res) {
     let sql = SELECT + " WHERE fav > 0 ORDER BY fav DESC";
     let result = [];
+    const albumList = await mysql.query_p("SELECT id, name FROM Album WHERE mark='picture' ORDER BY id");
     mysql.query(sql, (row) => {
         if (row == null) {
-            res.render('picturelist', {"title":"好きな画像フォルダ一覧", "albumName":"N/A", "result": result, "message": "", "marks":[], "mark":"", "dirasc":"", "dirdesc":"", "search":""});
+            res.render('picturelist', {"title":"好きな画像フォルダ一覧", "albumList":albumList, "albumName":"N/A", "result": result, "message": "", "marks":[], "mark":"", "dirasc":"", "dirdesc":"", "search":""});
             return;
         }
         else {
