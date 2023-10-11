@@ -110,6 +110,10 @@ router.get('/showContent', async (req, res) => {
 // サムネール形式で画像一覧を表示する。
 router.get("/showthumb", async (req, res) => {
     let path = req.query.path;
+    if (!fso.exists(path)) {
+        res.render("showInfo", {message:"エラー： パスが存在しません。", title:"エラー", icon:"cancel.png"});
+        return;
+    }
     let sortdir = req.query.sortdir ? req.query.sortdir : "asc";
     session.navdir = sortdir;
     let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${path}'`);
