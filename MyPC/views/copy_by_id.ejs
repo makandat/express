@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>id を指定してフォルダ・ファイルのコピー</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <style>
+        </style>
+        <script>
+            window.onload = () => {
+                const select_table = document.getElementById("tablename");
+                const tablename = "<%= table %>";
+                if (tablename == "")
+                    return;
+                let i = 0;
+                if (tablename == "Videos")
+                  i = 1;
+                else if (tablename == "Music")
+                  i = 2;
+                else
+                  i = 0;
+                  select_table.selectedIndex(i);
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>id を指定してフォルダ・ファイルのコピー</h1>
+            <div class="menu">
+                <a href="/"><img src="/img/home.png" /> HOME</a>&nbsp;|&nbsp;<a href="/extra">その他</a>
+            </div>
+        </header>
+        <article>
+            <br>
+            <form method="POST" action="/extra/copy_by_id">
+                <div class="form_row">id<br><input type="number" name="id" /></div>
+                <div class="form_row">コピー先のフォルダ<br><input type="text" name="folder" size="120" value="<%= folder %>" /></div>
+                <div class="form_row">対象のテーブル<br>
+                   <select name="table" id="tablename">
+                      <option>Pictures</option>
+                      <option>Videos</option>
+                      <option>Music</option>
+                   </select>
+                </div>
+                <div style="margin-top:15px;margin-left:10px;"><input type="submit" value="　実行する　" /></div>
+            </form>
+            <br>
+            <p class="message"><%= message %></p>
+        </article>
+        <footer>
+            <p>&nbsp;</p>
+            <p class="footer_text"><a href="#top">TOP</a></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </footer>
+    </body>
+</html>

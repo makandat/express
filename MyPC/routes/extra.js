@@ -1,8 +1,9 @@
 /* extra.js */
 'use strict';
+const fs = require("fs-extra")
 const express = require('express');
 const session = require('express-session');
-const fs = require('fs');
+const path = require('path');
 const fso = require('./FileSystem.js');
 const readline = require('readline');
 const multer = require('multer');
@@ -1481,6 +1482,34 @@ router.post("/mediasForm", async (req, res) => {
         const UPDATE = `UPDATE Medias SET name='${req.body.name}', type='${req.body.type}', format='${req.body.format}', size='${req.body.size}', fixed_on='${req.body.fixed_on}', info='${req.body.info}' WHERE id=${req.body.id}`;
         await mysql.execute_p(UPDATE);
         res.render("mediasForm", {value:data, message:`データを更新しました。(id:${req.body.id})`});
+    }
+});
+
+// id を指定してフォルダ・ファイルのコピー v1.7.0
+router.get("/copy_by_id", async (req, res) => {
+    res.render("copy_by_id", {id:"", folder:"", message:"", table:""});
+});
+
+router.post("/copy_by_id", async (req, res) => {
+    let data = {id:req.body.id, folder:req.body.folder, table:req.body.table};
+    if (fs.existsSync(data.folder)) {
+        const pathname = await mysql.getValue_p(`SELECT path FROM ${data.table} WHERE id=${data.id}`);
+        const stats = fs.statSync(pathname);
+        if (stats.isFile()) {
+            const filename = path.basename(pathname);
+            fs.copyFileSync(pathname, data.folder + "/" + filename);
+            res.render("copy_by_id", {id:data.id, folder:data.folder, table:data.table, message:`OK table=${data.table}, id=${data.id}`});
+        }
+        else if (stats.isDirectory()) {
+            fs.copySync(pathname, data.folder);
+            res.render("copy_by_id", {id:data.id, folder:data.folder, table:data.table, message:`OK table=${data.table}, id=${data.id}`});
+        }
+        else {
+            res.render("copy_by_id", {id:data.id, folder:data.folder, table:"", message:`NG: コピー元が存在しません。${pathname}`});
+        }
+    }
+    else {
+        res.render("copy_by_id", {id:data.id, folder:data.folder, table:"", message:`NG: コピー先が存在しません。${data.folder}`});
     }
 });
 
