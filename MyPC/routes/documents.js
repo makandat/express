@@ -198,6 +198,9 @@ router.get("/showContent", async (req, res) => {
             if (row.mark) {
                 marks.push(row.mark);
             }
+            else {
+                res.render("documentlist", {title:'No data', message:message, result:[], marks:[], sortasc:'', sortdesc:'', albumList:[]});
+            }
         }
         else {
             let sortasc = "";
