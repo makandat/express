@@ -40,7 +40,7 @@ router.get("/documentForm", async (req, res) => {
     }
     let message = "";
     if (req.query.id) {
-        const result = await mysql.query_p("SELECT * FROM Documents WHERE id=" + req.query.id);
+        const result = await mysql.getRow_p("SELECT * FROM Documents WHERE id=" + req.query.id);
         value.id = req.query.id;
         value.album = result.album;
         value.title = result.title;
@@ -119,7 +119,7 @@ router.post("/documentForm", async (req, res) => {
     }
     else {
         // 挿入
-        let insert = `INSERT INTO Documents VALUES(NULL, ${album}, '${title}', '${revision}', '${media}', '${path}', '${writer}', '${mark}', '${info}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
+        let insert = `INSERT INTO Documents VALUES(NULL, ${album}, '${title}', '${revision}', '${path}', '${writer}', '${media}', '${mark}', '${info}', '${backup}', '${release}', ${bindata}, CURRENT_DATE())`;
         mysql.execute(insert, (err) => {
             if (err) {
                 message = err.message;
@@ -142,6 +142,7 @@ router.get("/confirmDocument", async (req, res) => {
         revision:"0",
         path:"",
         writer:"",
+        media:"",
         mark:"",
         info:"",
         backup:"",
