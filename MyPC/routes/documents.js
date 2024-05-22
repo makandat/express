@@ -199,7 +199,7 @@ router.get("/showContent", async (req, res) => {
                 marks.push(row.mark);
             }
             else {
-                res.render("documentlist", {title:'No data', message:message, result:[], marks:[], sortasc:'', sortdesc:'', albumList:[]});
+                marks.push('');
             }
         }
         else {
