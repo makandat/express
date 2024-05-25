@@ -1,4 +1,4 @@
-/* pictures.js */
+/* pictures.js 2024/03/01 */
 'use strict';
 const express = require('express');
 const session = require('express-session');
@@ -7,7 +7,7 @@ const mysql = require('./MySQL.js');
 const fso = require('./FileSystem.js');
 const os = require("os");
 const router = express.Router();
-const LIMIT = 1000;
+const LIMIT = 10000;
 const SELECT = "SELECT `id`, `album`, `title`, `creator`, `path`, `media`, `mark`, `info`, `fav`, `count`, `bindata`, DATE_FORMAT(`date`, '%Y-%m-%d') AS `date` FROM Pictures";
 
 // pictures アルバム一覧表示
@@ -289,7 +289,7 @@ router.get("/showPictures", async (req, res) => {
     }
     // id を得る。
     mysql.getValue(`SELECT id FROM Pictures WHERE path='${path}'`, (id) =>{
-        res.render("showPictures", {title:title, path:path, message:"", result:result});
+        res.render("showPictures", {title:title, path:path, message:files.length + " 個の画像があります。", result:result});
         // 参照回数を増やす。
         countup(id, res);
     });
@@ -337,7 +337,7 @@ router.get('/picturesForm', (req, res) => {
         else {
             // メディア一覧を得る。
             mysql.query("SELECT name FROM Medias", (row) => {
-                if (row) {
+                if (! (row == null || row.name == "Error")) {
                     medias.push(row.name);
                 }
                 else {
@@ -401,6 +401,7 @@ router.post('/picturesForm', async (req, res) => {
     }
     let title = req.body.title.replace("'", "''");
     let path = req.body.path.replace(/\\/g, "/").replace("'", "''").replace("\"", "");
+    path = path.replace(/\/$/, "");
     let creator = req.body.creator.replace("'", "''");
     let media = req.body.media;
     let mark = req.body.mark;
