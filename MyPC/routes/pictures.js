@@ -128,7 +128,8 @@ router.get("/showthumb", async (req, res) => {
     }
     let id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
     countup(id, res);
-    res.render("showthumb", {title:title, message:path, dir:path, files:files, sortdir:sortdir});
+    const message = files.length + "個のファイル (" + path + ")";
+    res.render("showthumb", {title:title, message:message, dir:path, files:files, sortdir:sortdir});
 });
 
 // id で指定したサムネール形式で画像一覧を表示する。
@@ -153,7 +154,8 @@ router.get("/showThumbById/:id", async (req, res) => {
     }
     id = await mysql.getValue_p("SELECT id FROM Pictures WHERE path='" + path + "'");
     countup(id, res);
-    res.render("showthumb", {title:title, message:path, dir:path, files:files, sortdir:sortdir});
+    const message = files.length + "個のファイル (" + path + ")";
+    res.render("showthumb", {title:title, message:message, dir:path, files:files, sortdir:sortdir});
 });
 
 // ナビゲーション形式で画像表示する。
