@@ -5,6 +5,7 @@ const session = require('express-session');
 const mysql = require('./MySQL.js');
 const dto = require('./DateTime.js');
 const fso = require('./FileSystem.js');
+const node_path = require('node:path'); 
 const router = express.Router();
 
 // 書棚一覧表示
@@ -255,6 +256,23 @@ router.get("/showContent", async (req, res) => {
         }
     });
 });
+
+// ソースの表示
+router.get("/showSource", (req, res) => {
+    const filePath = req.query.path;
+    if (filePath == undefined) {
+        res.render('showInfo', {title:"エラー", message:"パラメータ (ソースの指定) が存在しません。", icon:"cancel.png"});
+        return;
+    }
+    if (!fso.isFileSync(filePath)) {
+        res.render('showInfo', {title:"エラー", message:"指定したファイルが存在しません。", icon:"cancel.png"});
+        return;
+    }
+    let content = fso.readFileSync(filePath).toString();
+    //const src = content.replace(/&/g, '&amp;').replace(/</, '&lt;').replace(/>/g, '&gt;').replace(/\\/g, '\\');
+    res.render('showSource', {title:node_path.basename(filePath), path:filePath, content:content});
+});
+
 
 // エクスポート
 module.exports = router;
