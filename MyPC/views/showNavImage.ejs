@@ -7,6 +7,21 @@
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/js/jquery.min.js"></script>
     <script>
+        var timer;
+
+        // window.onload
+        $(() => {
+           const slideview = document.getElementById("slideview");
+           const slide = slideview.value;
+           if (slide == "yes") {
+             setTimeout(() =>{
+                location.href = "/pictures/showNavImage/?nav=<%= next %>&dir=<%= dir %>&slide=yes";
+              }, 
+              2000);
+           }
+        });
+
+        // 画像幅を調節する。
         function adjustWidth() {
            $('img').each(function() {
                let imgwidth = $(this).prop('naturalWidth');
@@ -30,6 +45,21 @@
             }
           }
        );
+
+       // スライド表示開始または停止
+       function slide() {
+        const slideview = document.getElementById("slideview");
+        const slide = slideview.value;
+          if (slide == "yes") {
+            location.href = "/pictures/showNavImage/?nav=0&dir=<%= dir %>&slide=no";
+          } 
+          else {
+            timer = setTimeout(() =>{
+                location.href = "/pictures/showNavImage/?nav=<%= next %>&dir=<%= dir %>&slide=yes";
+              }, 
+              2000);  
+          }
+       }
         
     </script>
 </head>
@@ -43,7 +73,8 @@
         <a href="/pictures/showNavImage/?nav=<%= prev %>&dir=<%= dir%>"><img src="/img/prev.svg" /> 前へ (Shift+左矢印)</a>&nbsp;&nbsp;
         <a href="/pictures/showNavImage/?nav=<%= next %>&dir=<%= dir %>"><img src="/img/next.svg" /> 次へ (Shift+右矢印)</a>&nbsp;
         <a href="/pictures/showNavImage/?nav=<%= last %>&dir=<%= dir %>"><img src="/img/last.svg" /> 最後</a>&nbsp;/&nbsp;
-        <a href="javascript:adjustWidth()">幅の大きい画像の幅をウィンドウに合わせる</a>
+        <a href="javascript:adjustWidth()">幅の大きい画像の幅をウィンドウに合わせる</a></a>&nbsp;/&nbsp;
+        <a href="javascript:slide()">スライド表示</a>
     </div>
     <br />
     <p class="message"><%- message %> <span style="color:darkviolet;font-size:10pt;">(<%= path %>)</span></p>
@@ -52,5 +83,6 @@
     </div>
     <p>&nbsp;</p>
     <p>&nbsp;</p>
+    <input type="hidden" id="slideview" value="<%= slideview %>" />
 </body>
 </html>
