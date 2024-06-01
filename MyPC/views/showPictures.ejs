@@ -90,7 +90,7 @@
         <article style="margin-top:30px;">
             <ul id="pathlist" style="margin-bottom:3px;"></ul>
             <br />
-            <ul style="list-style-type:none;">
+            <ul style="list-style-type:none; text-align:center;">
                 <% let i = 1 %>
                 <% for (let a of result) { %>
                     <li class="img"><img src="/sendfile/?path=<%= a.replace(/#/g, '%23') %>" /><br /><%= i %>&nbsp;<%= a %></li>
