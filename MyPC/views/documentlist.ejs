@@ -85,7 +85,10 @@
                         <td><a href="/documents/showContent?mark=<%= encodeURIComponent(a.mark) %>"><%= a.mark %></a></td>
                         <td><pre><%= a.info %></pre></td>
                         <td><%= a.backup %></td>
+                        <!--
                         <td><%= a.release.getFullYear() + "-" + ("0" + (a.release.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.release.getDate()).substring(0, 2) %></td>
+                        -->
+                        <td><%= a.release.toLocaleDateString('ja-JP') %></td>
                         <td><%= a.bindata %></td>
                         <td><%= a.date.getFullYear() + "-" + ("0" + (a.date.getMonth() + 1)).substring(0, 2) + "-" + ("0" + a.date.getDate()).substring(0, 2) %></td>
                     </tr>
