@@ -107,7 +107,7 @@ router.post("/documentForm", async (req, res) => {
     }
     if (id) {
         // 更新
-        let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', media='${media}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=DATE('${release}'), bindata=${bindata} WHERE id=${id}`;
+        let update = `UPDATE Documents SET album=${album}, title='${title}', revision='${revision}', media='${media}', path='${path}', writer='${writer}', mark='${mark}', info='${info}', backup='${backup}', \`release\`=CURRENT_DATE, bindata=${bindata} WHERE id=${id}`;
         mysql.execute(update, (err) => {
             if (err) {
                 message = err.message;
