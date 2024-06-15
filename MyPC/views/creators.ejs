@@ -31,22 +31,22 @@
                 }
                 switch (p) {
                     case 'fav':
-                        if (link == link0)
+                        if (location.search == "")
                             link += "?orderby=fav";
                         else
-                            link += "&orderby=fav"
+                            link = location.href + "&orderby=fav"
                         break;
                     case 'count':
-                        if (link == link0)
+                        if (location.search == "")
                             link += "?orderby=count";
                         else
-                            link += "&orderby=count"
+                            link = location.href + "&orderby=count"
                         break;
                     case 'ref':
-                        if (link == link0)
+                        if (location.search == "")
                             link += "?orderby=ref";
                         else
-                            link += "&orderby=ref"
+                            link = loction.href = "&orderby=ref"
                         break;
                     default: // name
                         break;
