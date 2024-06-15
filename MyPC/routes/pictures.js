@@ -492,7 +492,21 @@ router.get("/creators", (req, res) => {
             sql += ` WHERE mark='${mark}'`;
         }
     }
-    sql += " GROUP BY creator ORDER BY creator";
+    const orderby = req.query.orderby;
+    switch (orderby) {
+        case "fav":
+            sql += " GROUP BY creator ORDER BY sumfav DESC"
+            break;
+        case "count":
+            sql += " GROUP BY creator ORDER BY creatorcount DESC"
+            break;
+        case "ref":
+            sql += " GROUP BY creator ORDER BY sumref DESC"
+            break;
+        default:
+            sql += " GROUP BY creator ORDER BY creator";
+            break;
+    }
     mysql.query(sql, (row) => {
         if (row) {
             result.push(row);
