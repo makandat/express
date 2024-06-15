@@ -33,20 +33,35 @@
                     case 'fav':
                         if (location.search == "")
                             link += "?orderby=fav";
-                        else
-                            link = location.href + "&orderby=fav"
+                        else {
+                            const p1 = location.href.indexOf("orderby=")
+                            if (p1 > 0)
+                                link = location.href.substring(0, p1) + "&orderby=fav"
+                            else
+                                link = location.href + "&orderby=fav"
+                        }
                         break;
                     case 'count':
                         if (location.search == "")
                             link += "?orderby=count";
-                        else
-                            link = location.href + "&orderby=count"
+                        else {
+                            const p2 = location.href.indexOf("orderby=")
+                            if (p2 > 0)
+                                link = location.href.substring(0, p2) + "&orderby=count"
+                            else
+                                link = location.href + "&orderby=count"
+                        }
                         break;
                     case 'ref':
                         if (location.search == "")
                             link += "?orderby=ref";
-                        else
-                            link = loction.href + "&orderby=ref"
+                        else {
+                            const p3 = location.href.indexOf("orderby=")
+                            if (p3 > 0)
+                                link = location.href.substring(0, p3) + "&orderby=ref"
+                            else
+                                link = location.href + "&orderby=ref"
+                        }
                         break;
                     default: // name
                         break;
