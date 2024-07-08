@@ -169,7 +169,11 @@ router.get("/showNavImage", async (req, res) => {
     let navdir = req.query.dir;    // 画像ファイルのディレクトリ (2回目以降使用)
     let nav = req.query.nav;    // 画像の位置 (2回目以降使用)
     let slideview = req.query.slide == undefined ? "no" : req.query.slide; // スライドモード
-    
+    let path1 = path;
+    if (process.platform === "win32" && path != undefined) {
+        path1 = path.replace("/", "\\");
+    }
+
     let message = "";
     if (nav == undefined) {
         // 位置の指定がない時 (初回)
@@ -180,11 +184,11 @@ router.get("/showNavImage", async (req, res) => {
         last = navfiles - 1;
         let title = await mysql.getValue_p(`SELECT title FROM Pictures WHERE path='${navdir}'`);
         if (title == undefined) {
-            res.render("showNavImage", {title:"Error", path:path, dir:navdir, message:"ディレクトリが DB に登録されていません。", prev:prev, next:next, last:last, slideview:"no"});
+            res.render("showNavImage", {title:"Error", path:path1, dir:navdir, message:"ディレクトリが DB に登録されていません。", prev:prev, next:next, last:last, slideview:"no"});
         }
         else {
             title = title + ' (' + (navidx + 1).toString() + " / " + navfiles + ")";
-            res.render("showNavImage", {title:title, path:path, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last, slideview:"no"});
+            res.render("showNavImage", {title:title, path:path1, dir:navdir, message:(navidx+1) + " / " + navfiles, prev:prev, next:next, last:last, slideview:"no"});
         }
     }
     else {
