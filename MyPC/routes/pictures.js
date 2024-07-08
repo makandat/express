@@ -280,12 +280,14 @@ router.get("/showPictures", async (req, res) => {
     let result = [];
     if (sortdir == "asc") {
         for (let i = 0; i < files.length; i++) {
-            result.push(files[i].replace(/\\/g, '/'));
+            result.push(files[i]);
+            // result.push(files[i].replace(/\\/g, '/'));
         }
     }
     else if (sortdir == "desc") {
         for (let i = files.length - 1; i >= 0; i--) {
-            result.push(files[i].replace(/\\/g, '/'));
+            result.push(files[i]);
+            // result.push(files[i].replace(/\\/g, '/'));
         }
     }
     else {
