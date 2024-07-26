@@ -270,6 +270,7 @@ router.get("/playPrev", async (req, res) => {
                 row = await mysql.getRow_p(`SELECT id, title FROM Videos WHERE path='${source}'`);
                 if (row) {
                     title = `(${row.id}) ` + row.title;
+                    countup(row.id, null);
                 }
                 else {
                     title = "未登録動画";
@@ -309,6 +310,7 @@ router.get("/playNext", async (req, res) => {
                 row = await mysql.getRow_p(`SELECT id, title FROM Videos WHERE path='${source}'`);
                 if (row) {
                     title = `(${row.id}) ` + row.title;
+                    countup(row.id, null);
                 }
                 else {
                     title = "未登録動画";
@@ -447,7 +449,7 @@ router.post('/videosForm', async (req, res) => {
     };
     // ファイルが存在するか確認する。
     if (!fso.isFileSync(req.body.path)) {
-        res.render('showInfo', {title:"エラー", message:path + " が存在しません。", icon:"cancel.png"});
+        res.render('showInfo', {title:"エラー", message:path + " が存在しません。または、ファイルではありません。", icon:"cancel.png"});
         return;
     }
     // BINDATA id を確認する。
