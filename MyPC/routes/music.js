@@ -81,7 +81,7 @@ router.get('/showContent', async (req, res) => {
         }
         res.render('musiclist', {"title":title, "albumName":albumName, "result": result, "marks":marks, "albumList":albumList,
             "message": result.length == 0 ? "条件に合う結果がありません。" : "",
-            dirasc:dirasc, dirdesc:dirdesc, search:req.query.search ? req.query.search : ""});    
+            dirasc:dirasc, dirdesc:dirdesc, search:req.query.search != undefined ? req.query.search : ""});    
     }
     catch (err) {
         res.render("showInfo", {"title":"Fatal Error", "icon":"cancel.png", "message":"エラー：" + err.message});
@@ -242,7 +242,7 @@ router.post('/musicForm', async (req, res) => {
     }
     else {
         // 追加
-        let insert = `INSERT INTO Music(id, album, title, path, artist, media, mark, info, fav, count, bindata, date, sn) VALUES(NULL, ${album}, '${title}', '${path}', '${artist}', '${media}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE(), 0)`;
+        let insert = `INSERT INTO Music(id, album, title, path, artist, media, mark, info, fav, count, bindata, date) VALUES(NULL, ${album}, '${title}', '${path}', '${artist}', '${media}', '${mark}', '${info}', ${fav}, 0, ${bindata}, CURRENT_DATE())`;
         mysql.execute(insert, (err) => {
             if (err) {
                 res.render('formMusic', {message:err.message, value:value, marks:marks, medias:medias});
